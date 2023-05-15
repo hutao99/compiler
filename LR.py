@@ -66,6 +66,10 @@ class CLRParser:
         self.parsing_table1 = None
         # 规约式_中间代码
         self.reduction1 = None
+        # 函数参数
+        self.function_param_list = dict()
+        # 函数局部变量
+        self.function_jubu_list = dict()
 
     def input(self, data):
         p = FirstAndFollow()
@@ -827,6 +831,11 @@ class CLRParser:
         #
         flag_if = True
         over = 0
+        # 栈关于函数参数
+        para = []
+        # 是否在函数内部
+        fun_flag = False
+        fun_name = None
         while index < len(sign_list):
             name = sign_list[index]
             # print(token[index])
@@ -863,7 +872,7 @@ class CLRParser:
                             father.value = '-'+father.children[0].value
                         else:
                             #print(father.children)
-                            father.value = '$'+str(count)
+                            father.value = 'T'+str(count)  # 修改2
                             self.code.append([father.children[1].name, father.children[2].value, father.children[0].value, father.value])
                             index_code += 1
                             count += 1
@@ -917,7 +926,7 @@ class CLRParser:
                         elif len(father.children) == 3:
                             father.value = father.children[1].value
                         else:
-                            father.value = '$'+str(count)
+                            father.value = 'T'+str(count)  # 修改1
                             self.code.append(['!', father.children[0].value, '', father.value])
                             index_code += 1
                             count += 1
@@ -946,6 +955,7 @@ class CLRParser:
                             self.code.append(['j', '', '', exit_code])  # 跳到真出口
                             index_code += 2
                             exit_code = index_code - 1
+
                     elif father.name == '布尔项and':
                         if father.children[1].value is not None:
                             self.code.append(['jnz', father.children[1].value, '', index_code + 2])
@@ -971,6 +981,13 @@ class CLRParser:
                             index_code += 1
                         #else:
                     elif father.name == '变量声明':
+                        if fun_flag:
+                            if fun_name not in self.function_jubu_list:
+                                self.function_jubu_list[fun_name] = []
+                            if len(father.children) >= 3 and father.children[-3].name == 'identifier':
+                                self.function_jubu_list[fun_name].append(father.children[-3].symbol_info[1])
+                            elif father.children[-2].name == 'identifier':
+                                self.function_jubu_list[fun_name].append(father.children[-2].symbol_info[1])
                         if len(father.children) == 4 or len(father.children) == 5:
                             if exit_code != -2:  # 有布尔表达式
                                 m = index_code - 1
@@ -1148,7 +1165,6 @@ class CLRParser:
                     elif father.name == 'while(1)' or father.name == 'do(1)':
                         loop_count += 1
                         stack_for.append([index_code, []])
-
                     elif father.name == 'while(2)':
                         #print(sign_list[index])
                         '''if father.children[1].value is not None:
@@ -1258,10 +1274,25 @@ class CLRParser:
                            self.code.append(['call', father.children[-1].symbol_info[1], '', ''])
                         index_code += 1
                     elif father.name == '函数(2)':
+                        fun_name = father.children[0].symbol_info[1]
                         self.code.append([father.children[0].symbol_info[1], '', '', ''])
                         index_code += 1
+                    elif father.name == '函数(1)':
+                        print(para)
+                        self.function_param_list[fun_name] = para.copy()
+                        para.clear()
+                        fun_flag = True
+                    elif father.name == '函数定义':
+                        fun_flag = False
                     elif father.name == '函数定义参数':
-                        self.code.append(['pop', father.children[-2].symbol_info[1], '', ''])
+                        # self.code.append(['pop', father.children[-2].symbol_info[1], '', ''])
+                        para.append(father.children[-2].symbol_info[1])
+                        # index_code += 1
+                    elif father.name == '主函数':
+                        self.code.append(['main', '', '', ''])
+                        index_code += 1
+                    elif father.name == '程序(1)' or father.name == '程序(2)':
+                        self.code.append(['sys', '', '', ''])
                         index_code += 1
                     # elif father
                     #elif
@@ -1285,4 +1316,3 @@ class CLRParser:
                 stack_symbol.append(name)
                 stack_state.append(int(status))
             print(stack_symbol)
-

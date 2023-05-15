@@ -2,7 +2,7 @@ import sys
 import os
 
 import chardet
-
+import ObjectCode1
 import LR
 from PyQt5.QtGui import QIcon, QPainter, QFont, QTextCursor, QPalette, QBrush, QPixmap, QTextOption, QFontMetrics
 from PyQt5.QtWidgets import *
@@ -119,7 +119,7 @@ class MainWindow(QMainWindow):
 
     def paintEvent(self, *args, **kwargs):
         painter = QPainter(self)
-        # pixmap = QPixmap("./image/6.jpg")  # 背景图
+        # pixmap = QPixmap("")  # 背景图
         # painter.drawPixmap(self.rect(), pixmap)
 
     def init_ui(self):
@@ -476,14 +476,16 @@ class MainWindow(QMainWindow):
 
     def getTargetCode(self):
         MiddleCode = self.LR.code
-        var = self.LR.VariableTable
-        con = self.LR.ConstantTable
-        fun = self.LR.FunctionTable
-        p = TargetCode()
-        tcode = p.GetTargetCode(MiddleCode, var, con, fun)
+        function_param_list = self.LR.function_param_list
+        function_jubu_list = self.LR.function_jubu_list
+        for i in range(len(MiddleCode)):
+            for j in range(4):
+                if MiddleCode[i][j] == '':
+                    MiddleCode[i][j] = '_'
         self.display1.clear()
         self.display2.clear()
-        self.display1.append(tcode)
+        if len(MiddleCode) != 0:
+            self.display1.append(ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode))
 
 
 if __name__ == "__main__":
