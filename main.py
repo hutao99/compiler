@@ -119,7 +119,7 @@ class MainWindow(QMainWindow):
 
     def paintEvent(self, *args, **kwargs):
         painter = QPainter(self)
-        # pixmap = QPixmap("./image/6.jpg")  # 背景图
+        # pixmap = QPixmap("")  # 背景图
         # painter.drawPixmap(self.rect(), pixmap)
 
     def init_ui(self):
