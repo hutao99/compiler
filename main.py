@@ -350,7 +350,7 @@ class MainWindow(QMainWindow):
         self.display1.clear()
         self.display2.clear()
         lex = AnalyzerLex()
-        data = self.edit.toPlainText()[1:]
+        data = self.edit.toPlainText()
         lex.input(data+'\n')
         while True:
             tok = lex.token()
@@ -426,6 +426,12 @@ class MainWindow(QMainWindow):
         for i in self.LR.VariableTable:
             self.display1.append(i+": ")
             for j in self.LR.VariableTable[i]:
+                self.display1.append(str(vars(j)))
+
+        self.display1.append('数组表:')
+        for i in self.LR.ArrayTable:
+            self.display1.append(i + ": ")
+            for j in self.LR.ArrayTable[i]:
                 self.display1.append(str(vars(j)))
 
         self.display1.append('函数表:')

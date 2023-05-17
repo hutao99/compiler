@@ -1,6 +1,15 @@
 from collection import FirstAndFollow
 import difflib
 from anytree import Node as AnyTreeNode, RenderTree
+from graphviz import Digraph
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 class Node(AnyTreeNode):
@@ -33,6 +42,14 @@ class ConstantInfo:
         self.value = None
 
 
+class ArrayInfo:
+    def __init__(self):
+        self.type = None
+        self.scope = None
+        self.row = 0
+        self.col = 0
+
+
 class CLRParser:
     def __init__(self):
         self.first = None
@@ -54,6 +71,8 @@ class CLRParser:
         self.FunctionTable = dict()
         # 常数表
         self.ConstantTable = dict()
+        # 数组表
+        self.ArrayTable = dict()
         # 语法错误
         self.errors = []
         # 警告
@@ -71,6 +90,10 @@ class CLRParser:
         # 函数局部变量
         self.function_jubu_list = dict()
 
+        self.prod_state = None
+        self.status_include_num = None
+        self.direction = None
+
     def input(self, data):
         p = FirstAndFollow()
         p.input(data)
@@ -86,6 +109,10 @@ class CLRParser:
                     return True
         if name in self.ConstantTable:
             for i in self.ConstantTable[name]:
+                if i.scope == scope:
+                    return True
+        if name in self.ArrayTable:
+            for i in self.ArrayTable[name]:
                 if i.scope == scope:
                     return True
         return False
@@ -108,6 +135,10 @@ class CLRParser:
             for i in self.ConstantTable[name]:
                 if scope.startswith(i.scope):
                     return True
+        if name in self.ArrayTable:
+            for i in self.ArrayTable[name]:
+                if scope.startswith(i.scope):
+                    return True
         return False
 
     def Action_and_GoTo_Table(self):
@@ -125,7 +156,8 @@ class CLRParser:
         stack = [[self.begin, ['.', self.begin], ['#']]]
         # 加入开始产生式
         state_family.append([self.begin+"'", ['.', self.begin], ['#']])
-        prod_state[self.begin+"".join(['.', self.begin])+'#'] = label
+        prod_state[self.begin+"'"+'→'+"".join(['.', self.begin])+' '+'#'] = label
+        id0.append(label)
         label += 1
         # 用于规约式编号的字典
         reduction = dict()
@@ -166,7 +198,7 @@ class CLRParser:
                 if word == ['ε']:
                     word = []
                 word.insert(0, '.')
-                st = h[0]+''.join(word)+''.join(lookahead_symbol)
+                st = h[0]+'→'+''.join(word)+' '+''.join(lookahead_symbol)
                 if st not in prod_state:
                     prod_state[st] = label
                     label += 1
@@ -228,7 +260,7 @@ class CLRParser:
                     # 加入向前搜索符
                     itemset.append(status[j][2])
                     new_status.append(itemset)
-                    st = status[j][0]+''.join(u)+''.join(status[j][2])
+                    st = status[j][0]+'→'+''.join(u)+' '+''.join(status[j][2])
                     if st not in prod_state:
                         prod_state[st] = label
                         label += 1
@@ -269,7 +301,7 @@ class CLRParser:
                             if word == ['ε']:
                                 word = []
                             word.insert(0, '.')
-                            st = h[0] + ''.join(word) + ''.join(lookahead_symbol)
+                            st = h[0] + '→' + ''.join(word) + ' ' + ''.join(lookahead_symbol)
                             if st not in prod_state:
                                 prod_state[st] = label
                                 label += 1
@@ -304,9 +336,24 @@ class CLRParser:
             self.parsing_table[i[0]][i[1]] = 'r'+str(i[2])
             if i[2] == reduction[self.begin+"'"+":"+self.Formula[self.begin+"'"]]:
                 self.parsing_table[i[0]][i[1]] = 'acc'
-
         for i in reduction.keys():
             self.reduction.append(i)
+
+        self.prod_state = prod_state
+        self.status_include_num = status_include_num
+        self.direction = direction
+
+    def draw_graphic(self):
+        prod_state_exchange = {v: k for k, v in self.prod_state.items()}
+        dot = Digraph(comment='LR_Digraph')
+        for i in range(len(self.status_include_num)):
+            lab = ''
+            for j in self.status_include_num[i]:
+                lab += prod_state_exchange[j] + '\n'
+            dot.node(str(i), lab)
+        for i in self.direction:
+            dot.edge(str(i[0]), str(i[2]), i[1])
+        dot.render('LR_Digraph', view=True, format='png', directory='LR_Digraph')
 
     def ControlProgram(self, token):
         self.errors.clear()
@@ -315,6 +362,7 @@ class CLRParser:
         self.VariableTable.clear()
         self.FunctionTable.clear()
         self.warning.clear()
+        self.ArrayTable.clear()
         # read函数
         previse_fun = FunctionInfo()
         previse_fun.type = 'int'
@@ -483,6 +531,9 @@ class CLRParser:
                         val = VariableInfo()
                         val.type = father.type
                         val.scope = scope[-1][0]
+                        arr = ArrayInfo()
+                        arr.type = father.type
+                        arr.scope = scope[-1][0]
 
                         if father.children[0].name == 'identifier':
                             # print(father.children[0].symbol_info[1])
@@ -534,6 +585,50 @@ class CLRParser:
                                     self.var_num[father.children[2].symbol_info[1]][scope[-1][0]] = [0,
                                                                                                      father.children[
                                                                                                          2].symbol_info]
+                        elif father.children[0].name == '数组':
+                            if len(father.children[0].children) == 4:
+                                arr.row = father.children[0].children[1].value
+                            else:
+                                arr.row = father.children[0].children[4].value
+                                arr.col = father.children[0].children[1].value
+                            if father.children[0].children[-1].symbol_info[1] in self.FunctionTable:
+                                self.errors.append(
+                                    [father.children[0].children[-1].symbol_info[2], father.children[0].children[-1].symbol_info[3],
+                                     "'%s'变量名和函数重复" % father.children[0].children[-1].symbol_info[1]])
+                            elif father.children[0].children[-1].symbol_info[1] not in self.ArrayTable:
+                                self.ArrayTable[father.children[0].children[-1].symbol_info[1]] = []
+                                self.ArrayTable[father.children[0].children[-1].symbol_info[1]].append(arr)
+
+                            else:
+                                # 判断是否有作用域相同的标识符
+                                if self.CheckScope(father.children[0].children[-1].symbol_info[1], scope[-1][0]):
+                                    self.errors.append(
+                                        [father.children[0].children[-1].symbol_info[2], father.children[0].children[-1].symbol_info[3],
+                                         "'%s'变量名字已声明" % father.children[0].children[-1].symbol_info[1]])
+                                else:
+                                    self.ArrayTable[father.children[0].children[-1].symbol_info[1]].append(arr)
+                        elif father.children[0].name == '变量初值':
+                            if len(father.children[2].children) == 4:
+                                arr.row = father.children[2].children[1].value
+                            else:
+                                arr.row = father.children[2].children[4].value
+                                arr.col = father.children[2].children[1].value
+                            if father.children[2].children[-1].symbol_info[1] in self.FunctionTable:
+                                self.errors.append(
+                                    [father.children[2].children[-1].symbol_info[2], father.children[2].children[-1].symbol_info[3],
+                                     "'%s'变量名和函数重复" % father.children[2].children[-1].symbol_info[1]])
+                            elif father.children[2].children[-1].symbol_info[1] not in self.ArrayTable:
+                                self.ArrayTable[father.children[2].children[-1].symbol_info[1]] = []
+                                self.ArrayTable[father.children[2].children[-1].symbol_info[1]].append(arr)
+
+                            else:
+                                # 判断是否有作用域相同的标识符
+                                if self.CheckScope(father.children[2].children[-1].symbol_info[1], scope[-1][0]):
+                                    self.errors.append(
+                                        [father.children[2].children[-1].symbol_info[2], father.children[2].children[-1].symbol_info[3],
+                                         "'%s'变量名字已声明" % father.children[2].children[-1].symbol_info[1]])
+                                else:
+                                    self.ArrayTable[father.children[2].children[-1].symbol_info[1]].append(arr)
 
                     elif father.name == '函数声明参数':
                         if len(father.leaves) == 1:
@@ -558,6 +653,10 @@ class CLRParser:
                             self.errors.append(
                                 [father.children[-2].symbol_info[2], father.children[-2].symbol_info[3],
                                  "'%s'函数名字已声明" % father.children[-2].symbol_info[1]])
+                        elif father.children[-2].symbol_info[1] in self.ArrayTable:
+                            self.errors.append(
+                                [father.children[-2].symbol_info[2], father.children[-2].symbol_info[3],
+                                 "'%s'函数名字和数组重名" % father.children[-2].symbol_info[1]])
                         else:
                             fun = FunctionInfo()
                             if father.children[-1].name != 'void':
@@ -573,6 +672,10 @@ class CLRParser:
                             father.type = 'int'
                         elif father.children[0].name == 'float':
                             father.type = 'float'
+                        father.value = father.children[0].symbol_info[1]
+                    elif father.name == '加减表达式':
+                        if len(father.children) == 1:
+                            father.value = father.children[0].value
                     elif father.name == '字符型常量':
                         father.value = ord(father.children[0].symbol_info[1])
                         # 把字符型转为int类型
@@ -612,10 +715,14 @@ class CLRParser:
                                 father.type = 'int'
                     elif father.name == '变量':
                         #print('2222')
-                        if not self.IsDeclare(father.children[0].symbol_info[1], scope[-1][0]):
+                        if len(father.children) == 1 and not self.IsDeclare(father.children[0].symbol_info[1], scope[-1][0]):
                             self.errors.append(
                                 [father.children[0].symbol_info[2], father.children[0].symbol_info[3],
                                  "变量'%s'未声明" % father.children[0].symbol_info[1]])
+                        elif len(father.children) > 1 and not self.IsDeclare(father.children[-1].symbol_info[1], scope[-1][0]):
+                            self.errors.append(
+                                [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
+                                 "变量'%s'未声明" % father.children[-1].symbol_info[1]])
                         else:
                             print(father.children[0].symbol_info[1])
                             print(scope[-1][0])
@@ -730,26 +837,32 @@ class CLRParser:
                                      "'%s'函数参数与声明不一致" % father.children[-2].symbol_info[1]])
 
                     elif father.name == '赋值表达式':
-                        if not self.IsDeclare(father.children[-1].symbol_info[1], scope[-1][0]):
-                            self.errors.append(
-                                [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
-                                 "'%s'变量未声明" % father.children[-1].symbol_info[1]])
-                        elif self.IsConst(father.children[-1].symbol_info[1], scope[-1][0]):
-                            self.errors.append(
-                                [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
-                                 "'%s'为不可变常量" % father.children[-1].symbol_info[1]])
-                        else:
-                            if father.children[-1].symbol_info[1] in self.var_num:
-                                for r in self.var_num[father.children[-1].symbol_info[1]]:
-                                    leng = len(scope[-1][0])
-                                    hh = False
-                                    for w in range(leng):
-                                        if scope[-1][0][0:leng - w] == r:
-                                            self.var_num[father.children[-1].symbol_info[1]][r][0] += 1
-                                            hh = True
+                        if father.children[-1].name == 'identifier':
+                            if not self.IsDeclare(father.children[-1].symbol_info[1], scope[-1][0]):
+                                self.errors.append(
+                                    [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
+                                     "'%s'变量未声明" % father.children[-1].symbol_info[1]])
+                            elif self.IsConst(father.children[-1].symbol_info[1], scope[-1][0]):
+                                self.errors.append(
+                                    [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
+                                     "'%s'为不可变常量" % father.children[-1].symbol_info[1]])
+                            else:
+                                if father.children[-1].symbol_info[1] in self.var_num:
+                                    for r in self.var_num[father.children[-1].symbol_info[1]]:
+                                        leng = len(scope[-1][0])
+                                        hh = False
+                                        for w in range(leng):
+                                            if scope[-1][0][0:leng - w] == r:
+                                                self.var_num[father.children[-1].symbol_info[1]][r][0] += 1
+                                                hh = True
+                                                break
+                                        if hh:
                                             break
-                                    if hh:
-                                        break
+                        else:
+                            if not self.IsDeclare(father.children[-1].children[-1].symbol_info[1], scope[-1][0]):
+                                self.errors.append(
+                                    [father.children[-1].children[-1].symbol_info[2], father.children[-1].children[-1].symbol_info[3],
+                                     "'%s'变量未声明" % father.children[-1].children[-1].symbol_info[1]])
 
                 stack_symbol.append(production[0:idx])
                 stack_node.append(father)
@@ -836,6 +949,10 @@ class CLRParser:
         # 是否在函数内部
         fun_flag = False
         fun_name = None
+        # 布尔真出口
+        bool_true = []
+        # 布尔假出口
+        bool_false = []
         while index < len(sign_list):
             name = sign_list[index]
             # print(token[index])
@@ -857,7 +974,12 @@ class CLRParser:
                         stack_node.pop().parent = father
                     if father.name == '数字常量' or father.name == '变量' or father.name == '关系运算符':
                         #print(father.children[0])
-                        father.value = father.children[0].symbol_info[1]
+                        if len(father.children) == 1:
+                            father.value = father.children[0].symbol_info[1]
+                        elif len(father.children) == 4:
+                            father.value = father.children[-1].symbol_info[1]+'['+father.children[-3].value+']'
+                        else:
+                            father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']'+'['+father.children[-5].value+']'
                     elif father.name == '常量' or father.name == '算术表达式':
                         father.value = father.children[0].value
                     elif father.name == '因子':
@@ -868,8 +990,15 @@ class CLRParser:
                     elif father.name == '项' or father.name == '加减表达式':
                         if len(father.children) == 1:
                             father.value = father.children[0].value
-                        elif len(father.children) == 2:
+                        elif len(father.children) == 2 and is_number(father.children[0].value):
                             father.value = '-'+father.children[0].value
+                        elif len(father.children) == 2:
+                            father.value = 'T' + str(count)  # 修改2
+                            self.code.append(
+                                ['-', father.children[0].value, '',
+                                 father.value])
+                            index_code += 1
+                            count += 1
                         else:
                             #print(father.children)
                             father.value = 'T'+str(count)  # 修改2
@@ -882,42 +1011,31 @@ class CLRParser:
                         #print(father.value)
                         #print(father.children)
                     elif father.name == '赋值表达式':
-                        if exit_code != -2:  # 有布尔表达式
-                            m = index_code - 1
-                            # 回填
-                            while True:
-                                if self.code[m][3] == -2:
-                                    if self.code[m-1][0] == 'jz':
-                                        self.code[m][3] = index_code
-                                    elif self.code[m][0] == 'jnz_true':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = 'jnz'
-                                    elif self.code[m][0][0] == '@':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = self.code[m][0][1:]
-                                    else:
-                                        self.code[m][3] = index_code+2
-                                    break
-                                z = self.code[m][3]
-                                if self.code[m - 1][0] == 'jz':
-                                    self.code[m][3] = index_code
-                                elif self.code[m][0] == 'jnz_true':
-                                    self.code[m][3] = index_code
-                                    self.code[m][0] = 'jnz'
-                                elif self.code[m][0][0] == '@':
-                                    self.code[m][3] = index_code
-                                    self.code[m][0] = self.code[m][0][1:]
-                                else:
-                                    self.code[m][3] = index_code + 2
-                                m = z
-                            self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
-                            self.code.append(['j', '', '', index_code+3])
-                            self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
+                        if len(bool_true) != 0:  # 有布尔表达式
+                            for i in bool_true:
+                                self.code[i][3] = index_code
+                        if len(bool_false) != 0:
+                            for i in bool_false:
+                                self.code[i][3] = index_code + 2
+                            bool_true.clear()
+                            bool_false.clear()
+                            if father.children[-1].name == 'identifier':
+                                self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
+                                self.code.append(['j', '', '', index_code + 3])
+                                self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
+                            else:
+                                self.code.append([father.children[1].name, '1', '', father.children[-1].value])
+                                self.code.append(['j', '', '', index_code + 3])
+                                self.code.append([father.children[1].name, '0', '', father.children[-1].value])
                             index_code += 3
-                            exit_code = -2
                         else:
-                            self.code.append(
-                                [father.children[1].name, father.children[0].value, '', father.children[-1].symbol_info[1]])
+                            if father.children[-1].name == 'identifier':
+                                self.code.append(
+                                    [father.children[1].name, father.children[0].value, '', father.children[-1].symbol_info[1]])
+                            else:
+                                self.code.append(
+                                    [father.children[1].name, father.children[0].value, '',
+                                     father.children[-1].value])
                             index_code += 1
                         father.value = father.children[0].value
                     elif father.name == '布尔因子':
@@ -934,52 +1052,65 @@ class CLRParser:
                         if len(father.children) == 1:
                             father.value = father.children[0].value
                         elif father.name == '布尔项' and father.children[0].value is not None:
-                            if stack_symbol[-1] == '布尔项or' and father.children[-1].name == '布尔项and':
-                                self.code.append(['jnz_true', father.children[0].value, '', exit_code])  # 这里需要回填真出口
-                                index_code += 1
-                            else:
-                                self.code.append(['jnz', father.children[0].value, '', index_code + 2])
-                                self.code.append(['j', '', '', exit_code])
-                                index_code += 2
-                            exit_code = index_code - 1
+                            self.code.append(['jnz', father.children[0].value, '', index_code + 2])
+                            self.code.append(['j', '', '', -1])
+                            bool_false.append(index_code + 1)
+                            if sign_list[index] == 'or':
+                                bool_true.append(index_code)
+                                self.code.pop()
+                                bool_false.pop()
+                                index_code -= 1
+                            index_code += 2
                             # print(exit_code)
                         elif father.name == '布尔表达式' and father.children[0].value is not None:
-                            self.code.append(['jnz', father.children[0].value, '', index_code + 2])  # 标记。。。。。。index_code + 3
-                            self.code.append(['j', '', '', exit_code])  # 跳到真出口
+                            self.code.append(['jz', father.children[0].value, '', index_code + 2])
+                            self.code.append(['j', '', '', 0])  # 跳到真出口
+                            bool_true.append(index_code + 1)
+                            if sign_list[index] != 'or':
+                                bool_false.append(index_code)
+                                self.code.pop()
+                                bool_true.pop()
+                                index_code -= 1
                             index_code += 2
-                            exit_code = index_code - 1
 
                     elif father.name == '布尔项or':
                         if father.children[1].value is not None:
-                            self.code.append(['jz', father.children[1].value, '', index_code+2])
-                            self.code.append(['j', '', '', exit_code])  # 跳到真出口
+                            self.code.append(['jz', father.children[1].value, '', index_code + 2])
+                            self.code.append(['j', '', '', 0])  # 跳到真出口
+                            bool_true.append(index_code + 1)
                             index_code += 2
-                            exit_code = index_code - 1
+                        else:
+                            for i in bool_false:
+                                self.code[i][3] = index_code
+                            bool_false.clear()
 
                     elif father.name == '布尔项and':
                         if father.children[1].value is not None:
                             self.code.append(['jnz', father.children[1].value, '', index_code + 2])
-                            self.code.append(['j', '', '', exit_code])  # 跳到假出口
+                            self.code.append(['j', '', '', -1])  # 跳到假出口
+                            bool_false.append(index_code + 1)
                             index_code += 2
-                            exit_code = index_code - 1
 
                     elif father.name == '关系表达式':
-                        print(sign_list[index])
-                        print('adasdasdasd')
                         if sign_list[index] != 'or':
                             self.code.append(
-                                ['j'+father.children[1].value, father.children[2].value, father.children[0].value, index_code + 2])
-                            self.code.append(['j', '', '', exit_code])
-                            exit_code = index_code + 1
+                                ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
+                                 index_code + 2])
+                            self.code.append(['j', '', '', -1])
+                            bool_false.append(index_code + 1)
                             index_code += 2
                         else:
                             self.code.append(
-                                ['@'+'j' + father.children[1].value, father.children[2].value, father.children[0].value,
-                                 exit_code])   # 跳转真出口
+                                ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
+                                 0])  # 跳转真出口
                             # self.code.append(['j', '', '', exit_code])
-                            exit_code = index_code
+                            bool_true.append(index_code)
                             index_code += 1
-                        #else:
+                    elif father.name == '数组':
+                        if len(father.children) == 4:
+                            father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']'
+                        else:
+                            father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']' + '[' + father.children[-5].value + ']'
                     elif father.name == '变量声明':
                         if fun_flag:
                             if fun_name not in self.function_jubu_list:
@@ -989,85 +1120,38 @@ class CLRParser:
                             elif father.children[-2].name == 'identifier':
                                 self.function_jubu_list[fun_name].append(father.children[-2].symbol_info[1])
                         if len(father.children) == 4 or len(father.children) == 5:
-                            if exit_code != -2:  # 有布尔表达式
-                                m = index_code - 1
-                                # 回填
-                                while True:
-                                    if self.code[m][3] == -2:
-                                        if self.code[m - 1][0] == 'jz':
-                                            self.code[m][3] = index_code
-                                        elif self.code[m][0][0] == '@':
-                                            self.code[m][3] = index_code
-                                            self.code[m][0] = self.code[m][0][1:]
-                                        elif self.code[m][0] == 'jnz_true':
-                                            self.code[m][3] = index_code
-                                            self.code[m][0] = 'jnz'
-                                        else:
-                                            self.code[m][3] = index_code + 2
-                                        break
-                                    z = self.code[m][3]
-                                    if self.code[m - 1][0] == 'jz':
-                                        self.code[m][3] = index_code
-                                    elif self.code[m][0][0] == '@':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = self.code[m][0][1:]
-                                    elif self.code[m][0] == 'jnz_true':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = 'jnz'
-                                    else:
-                                        self.code[m][3] = index_code + 2
-                                    m = z
-                                self.code.append(['=', 1, '', father.children[2].symbol_info[1]])
+                            if len(bool_true) != 0:  # 有布尔表达式
+                                for i in bool_true:
+                                    self.code[i][3] = index_code
+                            if len(bool_false) != 0:
+                                for i in bool_false:
+                                    self.code[i][3] = index_code + 2
+                                bool_true.clear()
+                                bool_false.clear()
+                                self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
                                 self.code.append(['j', '', '', index_code + 3])
-                                self.code.append(['=', 0, '', father.children[2].symbol_info[1]])
+                                self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
                                 index_code += 3
-                                exit_code = -2
                             else:
-                                self.code.append(
-                                    ['=', father.children[0].value, '', father.children[2].symbol_info[1]])
-                                index_code += 1
+                                if father.children[0].name == '表达式':
+                                    self.code.append(
+                                        ['=', father.children[0].value, '', father.children[2].symbol_info[1]])
+                                    index_code += 1
                     elif father.name == 'if无else':
                         print(stack_symbol[-1])
                         if stack_symbol[-1] != 'if有else':
                             stack_if_total.append([])
                         # exit_true = index_code
                         if father.children[1].value is not None:
-                            self.code.append(['jz', father.children[1].value, '', exit_code])
-                            exit_code = index_code - 1
+                            self.code.append(['jz', father.children[1].value, '', -1])
+                            bool_false.append(index_code)
                             index_code += 1
-                        exit_now = []
-                        if exit_code != -2:  # 有布尔表达式
-                            m = index_code - 1
-                            # 回填真出口并记住假出口，后续知道假出口再填假出口
-                            while True:
-                                if self.code[m][3] == -2:
-                                    if self.code[m - 1][0] == 'jz':
-                                        self.code[m][3] = index_code  # 跳转真出口
-                                    elif self.code[m][0][0] == '@':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = self.code[m][0][1:]
-                                    elif self.code[m][0] == 'jnz_true':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = 'jnz'
-                                    else:
-                                        # self.code[m][3] = index_code+1  # 跳转假出口
-                                        exit_now.append(m)
-                                    break
-                                z = self.code[m][3]
-                                if self.code[m - 1][0] == 'jz':
-                                    self.code[m][3] = index_code
-                                elif self.code[m][0] == 'jnz_true':
-                                    self.code[m][3] = index_code
-                                    self.code[m][0] = 'jnz'
-                                elif self.code[m][0][0] == '@':
-                                    self.code[m][3] = index_code
-                                    self.code[m][0] = self.code[m][0][1:]
-                                else:
-                                    # self.code[m][3] = index_code + 1
-                                    exit_now.append(m)
-                                m = z
-                        stack_if.append(exit_now)
-                        exit_code = -2
+                        if len(bool_true) != 0:  # 有布尔表达式
+                            for i in bool_true:
+                                self.code[i][3] = index_code
+                        stack_if.append(bool_false.copy())
+                        bool_true.clear()
+                        bool_false.clear()
                     elif father.name == 'if有else':
                         stack_if_total[-1].append(index_code)
                         self.code.append(['j', '', '', index_code])
@@ -1094,37 +1178,12 @@ class CLRParser:
                     elif father.name == 'for语句(1)':
                         stack_for.append([index_code, []])
                     elif father.name == 'for语句(2)':
-                        if exit_code != -2:
-                            m = index_code - 1
-                            # 回填真出口并记住假出口，后续知道假出口再填假出口
-                            while True:
-                                if self.code[m][3] == -2:
-                                    if self.code[m - 1][0] == 'jz':
-                                        self.code[m][3] = index_code  # 跳转真出口
-                                    elif self.code[m][0] == 'jnz_true':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = 'jnz'
-                                    elif self.code[m][0][0] == '@':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = self.code[m][0][1:]
-                                    else:
-                                        # self.code[m][3] = index_code+1  # 跳转假出口
-                                        stack_for[-1][1].append(m)
-                                    break
-                                z = self.code[m][3]
-                                if self.code[m - 1][0] == 'jz':
-                                    self.code[m][3] = index_code
-                                elif self.code[m][0] == 'jnz_true':
-                                    self.code[m][3] = index_code
-                                    self.code[m][0] = 'jnz'
-                                elif self.code[m][0][0] == '@':
-                                    self.code[m][3] = index_code
-                                    self.code[m][0] = self.code[m][0][1:]
-                                else:
-                                    # self.code[m][3] = index_code + 1
-                                    stack_for[-1][1].append(m)
-                                m = z
-                        exit_code = -2
+                        if len(bool_true) != 0:  # 有布尔表达式
+                            for i in bool_true:
+                                self.code[i][3] = index_code
+                        stack_for[-1][1].extend(bool_false.copy())
+                        bool_false.clear()
+                        bool_true.clear()
                         over = index_code
                     elif father.name == 'for语句(3)':
                         shizi = []
@@ -1173,92 +1232,38 @@ class CLRParser:
                             index_code += 1'''
                         if sign_list[index] != ';':
                             if father.children[1].value is not None:  # 表达式不是布尔表达式
-                                self.code.append(['jz', father.children[1].value, '', exit_code])
-                                exit_code = index_code - 1
+                                self.code.append(['jz', father.children[1].value, '', -1])
+                                bool_false.append(index_code)
                                 index_code += 1
-                            if exit_code != -2:
-                                m = index_code - 1
-                                while True:
-                                    if self.code[m][3] == -2:
-                                        if self.code[m - 1][0] == 'jz':
-                                            self.code[m][3] = index_code  # 跳转真出口
-                                        elif self.code[m][0] == 'jnz_true':
-                                            self.code[m][3] = index_code
-                                            self.code[m][0] = 'jnz'
-                                        elif self.code[m][0][0] == '@':
-                                            self.code[m][3] = index_code
-                                            self.code[m][0] = self.code[m][0][1:]
-                                        else:
-                                            # self.code[m][3] = index_code+1  # 跳转假出口
-                                            stack_for[-1][1].append(m)
-                                        break
-                                    z = self.code[m][3]
-                                    if self.code[m - 1][0] == 'jz':
-                                        self.code[m][3] = index_code
-                                    elif self.code[m][0] == 'jnz_true':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = 'jnz'
-                                    elif self.code[m][0][0] == '@':
-                                        self.code[m][3] = index_code
-                                        self.code[m][0] = self.code[m][0][1:]
-                                    else:
-                                        # self.code[m][3] = index_code + 1
-                                        stack_for[-1][1].append(m)
-                                    m = z
-                            exit_code = -2
+                            if len(bool_true) != 0:  # 有布尔表达式
+                                for i in bool_true:
+                                    self.code[i][3] = index_code
+                            stack_for[-1][1].extend(bool_false.copy())
+                            bool_false.clear()
+                            bool_true.clear()
                         else:
                             if father.children[1].value is not None:  # 表达式不是布尔表达式
-                                self.code.append(['jnz_true', father.children[1].value, '', exit_code])
-                                self.code.append([])  # 等着后面pop弹出，不会影响前一个添加的元素
-                                exit_code = index_code - 1
+                                self.code.append(['jnz', father.children[1].value, '', 0])
+                                bool_true.append(index_code)
                                 index_code += 1
                             loop_count -= 1
                             stack_for.pop()
-                            #print(len(stack_for))
-                            if exit_code != -2:
-                                m = index_code - 1
-                                #print(m)
-                                #print(self.code[m][3])
-                                #print(self.code)
-                                while True:
-                                    if self.code[m][3] == -2:
-                                        if self.code[m - 1][0] == 'jz':
-                                            #print(self.code[m][3])
-                                            self.code[m][3] = stack_for[-1][0]  # 跳转真出口
-                                        elif self.code[m][0] == 'jnz_true':
-                                            self.code[m][3] = stack_for[-1][0]
-                                            self.code[m][0] = 'jnz'
-                                        elif self.code[m][0][0] == '@':
-                                            self.code[m][3] = stack_for[-1][0]
-                                            self.code[m][0] = self.code[m][0][1:]
-                                        else:
-                                            # self.code[m][3] = index_code+1  # 跳转假出口
-                                            #stack_for[-1][1].append(m)
-                                            self.code[m][3] = index_code
-                                        break
-                                    z = self.code[m][3]
-                                    if self.code[m - 1][0] == 'jz':
-                                        self.code[m][3] = stack_for[-1][0]
-                                    elif self.code[m][0] == 'jnz_true':
-                                        self.code[m][3] = stack_for[-1][0]
-                                        self.code[m][0] = 'jnz'
-                                    elif self.code[m][0][0] == '@':
-                                        self.code[m][3] = stack_for[-1][0]
-                                        self.code[m][0] = self.code[m][0][1:]
-                                    else:
-                                        # self.code[m][3] = index_code + 1
-                                        #stack_for[-1][1].append(m)
-                                        self.code[m][3] = index_code
-                                    m = z
-                                self.code.pop()
-                                self.code[-1][3] = stack_for[-1][0]
-                                index_code -= 1
-                            exit_code = -2
+                            if len(bool_true) != 0:  # 有布尔表达式
+                                for i in bool_true:
+                                    self.code[i][3] = stack_for[-1][0]
+                            if len(bool_false) != 0:  # 有布尔表达式
+                                for i in bool_false:
+                                    self.code[i][3] = index_code
+                                if self.code[-1][0] == 'j':
+                                    self.code.pop()
+                                    index_code -= 1
+                                elif self.code[-1][0] == 'jz':
+                                    self.code[-1][0] = 'jnz'
+                                    self.code[-1][3] = stack_for[-1][0]
+                            bool_false.clear()
+                            bool_true.clear()
                     elif father.name == '实参':
-                        if len(father.children) == 1:
-                            self.code.append(['para', father.children[0].value, '', ''])
-                        else:
-                            self.code.append(['para', father.children[-1].value, '', ''])
+                        self.code.append(['para', father.children[0].value, '', ''])
                         index_code += 1
                     elif father.name == 'return语句':
                         if father.children[1].value is None:
@@ -1316,3 +1321,9 @@ class CLRParser:
                 stack_symbol.append(name)
                 stack_state.append(int(status))
             print(stack_symbol)
+
+'''f = open('test.txt', 'r', encoding='utf-8')
+lr1 = CLRParser()
+lr1.input(f.read())
+lr1.Action_and_GoTo_Table()
+lr1.draw_graphic()'''
