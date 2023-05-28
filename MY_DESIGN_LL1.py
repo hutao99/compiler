@@ -242,7 +242,7 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
                     self.textEdit_2.setText(str)
         except Exception as e:
             print("Error: ", e)
-# app = QApplication(sys.argv)
-# LL_window = MyDesiger_LL()
-# LL_window.show()
-# sys.exit(app.exec_())
+app = QApplication(sys.argv)
+LL_window = MyDesiger_LL()
+LL_window.show()
+sys.exit(app.exec_())
