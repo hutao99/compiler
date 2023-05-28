@@ -182,13 +182,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         print(type(self.file_path))
         self.app_data.setValue('self.last_path', self.file_path)  # 数据1：也是字符串类型
         list_ = self.folder_path_set  # 数据4：列表类型
-        '''
-         a = 1  # 数据3：数值类型
-        print(list_)
-        bool_ = True  # 数据:5：布尔类型
-        dict_ = {'a': 'abc', 'b': 2}  # 数据6：字典类型
 
-        '''
         self.app_data.setValue('list', list_)
 
     def init_info(self):
