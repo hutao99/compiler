@@ -24,7 +24,6 @@ class REG_MainWindow(Ui_MainWindow_REG, QMainWindow):
         self.input_symbols = []
 
     def reg_to_nfa(self):
-        print("33333")
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
         if "\n" in reg:    # 多个正规式
             text = reg.split("\n")
