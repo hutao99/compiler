@@ -51,7 +51,6 @@ class Ui_MainWindow(object):
         # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
 
-
         self.gridLayout.addWidget(self.splitter1, 0, 1, 0, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
