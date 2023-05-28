@@ -77,6 +77,18 @@ class FunctionSymbolTable:
             item = item.n
         return None #
 
+    # 检查函数表类型
+    def check_funclist_type(self,paralist,funcargu_type):
+        list1 = ['string']
+        list2 = ['char','int','double','bool']
+        for x,y in zip(paralist,funcargu_type):
+            if x in list1 and y in list2:
+                return False
+            if x in list2 and y in list1:
+                return False
+        return True
+
+
     #检查函数调用 函数名 以及函数类型
     def check_function_call(self,funcname,funcargu_type): #函数名 实参 实参类型
         item = self.head
@@ -84,7 +96,7 @@ class FunctionSymbolTable:
             if item.name == funcname[1]:
                if item.parameter!=len(funcargu_type):
                    return 'Warning: 第 %s 行 %s函数调用形参个数与声明不一致！\n' % (funcname[0],funcname[1])
-               if item.paralist!=funcargu_type:
+               if  not self.check_funclist_type(item.paralist,funcargu_type):
                    return 'Warning: 第 %s 行 %s函数调用形参类型与声明不一致！\n' % (funcname[0],funcname[1])
                return '' # 没有错误
             item = item.n
