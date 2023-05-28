@@ -14,7 +14,9 @@ STACK_INPUT = []  # 剩余输入串
 
 sentences = []
 
-class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
+
+# 在基本LL1界面的基础上进行完善，添加了槽函数
+class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LL, self).__init__(parent)
         self.setWindowTitle("LL(1)预测分析")
@@ -23,7 +25,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         self.pushButton_1.clicked.connect(self.open_text)
         self.pushButton_2.clicked.connect(self.onClick_create_first_follow_analyze_table)
         self.pushButton.clicked.connect(self.onClick_analyze_stack)
-
 
     def onClick_analyze_stack(self):
         test = LL()
