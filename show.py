@@ -215,6 +215,10 @@ class Ui_MainWindow(object):
         self.actionsuanfu_first.setObjectName("actionsuanfu_first")
         self.actionDAG = QtWidgets.QAction(MainWindow)
         self.actionDAG.setObjectName("actionDAG")
+        ##############
+        self.actionDAG_ = QtWidgets.QAction(MainWindow)
+        self.actionDAG_.setObjectName("actionDAG_")
+
         self.action = QtWidgets.QAction(MainWindow)
         self.action.setObjectName("action")
         self.actionhuibian_code = QtWidgets.QAction(MainWindow)
@@ -239,6 +243,7 @@ class Ui_MainWindow(object):
         self.menu_yufa.addAction(self.actionsuanfu_first)
         self.menu_Quaternion.addAction(self.action_middle_code)
         self.menu_Quaternion.addAction(self.actionDAG)
+        self.menu_Quaternion.addAction(self.actionDAG_)
         self.menu_O.addAction(self.actionhuibian_code)
         self.menu_H.addAction(self.actionHELP_CHM)
         self.menu_H.addAction(self.action)
@@ -338,6 +343,7 @@ class Ui_MainWindow(object):
         self.actionNFA_DFA.setText(_translate("MainWindow", "NFA_DFA"))
         self.actionLL1.setText(_translate("MainWindow", "LL1预测分析"))
         self.actionsuanfu_first.setText(_translate("MainWindow", "算符优先分析"))
-        self.actionDAG.setText(_translate("MainWindow", "DAG优化"))
+        self.actionDAG.setText(_translate("MainWindow", "DAG优化(基本快)"))
+        self.actionDAG_.setText(_translate("MainWindow", "DAG优化(整体)"))
         self.action.setText(_translate("MainWindow", "关于"))
         self.actionhuibian_code.setText(_translate("MainWindow", "目标代码"))

@@ -6,6 +6,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
+from MY_DESIGN_DAG import MyDesiger_DAG
 from MY_DESIGN_LL1 import MyDesiger_LL
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
@@ -83,6 +84,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
         self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
         self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
+        self.actionDAG_.triggered.connect(self.DAG__)  # DAG优化
 
         """
         REG正则表达式转换
@@ -454,6 +456,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def LL1_analyze(self):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
+    def DAG__(self):
+        self.DAG_window = MyDesiger_DAG()
+        self.DAG_window.show()
 
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):

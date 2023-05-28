@@ -38,7 +38,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
 
 
 
-app = QApplication(sys.argv)
-LL_window = MyDesiger_DAG()
-LL_window.show()
-sys.exit(app.exec_())
+# app = QApplication(sys.argv)
+# LL_window = MyDesiger_DAG()
+# LL_window.show()
+# sys.exit(app.exec_())
