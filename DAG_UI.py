@@ -1,6 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-import sys
 
 # DAG界面UI类
 from PyQt5.QtGui import QColor
