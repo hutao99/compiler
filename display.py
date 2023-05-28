@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-# author: feifan time:2019/5/21
+
 import os
 import sys
 
@@ -8,7 +6,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
 
-from MyDesign_LL1 import MyDesiger_LL
+# from MyDesign_LL1 import MyDesiger_LL
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
