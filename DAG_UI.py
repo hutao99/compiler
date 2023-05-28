@@ -3,7 +3,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 # DAG界面UI类
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication
 
 
 class Ui_MainWindow_DAG(object):
