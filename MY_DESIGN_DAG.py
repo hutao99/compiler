@@ -36,6 +36,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             print("Error: ", e)
 
 
+
 app = QApplication(sys.argv)
 LL_window = MyDesiger_DAG()
 LL_window.show()
