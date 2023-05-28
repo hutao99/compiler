@@ -6,7 +6,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
 
-# from MyDesign_LL1 import MyDesiger_LL
+from MY_DESIGN_LL1 import MyDesiger_LL
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
