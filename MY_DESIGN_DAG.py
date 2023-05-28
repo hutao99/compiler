@@ -1,6 +1,5 @@
 import sys
 
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
 from DAG_UI import Ui_MainWindow_DAG
