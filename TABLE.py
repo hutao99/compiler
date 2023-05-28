@@ -244,4 +244,5 @@ print(test.first)
 print(test.last)
 test.analysis(ans)
 
+
 # 参考了https://blog.csdn.net/m0_54759841/article/details/124001965
