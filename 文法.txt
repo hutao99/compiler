@@ -1,0 +1,73 @@
+A1 -> A2 main ( ) A3 A4
+A2 -> const C7 C8 A2 | B2 A7 p3 A2 | void A7 ( D5 ) ; A2 | r
+A3 -> { E5 } | C1
+A4 -> A5 A4 | r
+A5 -> A6 A7 ( A8 ) A3
+A6 -> int | char | float | void
+A7 -> 700
+A8 -> B1 | r
+B1 -> B2 A7 m1
+m1 -> , B1 | r
+B2 -> int | char | float | string | double | bool
+C1 -> A2 | C2
+C2 -> D7 | D8 | A3
+C3 -> C5 | C6
+C4 -> A6 A7 ( D5 ) ;
+C5 -> const C7 C8
+C7 -> int | char | float | string | double | bool
+C6 -> B2 D1
+C8 -> A7 = C9 m2
+m2 -> ; | , C8
+C9 -> 400 | 500 | 600 | 800 | 850 | 900 | 135
+D1 -> D2 m3
+m3 -> ; | , D1
+D2 -> A7 n4
+n4 -> = D4 |  r
+D4 -> A7 p2 | ( F2 ) m7 n3 q1 q2 | G3 m7 n3 q1 q2 | ! F4 m6 m5 | - n7 m7 n3
+q1 -> F3 F2 | r
+q2 -> m6 m5 | r
+p1 -> ( H1 ) | r
+p2 -> p1 m7 n3 q1 q2 | = D4
+p3 -> n4 m3 | ( D5 ) ;
+p4 -> = D4 ; | ( H1 ) ;
+D5 -> D6 | r
+D6 -> B2 n5
+n5 -> , D6 | r
+D7 -> A7 p4
+D8 -> I1 | I2 | I3 | I4 | I5 | J6 | J7
+E1 -> E3 ;
+E2 -> E4 ;
+E3 -> A7 = D4
+E4 -> A7 ( H1 )
+E5 -> C1 n6
+n6 -> E5 | r
+F1 -> F2 F3 F2
+F2 -> G1 n3
+n3 -> + G1 n3 | - G1 n3 | r
+F3 -> > m4 | < m4 | >= | <= | == | !=
+m4 -> = | r
+F4 -> F5 m5
+m5 -> or F5 m5 | r
+F5 -> F6 m6
+m6 -> && F6 m6 |  r
+F6 -> F2 q1 | ! F4
+G1 -> G2 m7
+m7 -> * G2 m7  | / G2 m7 | % G2 m7 | r
+G2 -> n7 | - n7
+n7 -> ( F2 ) | G3 | A7 p1
+G3 -> G5 | G6 | G7
+G5 -> 400 | 800 | 850
+G6 -> 500 | 600
+G7 -> 137 | 138
+H1 -> H2 | r
+H2 -> D4 m8
+m8 -> , H2 | r
+I1 -> if ( D4 ) A3 m9
+m9 -> else A3 | r
+I2 -> for ( D4 ; D4 ; D4 ) A3
+I3 -> while ( D4 ) A3
+I4 -> do A3 while ( D4 ) ;
+I5 -> return n1
+n1 -> D4 ; | ;
+J6 -> break ;
+J7 -> continue ;
