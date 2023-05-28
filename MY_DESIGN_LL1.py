@@ -16,7 +16,6 @@ sentences = []
 
 
 # 在基本LL1界面的基础上进行完善，添加了槽函数
-
 class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LL, self).__init__(parent)
