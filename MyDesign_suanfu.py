@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QApplication
 
 from suanfu_fist_ui import Ui_MainWindow_LL
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
