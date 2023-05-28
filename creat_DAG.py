@@ -2,7 +2,7 @@ from graphviz import Digraph
 
 
 '''
-传入传入四元式序列
+将四元式序列传入
 codes = [('-', '1', '', 'T0'), ('=', 'T0', '', 'A')...] 或 cc [['=', '3', '', 'T0'], ['*', '2', 'T0', 'T1']形式的四元式序列 可以为空或'_'
 调用Partition_Basic_Block函数
 返回优化后的四元式   optimize_quaternion
