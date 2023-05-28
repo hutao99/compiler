@@ -487,7 +487,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # DAG优化
     def DAG_optimization(self):
-        a=1;
+        a=1
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

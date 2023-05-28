@@ -1,6 +1,5 @@
 import ply.lex as lex
 
-
 class Analyzer(object):
     def __init__(self):
         f = open('种别码.txt', 'r', encoding='utf-8')
@@ -20,6 +19,7 @@ class Analyzer(object):
                 break
             col += 1
         return col
+
     def Lexical(self, string):
         index = [0, 1]
         assist = ['>', '<', '=', '!']
