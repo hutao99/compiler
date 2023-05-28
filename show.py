@@ -212,6 +212,7 @@ class Ui_MainWindow(object):
         self.actionDAG = QtWidgets.QAction(MainWindow)
         self.actionDAG.setObjectName("actionDAG")
         ##############
+
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
         self.actionDAG_.setObjectName("actionDAG_")
 
