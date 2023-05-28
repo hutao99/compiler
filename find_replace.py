@@ -15,6 +15,6 @@ with open('文法.txt', 'r') as f:
 for key, value in replace_dict.items():
     content = content.replace(key, value)
 
-# 将替换后的文本写入到原始文档中或者新建一个文档保存
+# 将替换后的文本写入文档保存
 with open('文法(详细).txt', 'w') as f:
     f.write(content)

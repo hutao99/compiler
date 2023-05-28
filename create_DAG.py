@@ -96,7 +96,7 @@ def create_DAG(codes: list): #start
             if flag == 0:
                 flag = 1
                 continue
-            if i[0] == 'T' or i in ['_','']:
+            if i in ['_',''] or i[0] == 'T' :
                 continue
             if i not in Active_variable:
                 Active_variable.append(i)
@@ -337,7 +337,7 @@ def test1():#基本块内优化
                 code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
     DAG = create_DAG(code)
     codes = optimize(DAG)
-    print('optcodes:',codes)
+    # print('optcodes:',codes)
 
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
@@ -352,7 +352,7 @@ def test3():
     print('cc:',cc)
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
-# test2()
+test1()
 
 '''
 codes: [('=', '3', '', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B')]

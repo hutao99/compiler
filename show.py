@@ -51,10 +51,6 @@ class Ui_MainWindow(object):
         # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
 
-        # self.splitter3=QSplitter(Qt.Vertical)
-        # self.splitter3.addWidget(self.tree)
-        # self.splitter3.addWidget(self.splitter1)
-
         self.gridLayout.addWidget(self.splitter1, 0, 1, 0, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -77,6 +73,9 @@ class Ui_MainWindow(object):
         self.menu_H.setObjectName("menu_H")
         self.menu_2 = QtWidgets.QMenu(self.menubar)
         self.menu_2.setObjectName("menu_2")
+        self.menuDAG = QtWidgets.QMenu(self.menubar)
+        self.menuDAG.setObjectName("menuDAG")
+
         MainWindow.setMenuBar(self.menubar)
         self.toolBar = QtWidgets.QToolBar(MainWindow)
         self.toolBar.setObjectName("toolBar")
@@ -215,6 +214,11 @@ class Ui_MainWindow(object):
         self.actionsuanfu_first.setObjectName("actionsuanfu_first")
         self.actionDAG = QtWidgets.QAction(MainWindow)
         self.actionDAG.setObjectName("actionDAG")
+        ##############
+
+        self.actionDAG_ = QtWidgets.QAction(MainWindow)
+        self.actionDAG_.setObjectName("actionDAG_")
+
         self.action = QtWidgets.QAction(MainWindow)
         self.action.setObjectName("action")
         self.actionhuibian_code = QtWidgets.QAction(MainWindow)
@@ -239,6 +243,8 @@ class Ui_MainWindow(object):
         self.menu_yufa.addAction(self.actionsuanfu_first)
         self.menu_Quaternion.addAction(self.action_middle_code)
         self.menu_Quaternion.addAction(self.actionDAG)
+
+        self.menuDAG.addAction(self.actionDAG_)
         self.menu_O.addAction(self.actionhuibian_code)
         self.menu_H.addAction(self.actionHELP_CHM)
         self.menu_H.addAction(self.action)
@@ -260,6 +266,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_Quaternion.menuAction())
         self.menubar.addAction(self.menu_O.menuAction())
         self.menubar.addAction(self.menu_H.menuAction())
+        self.menubar.addAction(self.menuDAG.menuAction())
         self.toolBar.addAction(self.actionOPEN)
         self.toolBar.addAction(self.actionSAVE)
         self.toolBar.addAction(self.actionundo)
@@ -282,6 +289,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -293,6 +301,7 @@ class Ui_MainWindow(object):
         self.menu_O.setTitle(_translate("MainWindow", "目标代码生成(O)"))
         self.menu_H.setTitle(_translate("MainWindow", "帮助(H)"))
         self.menu_2.setTitle(_translate("MainWindow", "视图(V)"))
+        self.menuDAG.setTitle(_translate("MainWindow", "DAG优化(基本快)"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionOPEN.setText(_translate("MainWindow", "打开"))
         self.actionOPEN.setShortcut(_translate("MainWindow", "Ctrl+O"))
@@ -339,5 +348,6 @@ class Ui_MainWindow(object):
         self.actionLL1.setText(_translate("MainWindow", "LL1预测分析"))
         self.actionsuanfu_first.setText(_translate("MainWindow", "算符优先分析"))
         self.actionDAG.setText(_translate("MainWindow", "DAG优化"))
+        self.actionDAG_.setText(_translate("MainWindow", "DAG优化(基本快)"))
         self.action.setText(_translate("MainWindow", "关于"))
         self.actionhuibian_code.setText(_translate("MainWindow", "目标代码"))
