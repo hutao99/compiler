@@ -10,6 +10,12 @@ from MY_DESIGN_LL1 import MyDesiger_LL
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from Laxer1 import LexicalAnalysis
+# import webbrowser
+#webbrowser.open(fname[0])  # 打开chm格式的文件
+from Grammar import recDesc_analysis
+from ObjectCode_cr import solve
+from creat_DAG import create_DAG, optimize,Partition_Basic_Block
 
 
 class DetailUI(Ui_MainWindow, QMainWindow):
@@ -70,8 +76,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         '''
         LL1预测分析
         '''
-
+        self.recursive_or_lr_flag = 0  # 为1表示使用递归下降 为2表示使用lr
         self.actionLL1.triggered.connect(self.LL1_analyze)
+        self.actionstate_transition.triggered.connect(self.Manual_lexical_analysis)  # 递归下降手动词法分析
+        self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 递归下降语法分析
+        self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
+        self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
+        self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
 
     def recent_folders(self):
         try:
@@ -440,6 +451,43 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
 
+    # 递归下降手动词法分析
+    def Manual_lexical_analysis(self):
+        self.recursive_or_lr_flag = 1
+        text = self.textEdit.toPlainText()
+        a = LexicalAnalysis(text)
+        self.wordlist, self.errorlist, self.lbword = a.print_out()
+        self.textEdit_3.setText(self.wordlist)
+        self.textEdit_2.setText(self.errorlist)
+    # 递归下降语法分析
+    def Manual_grammar_analysis(self):
+        self.recursive_or_lr_flag = 1
+        file_object = open('文法.txt')
+        rda = recDesc_analysis(file_object)
+        self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
+            self.lbword)
+        self.textEdit_3.setText(self.text1 + '\n' + self.text2)
+        text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+        self.textEdit_2.setText(text1)
+
+    # 中间代码
+    def middle_analysis(self):
+        if self.recursive_or_lr_flag == 1: # 递归下井中间代码
+            text = ''
+            for quad in self.siyuanshi:
+                text += ','.join([str(s) for s in quad]) + '\n'
+            print(text)
+            self.textEdit_3.setText(text)
+
+    # 目标代码
+    def Object_analysis(self):
+        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+            text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
+            self.textEdit_2.setText(text)
+
+    # DAG优化
+    def DAG_optimization(self):
+        a=1;
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
