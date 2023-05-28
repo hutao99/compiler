@@ -51,9 +51,6 @@ class Ui_MainWindow(object):
         # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
 
-        # self.splitter3=QSplitter(Qt.Vertical)
-        # self.splitter3.addWidget(self.tree)
-        # self.splitter3.addWidget(self.splitter1)
 
         self.gridLayout.addWidget(self.splitter1, 0, 1, 0, 1)
 
