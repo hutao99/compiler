@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
+from create_DAG import create_DAG, optimize, DAG_draw # DAG模型
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 
 
@@ -30,16 +32,17 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         DAG = create_DAG(code)
         codes = optimize(DAG)
         info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])
-        self.textEdit_2.setText(info)
-
+        self.textEdit_3.setText(info)
         DAG_draw(DAG)
-        self.graphicsView.scene_img = QGraphicsScene()
-        self.imgShow = QPixmap()
-        self.imgShow.load('./DAG/visible.gv.png')
-        self.imgShowItem = QGraphicsPixmapItem()
-        self.imgShowItem.setPixmap(QPixmap(self.imgShow))
-        self.graphicsView.scene_img.addItem(self.imgShowItem)
-        self.graphicsView.setScene(self.graphicsView.scene_img)
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./DAG/visible.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit_2.textCursor()
+        cursor.insertImage(image_format)
+
+        self.textEdit_2.show()
+
 
     def check_charset(self, file_path):
         import chardet

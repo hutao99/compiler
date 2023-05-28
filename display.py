@@ -16,7 +16,7 @@ from Laxer1 import LexicalAnalysis
 # webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
-from creat_DAG import create_DAG, optimize, Partition_Basic_Block
+from create_DAG import create_DAG, optimize, Partition_Basic_Block
 
 # REG
 from REG_control import REG_MainWindow
