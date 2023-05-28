@@ -481,10 +481,18 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         rda = recDesc_analysis(file_object)
         self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
             self.lbword)
-        self.textEdit_3.setText(self.text1 + '\n' + self.text2)
         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-        self.textEdit_2.setText(text1)
+        all_text = self.text1 + '\n' + self.text2 + text1
+        self.textEdit_2.setText(all_text)
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Syntax_Tree/tree.gv.png')
 
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit_3.textCursor()
+        cursor.insertImage(image_format)
+
+        self.textEdit_3.show()
     # 中间代码
     def middle_analysis(self):
         if self.recursive_or_lr_flag == 1:  # 递归下井中间代码
@@ -499,6 +507,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         if self.recursive_or_lr_flag == 1:  # 递归下降目标代码
             text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
             self.textEdit_2.setText(text)
+
 
     # DAG优化
     def DAG_optimization(self):
