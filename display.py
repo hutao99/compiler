@@ -4,7 +4,7 @@ import sys
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
-from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
+from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_LL1 import MyDesiger_LL
 from show import Ui_MainWindow
@@ -16,8 +16,8 @@ from Laxer1 import LexicalAnalysis
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
 from creat_DAG import create_DAG, optimize,Partition_Basic_Block
-
-
+# REG
+from REG_control import REG_MainWindow
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super(DetailUI, self).__init__()
@@ -84,6 +84,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
         self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
 
+        """
+        REG正则表达式转换
+        """
+        self.actionNFA_DFA.triggered.connect(self.REG_transform)
     def recent_folders(self):
         try:
             # 添加根节点
@@ -489,6 +493,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def DAG_optimization(self):
         a=1
 
+    def REG_transform(self):
+        self.reg_window = REG_MainWindow()
+        self.reg_window.show()
 
 
 if __name__ == "__main__":
