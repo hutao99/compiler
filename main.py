@@ -2,7 +2,7 @@ import sys
 import os
 
 import chardet
-
+import ObjectCode1
 import LR
 from PyQt5.QtGui import QIcon, QPainter, QFont, QTextCursor, QPalette, QBrush, QPixmap, QTextOption, QFontMetrics
 from PyQt5.QtWidgets import *
@@ -350,7 +350,7 @@ class MainWindow(QMainWindow):
         self.display1.clear()
         self.display2.clear()
         lex = AnalyzerLex()
-        data = self.edit.toPlainText()[1:]
+        data = self.edit.toPlainText()
         lex.input(data+'\n')
         while True:
             tok = lex.token()
@@ -428,6 +428,12 @@ class MainWindow(QMainWindow):
             for j in self.LR.VariableTable[i]:
                 self.display1.append(str(vars(j)))
 
+        self.display1.append('数组表:')
+        for i in self.LR.ArrayTable:
+            self.display1.append(i + ": ")
+            for j in self.LR.ArrayTable[i]:
+                self.display1.append(str(vars(j)))
+
         self.display1.append('函数表:')
         for i in self.LR.FunctionTable:
             self.display1.append(i + ": ")
@@ -476,14 +482,16 @@ class MainWindow(QMainWindow):
 
     def getTargetCode(self):
         MiddleCode = self.LR.code
-        var = self.LR.VariableTable
-        con = self.LR.ConstantTable
-        fun = self.LR.FunctionTable
-        p = TargetCode()
-        tcode = p.GetTargetCode(MiddleCode, var, con, fun)
+        function_param_list = self.LR.function_param_list
+        function_jubu_list = self.LR.function_jubu_list
+        for i in range(len(MiddleCode)):
+            for j in range(4):
+                if MiddleCode[i][j] == '':
+                    MiddleCode[i][j] = '_'
         self.display1.clear()
         self.display2.clear()
-        self.display1.append(tcode)
+        if len(MiddleCode) != 0:
+            self.display1.append(ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode))
 
 
 if __name__ == "__main__":
