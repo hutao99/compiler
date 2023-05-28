@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QApplication
 
 from suanfu_fist_ui import Ui_MainWindow_LL
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
@@ -13,7 +13,7 @@ STACK = ['#']  # 输入栈
 STACK_INPUT = []  # 剩余输入串
 
 sentences = []
-
+#张世佳 算符优先分析的进一步完善，添加了槽函数等
 class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LL, self).__init__(parent)
