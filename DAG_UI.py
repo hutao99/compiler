@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import sys
 
-# 界面UI类
+# DAG界面UI类
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication
 
