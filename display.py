@@ -1,4 +1,3 @@
-
 import os
 import sys
 
@@ -13,12 +12,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Laxer1 import LexicalAnalysis
 # import webbrowser
-#webbrowser.open(fname[0])  # 打开chm格式的文件
+# webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
-from creat_DAG import create_DAG, optimize,Partition_Basic_Block
+from creat_DAG import create_DAG, optimize, Partition_Basic_Block
 # REG
 from REG_control import REG_MainWindow
+
+
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super(DetailUI, self).__init__()
@@ -90,6 +91,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         REG正则表达式转换
         """
         self.actionNFA_DFA.triggered.connect(self.REG_transform)
+
     def recent_folders(self):
         try:
             # 添加根节点
@@ -456,6 +458,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def LL1_analyze(self):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
+
     def DAG__(self):
         self.DAG_window = MyDesiger_DAG()
         self.DAG_window.show()
@@ -468,6 +471,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.wordlist, self.errorlist, self.lbword = a.print_out()
         self.textEdit_3.setText(self.wordlist)
         self.textEdit_2.setText(self.errorlist)
+
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         self.recursive_or_lr_flag = 1
@@ -481,7 +485,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 中间代码
     def middle_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下井中间代码
+        if self.recursive_or_lr_flag == 1:  # 递归下井中间代码
             text = ''
             for quad in self.siyuanshi:
                 text += ','.join([str(s) for s in quad]) + '\n'
@@ -490,13 +494,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 目标代码
     def Object_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+        if self.recursive_or_lr_flag == 1:  # 递归下降目标代码
             text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
             self.textEdit_2.setText(text)
 
     # DAG优化
     def DAG_optimization(self):
-        a=1
+        a = 1
 
     def REG_transform(self):
         self.reg_window = REG_MainWindow()
