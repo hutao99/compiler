@@ -20,7 +20,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.tree_view = self.treeView
         '''
          self.sample_type = self.treeView
-        fileDir = r'D:\pythonProject\pythonProject'
 
         self.sample_type.setHeaderHidden(True)  # 不显示表头
         self.sample_type.setColumnHidden(1, False)  # 不显示行头
@@ -35,7 +34,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.sample_type.setColumnHidden(3, True)  # 隐藏不需要的列
         '''
         self.model = QDirModel()  # 显示文件系统
-        self.data_path = 'D:\pythonProject\pythonProject'
         # self.model.setRootPath(self.data_path)
         self.tree_view.setModel(self.model)
         # self.tree_view.setRootIndex(self.model.index(self.data_path))
@@ -82,6 +80,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actiongreen_font.triggered.connect(self.set_green_font)
         self.actionorange_font.triggered.connect(self.set_orange_font)
         self.actionpurple_font.triggered.connect(self.set_purple_font)
+
+        '''
+        LL1预测分析
+        '''
 
         self.actionLL1.triggered.connect(self.LL1_analyze)
 
