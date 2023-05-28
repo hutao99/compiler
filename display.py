@@ -18,21 +18,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.setupUi(self)
         self.setWindowTitle('编译器')
         self.tree_view = self.treeView
-        '''
-         self.sample_type = self.treeView
 
-        self.sample_type.setHeaderHidden(True)  # 不显示表头
-        self.sample_type.setColumnHidden(1, False)  # 不显示行头
-        self.Dirmodel = QFileSystemModel()
-        self.Dirmodel.setRootPath(QDir.currentPath())
-
-        # self.Dirmodel.setFilter(QDir.Dirs)#内容过滤，只显示文件夹
-        self.sample_type.setModel(self.Dirmodel)
-        self.sample_type.setRootIndex(self.Dirmodel.index(fileDir))  #
-        self.sample_type.setColumnHidden(1, True)
-        self.sample_type.setColumnHidden(2, True)
-        self.sample_type.setColumnHidden(3, True)  # 隐藏不需要的列
-        '''
         self.model = QDirModel()  # 显示文件系统
         # self.model.setRootPath(self.data_path)
         self.tree_view.setModel(self.model)
