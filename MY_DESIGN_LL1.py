@@ -12,11 +12,11 @@ STACK = ['#']  # 输入栈
 
 STACK_INPUT = []  # 剩余输入串
 
-# 构建二维字典（类似于矩阵，可以像矩阵一样访问）存储分析表
-
 sentences = []
 
-class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
+
+# 在基本LL1界面的基础上进行完善，添加了槽函数
+class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LL, self).__init__(parent)
         self.setWindowTitle("LL(1)预测分析")
@@ -26,7 +26,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         self.pushButton_2.clicked.connect(self.onClick_create_first_follow_analyze_table)
         self.pushButton.clicked.connect(self.onClick_analyze_stack)
 
-
     def onClick_analyze_stack(self):
         test = LL()
         grammar = self.textEdit_2.toPlainText()
@@ -35,10 +34,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         test.input(grammar)
         print(test.first)
         print(test.last)
-        FIRST = test.first
-        FOLLOW = test.last
-        VT = test.vt
-        VN = test.vn
         begin_ch = test.begin
         SELECT = test.predict_table
         # 获取输入串并加入‘#’结束标志
@@ -174,15 +169,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         VT = test.vt
         VN = test.vn
         SELECT = test.predict_table
-        message = {"words": " id 7X"}
-        words = {k: v.replace(" ", "") for k, v in message.items()}  # 适用于Python3
-        # SELECT = {k: v.replace(" ", "") for k, v in SELECT_.items()}  # 适用于Python3
-        for k, v in SELECT.items():
-            v = {m: n.replace(" ", "") for m, n in v.items()}
-        # words = {k: v.replace(" ", "") for k, v in message.iteritems()}  # 适用于Python2.7
-        print(words)  # 输出为{'words': 'id7X'}
-        print('-----------------')
-        print(SELECT)
         # 将字典的内容写入 QTextEdit 控件
         text_first = 'FIRST集合如下：\n'
         for key, value in FIRST.items():
@@ -232,7 +218,7 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            # fname = QFileDialog.getOpenFileName(self, 'Open file')
+            # fname = QFileDialog.getOpenFileName(None, 'Open file')
             fname = QFileDialog.getOpenFileName(self, 'Open file')
             if fname[0]:
                 print(fname[0])

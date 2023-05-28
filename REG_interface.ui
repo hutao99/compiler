@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>879</width>
+    <height>583</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>10</y>
+      <width>811</width>
+      <height>501</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0" colspan="3">
+      <widget class="QPlainTextEdit" name="plainTextEdit">
+       <property name="minimumSize">
+        <size>
+         <width>801</width>
+         <height>121</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>801</width>
+         <height>121</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPlainTextEdit" name="plainTextEdit_2">
+       <property name="minimumSize">
+        <size>
+         <width>261</width>
+         <height>371</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>261</width>
+         <height>371</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPlainTextEdit" name="plainTextEdit_3">
+       <property name="minimumSize">
+        <size>
+         <width>261</width>
+         <height>371</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>261</width>
+         <height>371</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPlainTextEdit" name="plainTextEdit_4">
+       <property name="minimumSize">
+        <size>
+         <width>261</width>
+         <height>371</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>261</width>
+         <height>371</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>879</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_F">
+    <property name="title">
+     <string>REG正则表达式转换</string>
+    </property>
+    <addaction name="action_NFA"/>
+    <addaction name="actionNFA_DFA"/>
+    <addaction name="actionDFA_MFA"/>
+    <addaction name="action_7"/>
+   </widget>
+   <widget class="QMenu" name="menu_E">
+    <property name="title">
+     <string>词法分析</string>
+    </property>
+    <addaction name="action_6"/>
+   </widget>
+   <addaction name="menu_F"/>
+   <addaction name="menu_E"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="action_lexicalAnalyzer">
+   <property name="text">
+    <string> 词法分析器1</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string> 词法分析器2</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string> 语法分析器</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>生成中间代码</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string> 算符优先</string>
+   </property>
+  </action>
+  <action name="action_5">
+   <property name="text">
+    <string>生成目标代码</string>
+   </property>
+  </action>
+  <action name="action_NFA">
+   <property name="text">
+    <string>正规式转NFA</string>
+   </property>
+  </action>
+  <action name="actionNFA_DFA">
+   <property name="text">
+    <string>NFA转DFA</string>
+   </property>
+  </action>
+  <action name="actionDFA_MFA">
+   <property name="text">
+    <string>DFA转MFA</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>词法分析</string>
+   </property>
+  </action>
+  <action name="action_7">
+   <property name="text">
+    <string>一键三连</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
