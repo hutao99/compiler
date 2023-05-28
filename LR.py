@@ -89,6 +89,10 @@ class CLRParser:
         self.function_param_list = dict()
         # 函数局部变量
         self.function_jubu_list = dict()
+        # 函数内部数组
+        self.function_array_list = dict()
+        # 全局数组
+        self.global_array_list = []
 
         self.prod_state = None
         self.status_include_num = None
@@ -430,10 +434,17 @@ class CLRParser:
                     if i in self.Formula:
                         name = i
                         flag = False
-                        self.errors.append([token[index-1][2], token[index-1][3], '%s后可能需要%s' % (sign_list[index-1], i)])
+                        if index-1 >= 0:
+                            self.errors.append([token[index-1][2], token[index-1][3], '%s后可能需要%s' % (sign_list[index-1], i)])
+                        else:
+                            self.errors.append([0, 0,
+                                                '程序开始可能需要%s' % i])
                         sign_list.insert(index, i)
-                        token.insert(index, ['', '', token[index-1][2], token[index-1][3]])
-                        print('%s后可能需要%s' % (sign_list[index-1], i))
+                        if index-1 >= 0:
+                            token.insert(index, ['', '', token[index-1][2], token[index-1][3]])
+                        else:
+                            token.insert(index, ['', '', 0, 0])
+                        # print('%s后可能需要%s' % (sign_list[index-1], i))
                         break
                 if flag:
                     minimum = 10000
@@ -693,14 +704,14 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
                                      "'%'要求两边类型为integer"])
-                            elif father.children[0].value == 0:
+                            elif father.children[0].value == '0':
                                 self.errors.append(
                                     [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
                                      "除数不为0"])
                             else:
                                 father.type = father.children[0].type
                         elif father.children[1].symbol_info[1] == '/':
-                            if father.children[0].value == 0:
+                            if father.children[0].value == '0':
                                 self.errors.append(
                                     [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
                                      "除数不为0"])
@@ -715,18 +726,20 @@ class CLRParser:
                                 father.type = 'int'
                     elif father.name == '变量':
                         #print('2222')
-                        if len(father.children) == 1 and not self.IsDeclare(father.children[0].symbol_info[1], scope[-1][0]):
+                        if father.children[0].name == 'identifier':
+                            father.value = father.children[0].symbol_info[1]
+                        else:
+                            father.value = father.children[0].value
+                        if father.children[0].name == 'identifier' and not self.IsDeclare(father.children[0].symbol_info[1], scope[-1][0]):
                             self.errors.append(
                                 [father.children[0].symbol_info[2], father.children[0].symbol_info[3],
                                  "变量'%s'未声明" % father.children[0].symbol_info[1]])
-                        elif len(father.children) > 1 and not self.IsDeclare(father.children[-1].symbol_info[1], scope[-1][0]):
+                        elif father.children[0].name == '数组' and not self.IsDeclare(father.children[-1].children[-1].symbol_info[1], scope[-1][0]):
                             self.errors.append(
-                                [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
-                                 "变量'%s'未声明" % father.children[-1].symbol_info[1]])
+                                [father.children[-1].children[-1].symbol_info[2], father.children[-1].children[-1].symbol_info[3],
+                                 "变量'%s'未声明" % father.children[-1].children[-1].symbol_info[1]])
                         else:
-                            print(father.children[0].symbol_info[1])
-                            print(scope[-1][0])
-                            if father.children[0].symbol_info[1] in self.var_num:
+                            if father.children[0].name == 'identifier' and father.children[0].symbol_info[1] in self.var_num:
                                 for r in self.var_num[father.children[0].symbol_info[1]]:
                                     leng = len(scope[-1][0])
                                     hh = False
@@ -889,6 +902,7 @@ class CLRParser:
             #print(stack_state)
             #input()
         # print(self.var_num)
+        print(self.function_array_list)
 
     # 语法树
     def PrintParseTree(self):
@@ -899,6 +913,10 @@ class CLRParser:
 
     def IntermediateCodeGenerator(self, token):
         self.code.clear()
+        self.function_array_list.clear()
+        self.global_array_list.clear()
+        self.function_jubu_list.clear()
+        self.function_param_list.clear()
         # 符号列表
         sign_list = []
         for i in token:
@@ -979,7 +997,29 @@ class CLRParser:
                         elif len(father.children) == 4:
                             father.value = father.children[-1].symbol_info[1]+'['+father.children[-3].value+']'
                         else:
-                            father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']'+'['+father.children[-5].value+']'
+                            col = 0
+                            for i in self.ArrayTable[father.children[-1].symbol_info[1]]:
+                                if scope[-1][0].startswith(i.scope):
+                                    col = i.col
+                            self.code.append(['*', father.children[-3].value, col, 'T' + str(count)])
+                            self.code.append(['+', 'T' + str(count), father.children[-6].value, 'T' + str(count + 1)])
+                            index_code += 2
+                            count += 2
+                            father.value = father.children[-1].symbol_info[1] + '[' + 'T' + str(count - 1) + ']'
+                    elif father.name == '数组':
+                        if len(father.children) == 4:
+                            father.value = father.children[-1].symbol_info[1]+'['+father.children[-3].value+']'
+                        else:
+                            col = 0
+                            for i in self.ArrayTable[father.children[-1].symbol_info[1]]:
+                                if scope[-1][0].startswith(i.scope):
+                                    col = i.col
+                            self.code.append(['*', father.children[-3].value, col, 'T' + str(count)])
+                            self.code.append(['+', 'T' + str(count), father.children[-6].value, 'T' + str(count + 1)])
+                            index_code += 2
+                            count += 2
+                            father.value = father.children[-1].symbol_info[1] + '[' + 'T' + str(count - 1) + ']'
+                            # father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']'+'['+father.children[-5].value+']'
                     elif father.name == '常量' or father.name == '算术表达式':
                         father.value = father.children[0].value
                     elif father.name == '因子':
@@ -1019,23 +1059,14 @@ class CLRParser:
                                 self.code[i][3] = index_code + 2
                             bool_true.clear()
                             bool_false.clear()
-                            if father.children[-1].name == 'identifier':
-                                self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
-                                self.code.append(['j', '', '', index_code + 3])
-                                self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
-                            else:
-                                self.code.append([father.children[1].name, '1', '', father.children[-1].value])
-                                self.code.append(['j', '', '', index_code + 3])
-                                self.code.append([father.children[1].name, '0', '', father.children[-1].value])
+                            self.code.append([father.children[1].name, '1', '', father.children[-1].value])
+                            self.code.append(['j', '', '', index_code + 3])
+                            self.code.append([father.children[1].name, '0', '', father.children[-1].value])
                             index_code += 3
                         else:
-                            if father.children[-1].name == 'identifier':
-                                self.code.append(
-                                    [father.children[1].name, father.children[0].value, '', father.children[-1].symbol_info[1]])
-                            else:
-                                self.code.append(
-                                    [father.children[1].name, father.children[0].value, '',
-                                     father.children[-1].value])
+                            self.code.append(
+                                [father.children[1].name, father.children[0].value, '',
+                                 father.children[-1].value])
                             index_code += 1
                         father.value = father.children[0].value
                     elif father.name == '布尔因子':
@@ -1106,19 +1137,45 @@ class CLRParser:
                             # self.code.append(['j', '', '', exit_code])
                             bool_true.append(index_code)
                             index_code += 1
-                    elif father.name == '数组':
-                        if len(father.children) == 4:
-                            father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']'
-                        else:
-                            father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']' + '[' + father.children[-5].value + ']'
                     elif father.name == '变量声明':
                         if fun_flag:
                             if fun_name not in self.function_jubu_list:
                                 self.function_jubu_list[fun_name] = []
+                            if fun_name not in self.function_array_list:
+                                self.function_array_list[fun_name] = []
                             if len(father.children) >= 3 and father.children[-3].name == 'identifier':
                                 self.function_jubu_list[fun_name].append(father.children[-3].symbol_info[1])
                             elif father.children[-2].name == 'identifier':
                                 self.function_jubu_list[fun_name].append(father.children[-2].symbol_info[1])
+                            elif len(father.children) >= 3 and father.children[-3].name == '数组':
+                                if len(father.children[-3].children) == 4:
+                                    self.function_array_list[fun_name].append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[1].value, ''])
+                                else:
+                                    self.function_array_list[fun_name].append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[4].value, father.children[-3].children[1].value])
+                            elif father.children[-2].name == '数组':
+                                if len(father.children[-2].children) == 4:
+                                    self.function_array_list[fun_name].append(
+                                        [father.children[-2].children[-1].symbol_info[1],
+                                         father.children[-2].children[1].value, ''])
+                                else:
+                                    self.function_array_list[fun_name].append(
+                                        [father.children[-2].children[-1].symbol_info[1],
+                                         father.children[-2].children[4].value, father.children[-2].children[1].value])
+                        else:
+                            if len(father.children) >= 3 and father.children[-3].name == '数组':
+                                if len(father.children[-3].children) == 4:
+                                    self.global_array_list.append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[1].value, ''])
+                                else:
+                                    self.global_array_list.append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[4].value, father.children[-3].children[1].value])
+                            elif father.children[-2].name == '数组':
+                                if len(father.children[-2].children) == 4:
+                                    self.global_array_list.append(
+                                        [father.children[-2].children[-1].symbol_info[1],
+                                         father.children[-2].children[1].value, ''])
+                                else:
+                                    self.global_array_list.append(
+                                        [father.children[-2].children[-1].symbol_info[1],
+                                         father.children[-2].children[4].value, father.children[-2].children[1].value])
                         if len(father.children) == 4 or len(father.children) == 5:
                             if len(bool_true) != 0:  # 有布尔表达式
                                 for i in bool_true:
@@ -1321,6 +1378,10 @@ class CLRParser:
                 stack_symbol.append(name)
                 stack_state.append(int(status))
             print(stack_symbol)
+        print(self.function_array_list)
+        print(self.global_array_list)
+        print(self.function_jubu_list)
+
 
 '''f = open('test.txt', 'r', encoding='utf-8')
 lr1 = CLRParser()
