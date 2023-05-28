@@ -11,7 +11,7 @@
 常量:数字常量 | 字符型常量
 数字常量:integer | float
 字符型常量:character
-变量:identifier | identifier [ 加减表达式 ] | identifier [ 加减表达式 ] [ 加减表达式 ]
+变量:identifier | 数组
 函数调用:identifier ( 实参列表 )
 实参列表:实参 | ε
 实参:表达式 | 表达式 , 实参
