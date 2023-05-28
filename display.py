@@ -11,6 +11,7 @@ from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Laxer1 import LexicalAnalysis
+
 # import webbrowser
 # webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
