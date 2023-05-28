@@ -11,7 +11,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         super(MyDesiger_DAG, self).__init__(parent)
         self.setWindowTitle("DAG优化")
         self.setupUi(self)
-        # 设置响应槽（信号源 conect 槽）
+        # 设置响应槽
         self.pushButton.clicked.connect(self.open_text)
 
     def check_charset(self, file_path):
