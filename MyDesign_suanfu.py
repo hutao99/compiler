@@ -13,8 +13,10 @@ STACK = ['#']  # 输入栈
 STACK_INPUT = []  # 剩余输入串
 
 sentences = []
-#算符优先分析的进一步完善，添加了槽函数等
-class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
+
+
+# 算符优先分析的进一步完善，添加了槽函数等
+class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LL, self).__init__(parent)
         self.setWindowTitle("算符优先分析")
@@ -23,7 +25,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         self.pushButton_1.clicked.connect(self.open_text)
         self.pushButton_2.clicked.connect(self.onClick_create_first_follow_analyze_table)
         self.pushButton.clicked.connect(self.onClick_analyze_stack)
-
 
     def onClick_analyze_stack(self):
         test = LL()
@@ -240,6 +241,8 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
                     self.textEdit_2.setText(str)
         except Exception as e:
             print("Error: ", e)
+
+
 app = QApplication(sys.argv)
 LL_window = MyDesiger_LL()
 LL_window.show()
