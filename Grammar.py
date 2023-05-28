@@ -447,8 +447,8 @@ class recDesc_analysis:
                                     if self.func_define_flag != 2:
                                         self.warnings_str += ("Warning: 第%s行 变量%s未声明\n" % (
                                             self.goal_list[self.p][0], self.goal_list[self.p][1]))
-                                else:
-                                    print(self.warnings_str)
+                                # else:
+                                #     print(self.warnings_str)
                         self.node_number += 1
                         tree.node(str(self.node_number), self.goal_list[self.p][1])
                         tree.edge(str(fabian), str(self.node_number))

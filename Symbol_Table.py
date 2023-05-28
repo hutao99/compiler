@@ -29,13 +29,13 @@ class CreateTableFlag:
         self.Func_type_list = []
 
 class node1: # 变量结点
-    def __init__(self, type=None, name = None, value = None, scope = None,line = 0):# 入口 变量类型 变量名 值 作用域
+    def __init__(self, type=None, name = None, value = None, scope = None,line = None):# 入口 变量类型 变量名 值 作用域
         self.address = None # 入口
         self.type = type
         self.name = name
         self.value = value
         self.scope = scope
-        self.line = 0
+        self.line = line
         self.n = None #下一个
 
 #函数名是否先声明后定义
