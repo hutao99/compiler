@@ -12,8 +12,6 @@ STACK = ['#']  # 输入栈
 
 STACK_INPUT = []  # 剩余输入串
 
-# 构建二维字典（类似于矩阵，可以像矩阵一样访问）存储分析表
-
 sentences = []
 
 class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
@@ -35,10 +33,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         test.input(grammar)
         print(test.first)
         print(test.last)
-        FIRST = test.first
-        FOLLOW = test.last
-        VT = test.vt
-        VN = test.vn
         begin_ch = test.begin
         SELECT = test.predict_table
         # 获取输入串并加入‘#’结束标志
@@ -174,15 +168,6 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
         VT = test.vt
         VN = test.vn
         SELECT = test.predict_table
-        message = {"words": " id 7X"}
-        words = {k: v.replace(" ", "") for k, v in message.items()}  # 适用于Python3
-        # SELECT = {k: v.replace(" ", "") for k, v in SELECT_.items()}  # 适用于Python3
-        for k, v in SELECT.items():
-            v = {m: n.replace(" ", "") for m, n in v.items()}
-        # words = {k: v.replace(" ", "") for k, v in message.iteritems()}  # 适用于Python2.7
-        print(words)  # 输出为{'words': 'id7X'}
-        print('-----------------')
-        print(SELECT)
         # 将字典的内容写入 QTextEdit 控件
         text_first = 'FIRST集合如下：\n'
         for key, value in FIRST.items():
@@ -232,7 +217,7 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            # fname = QFileDialog.getOpenFileName(self, 'Open file')
+            # fname = QFileDialog.getOpenFileName(None, 'Open file')
             fname = QFileDialog.getOpenFileName(self, 'Open file')
             if fname[0]:
                 print(fname[0])
@@ -242,7 +227,3 @@ class MyDesiger_LL(Ui_MainWindow_LL,QMainWindow):
                     self.textEdit_2.setText(str)
         except Exception as e:
             print("Error: ", e)
-app = QApplication(sys.argv)
-LL_window = MyDesiger_LL()
-LL_window.show()
-sys.exit(app.exec_())
