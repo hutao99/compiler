@@ -14,6 +14,32 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         self.setupUi(self)
         # 设置响应槽
         self.pushButton.clicked.connect(self.open_text)
+        self.pushButton_2.clicked.connect(self.DAG_optimal)
+
+    def DAG_optimal(self):
+        s = self.textEdit.toPlainText()
+        if s == '':
+            QMessageBox.warning(self, '警告', '请输入需要生成DAG的四元式！')
+            return
+        # code 四元式列表
+        if s[0] == '(':
+            lst = [tuple(x.strip() for x in line.strip("()").split(",")) for line in s.splitlines()]
+            code = [tuple(x.strip() for x in _[1:-1].split(',')) for _ in s.split("\n")]
+        else:
+            code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
+        DAG = create_DAG(code)
+        codes = optimize(DAG)
+        info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])
+        self.textEdit_2.setText(info)
+
+        DAG_draw(DAG)
+        self.graphicsView.scene_img = QGraphicsScene()
+        self.imgShow = QPixmap()
+        self.imgShow.load('./DAG/visible.gv.png')
+        self.imgShowItem = QGraphicsPixmapItem()
+        self.imgShowItem.setPixmap(QPixmap(self.imgShow))
+        self.graphicsView.scene_img.addItem(self.imgShowItem)
+        self.graphicsView.setScene(self.graphicsView.scene_img)
 
     def check_charset(self, file_path):
         import chardet
