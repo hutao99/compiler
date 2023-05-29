@@ -273,7 +273,7 @@ def Partition_Basic_Block(codes):
     basic_number = 0
     for code in basic_blocks:
         if code[-1][0] == 'jz':
-            dot.edge(str(basic_number-2), str(basic_number))
+            dot.edge(str(basic_number-1), str(basic_number))
         if len(code[-1][0])>=2 and code[-1][0][0] == 'j' and  code[-1][0][1] in ['=','>','<','!']:
             dot.edge(str(basic_number), str(basic_number + 1))
         if code[-1][0][0] == 'j':
@@ -347,7 +347,7 @@ def test3():
     print('cc:',cc)
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
-# test2()
+test2()
 
 '''
 codes: [('=', '3', '', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B')]
