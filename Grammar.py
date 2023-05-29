@@ -563,6 +563,9 @@ class recDesc_analysis:
 
         if ch in kong:  # 如果不在任意一个first(Ui)中，空 属于 first(Ui)，则判断当前符号是否在Follow集中
             if self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]:
+                self.node_number += 1
+                tree.node(str(self.node_number),'ε', fontname="SimHei")
+                tree.edge(str(fabian), str(self.node_number))
                 return 1
             else:
                 # 进行语法错误处理
