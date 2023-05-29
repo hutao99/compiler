@@ -21,7 +21,6 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QtCore.QRect(80, 100, 104, 64))
         self.plainTextEdit.setObjectName("plainTextEdit")
@@ -53,6 +52,7 @@ class Ui_MainWindow(object):
         self.splitter.addWidget(self.splitter1)
         self.splitter.addWidget(self.splitter2)
         self.gridLayout.addWidget(self.splitter, 0, 1, 0, 1)
+
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -121,7 +121,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.plainTextEdit.setPlainText(_translate("MainWindow", "输入正规式:(输入前请删除此行)"))
-        self.plainTextEdit_2.setPlainText(_translate("MainWindow", "输入需要识别的符号串:"))
+        self.plainTextEdit_2.setPlainText(_translate("MainWindow", "输入待识别的符号串:"))
         self.menu_F.setTitle(_translate("MainWindow", "打开文件"))
         self.menu_E.setTitle(_translate("MainWindow", "REG正则表达式转换"))
         self.menu.setTitle(_translate("MainWindow", "词法分析"))
