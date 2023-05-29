@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 
 from suanfu_fist_ui import Ui_MainWindow_LL
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
-
+from collection import FirstVTAndLastVT
 from TABLE import LL
 
 STACK = ['#']  # 输入栈
@@ -13,6 +13,7 @@ STACK = ['#']  # 输入栈
 STACK_INPUT = []  # 剩余输入串
 
 sentences = []
+
 
 
 # 算符优先分析的进一步完善，添加了槽函数等
@@ -27,17 +28,13 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
         self.pushButton.clicked.connect(self.onClick_analyze_stack)
 
     def onClick_analyze_stack(self):
-        test = LL()
+        test = FirstVTAndLastVT()
         grammar = self.textEdit_2.toPlainText()
         grammar = grammar.replace('->', ':')
         print(grammar)
         test.input(grammar)
         print(test.first)
         print(test.last)
-        FIRST = test.first
-        FOLLOW = test.last
-        VT = test.vt
-        VN = test.vn
         begin_ch = test.begin
         SELECT = test.predict_table
         # 获取输入串并加入‘#’结束标志
@@ -161,7 +158,8 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
     def onClick_create_first_follow_analyze_table(self):
         sentences.clear()
         # 获得所输入框输入的文法
-        test = LL()
+        test = FirstVTAndLastVT()
+        sequence1, precedence_table1 = test.Table()
         grammar = self.textEdit_2.toPlainText()
         grammar = grammar.replace('->', ':')
         print(grammar)
@@ -170,8 +168,6 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
         print(test.last)
         FIRST = test.first
         FOLLOW = test.last
-        VT = test.vt
-        VN = test.vn
         SELECT = test.predict_table
         message = {"words": " id 7X"}
         words = {k: v.replace(" ", "") for k, v in message.items()}  # 适用于Python3
@@ -183,19 +179,19 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
         print('-----------------')
         print(SELECT)
         # 将字典的内容写入 QTextEdit 控件
-        text_first = 'FIRST集合如下：\n'
+        text_first = 'FirstVT集合如下：\n'
         for key, value in FIRST.items():
             text_first += '{}: {}\n'.format(key, value)
         # 界面显示 first集
         self.textFirst_set.setPlainText(text_first)
-        text_follow = 'FOLLOW集合如下：\n'
+        text_follow = 'LastVT集合如下：\n'
         for key, value in FOLLOW.items():
             text_follow += '{}: {}\n'.format(key, value)
-        # 界面显示 first集
+        # 界面显示 firstvt集
         self.textFollow_set.setPlainText(text_follow)
 
         # 设置预测分析表的列数 len(VT)+2 终结符的数量加2,2 为第一列非终结符占一列，最后#占一列
-        self.tableAnalyze.setColumnCount(len(VT) + 2)
+        self.tableAnalyze.setColumnCount(len(sequence1) + 1)
         layer_analyze = 1
         # 设置预测分析表的层数
         self.tableAnalyze.setRowCount(layer_analyze)
@@ -207,19 +203,27 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
             item1 = QtWidgets.QTableWidgetItem(VT_1[size])
             self.tableAnalyze.setItem(0, size + 1, item1)
 
-        for i in range(len(VN)):
-            # 没遍历一次增加一层
+        i = 0
+        for t in sequence1:
+            # 每遍历一次增加一层
             layer_analyze = layer_analyze + 1
             self.tableAnalyze.setRowCount(layer_analyze)
             # 界面显示 预测分析表
             # 显示预测分析表的第一列 非终结符
-            item1 = QtWidgets.QTableWidgetItem(VN[i])
+            item1 = QtWidgets.QTableWidgetItem(t)
             self.tableAnalyze.setItem(i + 1, 0, item1)
             # 显示预测分析表的每一行 动作
-            for size in range(len(VT_1)):
+            '''for size in range(len(VT_1)):
                 if VT_1[size] in SELECT[VN[i]]:
                     item1 = QtWidgets.QTableWidgetItem(SELECT[VN[i]][VT_1[size]])
+                    self.tableAnalyze.setItem(i + 1, size + 1, item1)'''
+            size = 0
+            for k in precedence_table1[sequence1[i]]:
+                if k != '':
+                    item1 = QtWidgets.QTableWidgetItem(k)
                     self.tableAnalyze.setItem(i + 1, size + 1, item1)
+                size += 1
+            i += 1
 
     def check_charset(self, file_path):
         import chardet
