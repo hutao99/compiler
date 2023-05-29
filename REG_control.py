@@ -1,20 +1,25 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5 import QtGui, QtCore, QtWidgets
 
-from REG_interface import Ui_MainWindow_REG
+from REG_interface import Ui_MainWindow
 import REG
 
 
-class REG_MainWindow(Ui_MainWindow_REG, QMainWindow):
+class REG_MainWindow(Ui_MainWindow, QMainWindow):
     def __init__(self, parent=None):
-        super(Ui_MainWindow_REG, self).__init__(parent)
+        super(Ui_MainWindow, self).__init__(parent)
         self.setupUi(self)
-        self.action_NFA.triggered.connect(self.reg_to_nfa)
-        self.actionNFA_DFA.triggered.connect(self.nfa_to_dfa)
-        self.actionDFA_MFA.triggered.connect(self.dfa_to_mfa)
-        self.action_6.triggered.connect(self.Lexical_Analysis)
-        self.action_7.triggered.connect(self.show_all)
+        self.action_6.triggered.connect(self.reg_to_nfa)
+        self.actionNFA_DFA_2.triggered.connect(self.nfa_to_dfa)
+        self.actionDFA_MFA_2.triggered.connect(self.dfa_to_mfa)
+        self.action_8.triggered.connect(self.show_all)
+        # 词法分析
+        self.action_9.triggered.connect(self.Lexical_Analysis)
+        # 打开文件
+        self.action_7.triggered.connect(self.open_file)
+
 
         self.my_object = None
         self.nfa = []
@@ -22,6 +27,21 @@ class REG_MainWindow(Ui_MainWindow_REG, QMainWindow):
         self.mfa = []
         self.final_states = []
         self.input_symbols = []
+
+    def open_file(self):
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/10REG正则表达式转换', '文本文件 (*.txt)')
+        # 不加encoding = "utf-8" 就默认只能打开ANSI类型的文本, 设置后只能打开utf-8类型的文本
+        if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+            with open(path, 'r') as f:
+                text = f.read()
+            f.close()
+            houzui = path[len(path)-7: len(path) - 4]
+            if houzui == "lex":  # 输入符号串的测试用例
+                self.plainTextEdit_2.clear()
+                self.plainTextEdit_2.setPlainText(text)
+            else:  #  输入正规式的测试用例
+                self.plainTextEdit.clear()
+                self.plainTextEdit.setPlainText(text)
 
     def reg_to_nfa(self):
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
@@ -38,27 +58,55 @@ class REG_MainWindow(Ui_MainWindow_REG, QMainWindow):
 
         self.my_object = REG.NfaDfaMfa(reg)
         self.nfa = self.my_object.reg_to_nfa()
-        self.plainTextEdit_2.clear()
+        self.plainTextEdit_3.clear()
         f = open("NFA.txt")
         text = f.read()
         f.close()
-        self.plainTextEdit_2.appendPlainText(text)
+        text1 = "NFA:\n" + text
+        self.plainTextEdit_3.appendPlainText(text1)
+        self.textEdit.clear()
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Reg_Graph/NFA.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit.textCursor()
+        cursor.insertImage(image_format)
+        # 显示
+        self.textEdit.show()
 
     def nfa_to_dfa(self):
         self.dfa, self.final_states, self.input_symbols = self.my_object.nfa_to_dfa(self.nfa)
-        self.plainTextEdit_3.clear()
         f = open("DFA.txt")
         text = f.read()
         f.close()
-        self.plainTextEdit_3.appendPlainText(text)
+        text1 = "DFA:\n" + text
+        self.plainTextEdit_3.appendPlainText(text1)
+        self.textEdit_2.clear()
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Reg_Graph/DFA.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit_2.textCursor()
+        cursor.insertImage(image_format)
+        # 显示
+        self.textEdit_2.show()
 
     def dfa_to_mfa(self):
         self.mfa, self.final_states = self.my_object.dfa_to_mfa(self.dfa, self.final_states, self.input_symbols)
-        self.plainTextEdit_4.clear()
         f = open("MFA.txt")
         text = f.read()
         f.close()
-        self.plainTextEdit_4.appendPlainText(text)
+        text1 = "MFA:\n" + text
+        self.plainTextEdit_3.appendPlainText(text1)
+        self.textEdit_3.clear()
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Reg_Graph/MFA.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit_3.textCursor()
+        cursor.insertImage(image_format)
+        # 显示
+        self.textEdit_3.show()
 
     # 全部展示
     def show_all(self):
@@ -68,14 +116,14 @@ class REG_MainWindow(Ui_MainWindow_REG, QMainWindow):
 
 
     def Lexical_Analysis(self):
-        code = self.plainTextEdit.toPlainText()  # 获取用户输入代码
+        code = self.plainTextEdit_2.toPlainText()  # 获取用户输入代码
         result = REG.Lexical_Analysis(code, self.mfa, self.final_states)
-        self.plainTextEdit_2.clear()
+        self.plainTextEdit_3.clear()
         print(result)
-        text = ""
+        text = "识别结果:\n"
         for value in result:
             text += value + "\n"
-        self.plainTextEdit_2.appendPlainText(text)
+        self.plainTextEdit_3.appendPlainText(text)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)  # 创建应用程序对象
