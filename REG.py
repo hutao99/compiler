@@ -2,7 +2,8 @@ from graphviz import Digraph
 
 # 生成nfa的状态转换图
 def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节点和nfa 经过正规式转nfa后 初始节点和开始节点只有一个
-    nfa_graph = Digraph(comment='nfa_graph')
+    filename = './Reg_Graph/NFA'
+    nfa_graph = Digraph(filename, 'NFA_graph', None, None, 'png', None, "UTF-8")
     for value in result:
         if value[0] == start:  # 开始节点填满红色
             nfa_graph.node(str(value[0]), str(value[0]), fillcolor="red", style="filled")
@@ -14,7 +15,7 @@ def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节
             nfa_graph.node(str(value[2]), str(value[2]))
         # 边
         nfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
-    nfa_graph.render('test-output/NFA.gv', view=True)
+    nfa_graph.render()
 
 def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代码code进行词法分析,final_states为终结状态集
     result = []  # 识别结果
@@ -33,7 +34,6 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                     flag1 = 1
                     break
             if flag1 == 0 and state not in final_states:  # 表示下一个输入符有错
-                print("222")
                 index2 = index
                 while index2 < len(code):  # 一直找到空格或者换行位置
                     if code[index2] not in [" ", "\n"]:
@@ -42,7 +42,17 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                         break
                 result.append(code[index1: index2] + "识别错误")
                 index1 = index2 + 1
-            # print(state)
+                state = 0
+            if state not in final_states and index + 1 < len(code) and code[index + 1] in [" ", "\n"]:
+                index2 = index
+                while index2 < len(code):  # 一直找到不是空格和换行位置
+                    if code[index2] in [" ", "\n"]:
+                        index2 += 1
+                    else:
+                        break
+                result.append(code[index1: index + 1] + "识别错误")
+                index1 = index2 + 1
+                state = 0
             if state in final_states:  # 如果已经到达终结状态了就 判断是否还能继续识别下一个符号 不能就重新将state置0
                 flag = 0
                 for arc in mfa:
@@ -52,7 +62,6 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                 if flag == 0:
                     if index+1 < len(code) and (code[index + 1] not in [" ", "\n"]):  # 后面有错误的输入符
                         index2 = index
-                        print("11111")
                         while index2 < len(code):   # 一直找到空格或者换行位置
                             if code[index2] not in [" ", "\n"]:
                                 index2 += 1
@@ -60,12 +69,13 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                                 break
                         result.append(code[index1: index2] + "识别错误")
                         index1 = index2 + 1
+                        state = 0
                     else:
                         result.append(code[index1: index + 1] + "识别成功")  # [index1: index]不包含index
                         index1 = index + 1
                         state = 0
-    # if state != 0:
-    #     result.append(code[index1: len(code)] + "识别错误")
+    if state != 0 and (code[index1: len(code)] + "识别错误") not in result:
+        result.append(code[index1: len(code)] + "识别错误")
     return result
 
 """
@@ -437,7 +447,8 @@ class NfaDfaMfa:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
 
         # 生成nfa的状态转换图
-        dfa_graph = Digraph(comment='dfa_graph')
+        filename = './Reg_Graph/DFA'
+        dfa_graph = Digraph(filename, 'DFA_graph', None, None, 'png', None, "UTF-8")
         for value in dfa:
             # 出发节点
             if value[0] == 0:  # 初始节点
@@ -456,7 +467,7 @@ class NfaDfaMfa:
                 dfa_graph.node(str(value[2]), str(value[2]))
             # 加边
             dfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
-        dfa_graph.render('test-output/DFA.gv', view=True)
+        dfa_graph.render()
 
         # 返回dfa和终态集
         return dfa, final_states, symbol_input
@@ -630,7 +641,8 @@ class NfaDfaMfa:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
 
         # 生成nfa的状态转换图
-        mfa_graph = Digraph(comment='mfa_graph')
+        filename = './Reg_Graph/MFA'
+        mfa_graph = Digraph(filename, 'MFA_graph', None, None, 'png', None, "UTF-8")
         for value in final_mfa:
             # 出发节点
             if value[0] == 0:  # 初始节点
@@ -650,7 +662,7 @@ class NfaDfaMfa:
                 mfa_graph.node(str(value[2]), str(value[2]))
             # 加边
             mfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
-        mfa_graph.render('test-output/MFA.gv', view=True)
+        mfa_graph.render()
 
         # 修改终结状态集 如[7,8]合并成了[7] 就需要将8删掉
         for index, final_state in enumerate(final_states):
