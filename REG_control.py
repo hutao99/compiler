@@ -17,9 +17,10 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.action_8.triggered.connect(self.show_all)
         # 词法分析
         self.action_9.triggered.connect(self.Lexical_Analysis)
-        # 打开文件
+        # 打开正规式文件
         self.action_7.triggered.connect(self.open_file)
-
+        # 打开待输入符号串文件
+        self.action_10.triggered.connect(self.open_file1)
 
         self.my_object = None
         self.nfa = []
@@ -30,18 +31,22 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
 
     def open_file(self):
         path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/10REG正则表达式转换', '文本文件 (*.txt)')
-        # 不加encoding = "utf-8" 就默认只能打开ANSI类型的文本, 设置后只能打开utf-8类型的文本
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding="utf-8") as f:
                 text = f.read()
             f.close()
-            houzui = path[len(path)-7: len(path) - 4]
-            if houzui == "lex":  # 输入符号串的测试用例
-                self.plainTextEdit_2.clear()
-                self.plainTextEdit_2.setPlainText(text)
-            else:  #  输入正规式的测试用例
-                self.plainTextEdit.clear()
-                self.plainTextEdit.setPlainText(text)
+            self.plainTextEdit.clear()
+            self.plainTextEdit.setPlainText(text)
+
+    def open_file1(self):
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/10REG正则表达式转换',
+                                              '文本文件 (*.txt)')
+        if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+            with open(path, 'r', encoding="utf-8") as f:
+                text = f.read()
+            f.close()
+            self.plainTextEdit_2.clear()
+            self.plainTextEdit_2.setPlainText(text)
 
     def reg_to_nfa(self):
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式

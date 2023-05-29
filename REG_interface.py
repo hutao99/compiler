@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-
+        
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QtCore.QRect(80, 100, 104, 64))
         self.plainTextEdit.setObjectName("plainTextEdit")
@@ -53,7 +53,6 @@ class Ui_MainWindow(object):
         self.splitter.addWidget(self.splitter1)
         self.splitter.addWidget(self.splitter2)
         self.gridLayout.addWidget(self.splitter, 0, 1, 0, 1)
-
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -102,7 +101,10 @@ class Ui_MainWindow(object):
         self.action_8.setObjectName("action_8")
         self.action_9 = QtWidgets.QAction(MainWindow)
         self.action_9.setObjectName("action_9")
+        self.action_10 = QtWidgets.QAction(MainWindow)
+        self.action_10.setObjectName("action_10")
         self.menu_F.addAction(self.action_7)
+        self.menu_F.addAction(self.action_10)
         self.menu_E.addAction(self.action_6)
         self.menu_E.addAction(self.actionNFA_DFA_2)
         self.menu_E.addAction(self.actionDFA_MFA_2)
@@ -134,8 +136,9 @@ class Ui_MainWindow(object):
         self.actionNFA_DFA.setText(_translate("MainWindow", "NFA转DFA"))
         self.actionDFA_MFA.setText(_translate("MainWindow", "DFA转MFA"))
         self.action_6.setText(_translate("MainWindow", "正规式转NFA"))
-        self.action_7.setText(_translate("MainWindow", "打开文件"))
+        self.action_7.setText(_translate("MainWindow", "打开正规式文件"))
         self.actionNFA_DFA_2.setText(_translate("MainWindow", "NFA转DFA"))
         self.actionDFA_MFA_2.setText(_translate("MainWindow", "DFA转MFA"))
         self.action_8.setText(_translate("MainWindow", "一键三连"))
         self.action_9.setText(_translate("MainWindow", "词法分析"))
+        self.action_10.setText(_translate("MainWindow", "打开待识别符号串文件"))
