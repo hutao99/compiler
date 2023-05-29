@@ -3,7 +3,6 @@ from graphviz import Digraph
 # 生成nfa的状态转换图
 def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节点和nfa 经过正规式转nfa后 初始节点和开始节点只有一个
     nfa_graph = Digraph(comment='nfa_graph')
-
     for value in result:
         if value[0] == start:  # 开始节点填满红色
             nfa_graph.node(str(value[0]), str(value[0]), fillcolor="red", style="filled")
@@ -22,25 +21,51 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
     state = 0  # 现在所处的状态
     index1 = 0  # code[index1 : index] 为识别成功的单词
     for index, char in enumerate(code):
+        if index < index1:
+            continue
         if char == " " or char == "\n":  # 除去空格和换行符
             index1 += 1
         else:
+            flag1 = 0
             for arc in mfa:
                 if arc[0] == state and arc[1] == char:  # 找到开始状态和输入符号
                     state = arc[2]  # 进入下一个状态
+                    flag1 = 1
                     break
-        if state in final_states:  # 如果已经到达终结状态了就 判断是否还能继续识别下一个符号 不能就重新将state置0
-            flag = 0
-            for arc in mfa:
-                if state == arc[0] and code[index + 1] == arc[1]:  # 能识别下一个符号
-                    flag = 1
-                    break
-            if flag == 0:
-                result.append(code[index1: index + 1] + "识别成功") # [index1: index]不包含index
-                index1 = index + 1
-                state = 0
-    if state != 0:
-        result.append(code[index1: len(code)] + "识别错误")
+            if flag1 == 0 and state not in final_states:  # 表示下一个输入符有错
+                print("222")
+                index2 = index
+                while index2 < len(code):  # 一直找到空格或者换行位置
+                    if code[index2] not in [" ", "\n"]:
+                        index2 += 1
+                    else:
+                        break
+                result.append(code[index1: index2] + "识别错误")
+                index1 = index2 + 1
+            # print(state)
+            if state in final_states:  # 如果已经到达终结状态了就 判断是否还能继续识别下一个符号 不能就重新将state置0
+                flag = 0
+                for arc in mfa:
+                    if state == arc[0] and index+1 < len(code) and code[index + 1] == arc[1]:  # 能识别下一个符号
+                        flag = 1
+                        break
+                if flag == 0:
+                    if index+1 < len(code) and (code[index + 1] not in [" ", "\n"]):  # 后面有错误的输入符
+                        index2 = index
+                        print("11111")
+                        while index2 < len(code):   # 一直找到空格或者换行位置
+                            if code[index2] not in [" ", "\n"]:
+                                index2 += 1
+                            else:
+                                break
+                        result.append(code[index1: index2] + "识别错误")
+                        index1 = index2 + 1
+                    else:
+                        result.append(code[index1: index + 1] + "识别成功")  # [index1: index]不包含index
+                        index1 = index + 1
+                        state = 0
+    # if state != 0:
+    #     result.append(code[index1: len(code)] + "识别错误")
     return result
 
 """
