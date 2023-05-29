@@ -49,7 +49,6 @@ class FirstAndFollow:
                         # 没有空字符就不用处理后面的非终结符
                         if 'ε' not in self.first[n]:
                             break
-
     def Last_(self):
         flag = True
         # 在lastvt集合变化时执行
@@ -109,14 +108,20 @@ class FirstVTAndLastVT:
         self.last = dict()
         # 非终结符和产生式
         self.Formula = dict()
+        self.begin = ''
 
     def input(self, data):
+        '''carve = list(filter(None, data.split('\n')))
+        index = carve[0].find(':')
+        begin = carve[0][0:index]
+        self.begin = begin'''
         # 处理文法
         for i in list(filter(None, data.split('\n'))):
             index = i.find(':')
             self.Formula[i[0:index]] = i[index+1:]
             self.first[i[0:index]] = []
             self.last[i[0:index]] = []
+        #self.last[begin].append('#')
         self.FirstVT()
         self.LastVT()
 
@@ -203,11 +208,11 @@ class FirstVTAndLastVT:
                     # P->...aB...
                     if k + 1 < l and word[k] not in self.Formula and word[k+1] in self.Formula:
                         for m in self.first[word[k+1]]:
-                            precedence_table[sequence[word[k]]][sequence[m]] = '<'
+                            precedence_table[sequence[word[k]]][sequence[m]] = '<'#
                     # P->...Ab...
                     if k + 1 < l and word[k] in self.Formula and word[k+1] not in self.Formula:
                         for m in self.last[word[k]]:
-                            precedence_table[sequence[m]][sequence[word[k+1]]] = '>'
+                            precedence_table[sequence[m]][sequence[word[k+1]]] = '>'#
                     # P->...aQb...
                     if k + 2 < l and word[k] not in self.Formula and word[k+1] in self.Formula and word[k+2] not in self.Formula:
                         precedence_table[sequence[word[k]]][sequence[word[k + 2]]] = '='
@@ -215,6 +220,7 @@ class FirstVTAndLastVT:
 
     # 算符优先分析
     def OP(self, sequence, precedence_table, expression):
+        info = ""
         opposite = dict()
         for i in self.Formula:
             production = self.Formula[i].split('|')
@@ -244,24 +250,30 @@ class FirstVTAndLastVT:
         result = []
         index = 1
         isinteger = True
+        # print(precedence_table[sequence['identifier']][sequence['and']])
         for i in expression:
             if i[0] == 'float':
                 isinteger = False
                 break
+        stack_total = []
         while index < len(expression):
             i = expression[index][0]
-            if i != 'integer' and i != 'float':
+            if i != 'integer' and i != 'float' and i != 'identifier':
+                i = expression[index][1]
+            if expression[index][1] == 'and' or expression[index][1] == 'or' or expression[index][1] == 'ture' or expression[index][1] == 'False':
                 i = expression[index][1]
             sign = symbol[-1]
             if sign == '#' and sign == i:
                 print("接受表达式")
+                info += "接受表达式"
                 break
             elif precedence_table[sequence[sign]][sequence[i]] == '<' or precedence_table[sequence[sign]][sequence[i]] == '=':
                 stack.append(i)
-                if expression[index][1] == '/' and isinteger:
+                '''if expression[index][1] == '/' and isinteger:
                     result.append('//')
                 else:
                     result.append(expression[index][1])
+                '''
                 symbol.append(i)
                 index += 1
             # 规约
@@ -275,20 +287,26 @@ class FirstVTAndLastVT:
                             if c not in self.Formula:
                                 symbol.pop()
                         m = new_opposite[''.join(stack[j:length])]
-                        r = ''.join(result[j-1:length-1])
+                        #r = ''.join(result[j-1:length-1])
                         stack = stack[0:j]
                         stack.append(m)
-                        result = result[0:j - 1]
-                        result.append(str(eval(r)))
+                        #result = result[0:j - 1]
+                        #result.append(str(eval(r)))
                         # 还可能规约
                         flag = False
                         break
                 # 规约不了，报错
                 if flag:
                     print("没有产生式可以规约")
+                    info += "没有产生式可以规约"
+                    break
             else:
                 # 没有优先级关系报错
                 print("未正确输入表达式")
+                info += "未正确输入表达式"
                 break
             print(stack)
-            print(result)
+            if stack not in stack_total:
+                stack_total.append(stack)
+            #print(result)
+        return stack_total, info
