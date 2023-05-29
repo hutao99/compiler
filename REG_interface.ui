@@ -37,7 +37,7 @@
      </rect>
     </property>
     <property name="plainText">
-     <string>输入需要识别的符号串:</string>
+     <string>输入待识别的符号串:</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit_3">
