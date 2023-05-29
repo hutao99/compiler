@@ -1,0 +1,9 @@
+E':# E #
+E: C | T | ( E ) | E + T | E - T | true | false | C >= E | C <= E | C > E | C < E | C == E | D | R
+T: F | T * F | T / F
+F: ( E ) | integer | float |  C
+B: true | false | C
+C: identifier
+D: C = E
+R: E and R | L
+L: B | L or E

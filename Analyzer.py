@@ -350,7 +350,7 @@ class AnalyzerLex:
 
     def __init__(self):
         self.lexer = lex.lex(module=self)
-        self.ty = self.typefile("D:\\pycharmProjects\\project1\\种别码.txt")
+        self.ty = self.typefile("种别码.txt")
         self.error = []
 
     def typefile(self, address):
