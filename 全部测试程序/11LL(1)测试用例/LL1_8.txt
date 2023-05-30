@@ -2,3 +2,4 @@ D→T L
 T→i|r
 L→c R
 R→, c R|$
+
