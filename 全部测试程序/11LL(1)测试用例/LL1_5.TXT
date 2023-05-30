@@ -1,8 +1,8 @@
-S->(L)|aP
+S->( L )|a P
 P->S|$
-L->,SD
-D->SD|$
+L->, S D
+D->S D|$
 
-S¡ú(L)|aS|a
-L¡úL,S|S
+S¡ú( L )|a S|a
+L¡úL , S|S
 

@@ -1,5 +1,5 @@
-B->TC
-C->oT C|$
-T->FD
-D->aFD|$
-F->nF|(B)|t|f
+B->T C
+C->o T C|$
+T->F D
+D->a F D|$
+F->n F|( B )|t|f

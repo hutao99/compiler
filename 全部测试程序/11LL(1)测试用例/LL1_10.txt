@@ -1,4 +1,4 @@
-E→-E|(E)|VF
+E→-E|( E )|V F
 F→-E|$
-V→ iW
-W→(E)|$
+V→ i W
+W→( E )|$
