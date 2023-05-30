@@ -1,2 +1,3 @@
-S→ a|b|(A)
- A→ SdA|S
+G: # S #
+S: a | b | ( A )
+A: S d A | S

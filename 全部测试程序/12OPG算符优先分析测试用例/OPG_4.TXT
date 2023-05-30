@@ -1,7 +1,4 @@
-B->BoT| T
-T->TaF|F
-F->nF|(B)|t|f
-S->#B#
-
-
-
+S: # B #
+B: B o T | T
+T: T a F | F
+F: n F | ( B ) | t | f

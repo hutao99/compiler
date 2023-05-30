@@ -184,6 +184,7 @@ class LL:
                     for fk in self.last[k]:
                         self.predict_table[k][fk] = k + '->' + next_grammar.replace(" ", "")
 
+
     # 书上112页
     def analysis(self, analyze_str):
         stack = []
@@ -226,23 +227,3 @@ class LL:
                     print("分析错误")
                     return
 
-
-# test = LL()
-# path = "全部测试程序\\11LL(1)测试用例\LL1_1.TXT"
-# ans = "i+(i*i)"
-# grammar = str(open(path).read())
-# grammar = grammar.replace('->', ':')
-# print(grammar)
-# test.input(grammar)
-# print("\nfirst集合如下\n")
-# for i in test.first:
-#     print(i, test.first[i])
-# print("\nfollow集合如下\n")
-# for j in test.last:
-#     print(j, test.last[j])
-# print(test.first)
-# print(test.last)
-# test.analysis(ans)
-
-
-# 参考了https://blog.csdn.net/m0_54759841/article/details/124001965

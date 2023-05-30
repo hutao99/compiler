@@ -1,10 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-import sys
 
 # 界面UI类
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication
 
 
 class Ui_MainWindow_LL(object):
@@ -87,7 +85,7 @@ class Ui_MainWindow_LL(object):
 
         # 设置tablewidget 栈分析表的表头
         self.tableStack.setHorizontalHeaderLabels(["输入栈", "剩余输入串", "所用表达式", "动作"])
-
+        self.tableStack.horizontalHeader().setVisible(True)  # 显示行表头
         self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_2.setGeometry(QtCore.QRect(0, 0, 511, 191))
         font = QtGui.QFont()

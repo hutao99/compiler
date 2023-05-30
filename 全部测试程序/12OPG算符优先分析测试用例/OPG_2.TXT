@@ -1,4 +1,4 @@
-S->T|SvT
-T->U|T^U
-U->i|-U
-M->#S#
+M: # S #
+S: T | S v T
+T: U | T ^ U
+U: identifier | - U
