@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
-from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
+from creat_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 
@@ -15,7 +15,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         self.setupUi(self)
         # 设置响应槽
         self.pushButton.clicked.connect(self.open_text)
-        self.pushButton_2.clicked.connect(self.DAG_optimal)
+        self.pushButton_1.clicked.connect(self.DAG_optimal)
 
     def DAG_optimal(self):
         s = self.textEdit.toPlainText()
