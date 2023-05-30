@@ -24,7 +24,7 @@ from REG_control import REG_MainWindow
 # LR
 import LR
 from Analyzer import AnalyzerLex
-from create_DAG import create_DAG, optimize, Partition_Basic_Block
+from creat_DAG import create_DAG, optimize, Partition_Basic_Block
 
 # REG
 from REG_control import REG_MainWindow
@@ -524,6 +524,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         cursor.insertImage(image_format)
 
         self.textEdit_3.show()
+
     # 中间代码
     def middle_analysis(self):
         if self.recursive_or_lr_flag == 1:  # 递归下井中间代码
@@ -628,7 +629,17 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # print(tokens)
         self.LR.ControlProgram(tokens)
         # self.display1.append(self.LR.PrintParseTree())
-        self.textEdit_2.setText(self.LR.PrintParseTree())  # 语法树
+        self.LR.PrintParseTree()  # 画语法树图
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Syntax_Tree/tree.gv.png')
+
+        # 在QTextEdit中插入图片
+        self.textEdit_3.setText('')
+        cursor = self.textEdit_3.textCursor()
+        cursor.insertImage(image_format)
+        self.textEdit_3.show()  # 语法树
+
         errors = []
         errors.extend(lex.error)
         errors.extend(self.LR.errors)
@@ -661,7 +672,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
         for i in self.LR.warning:
             s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-        self.textEdit_3.setText(s)
+        self.textEdit_2.setText(s)
 
 
 if __name__ == "__main__":
