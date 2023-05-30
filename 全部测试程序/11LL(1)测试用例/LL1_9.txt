@@ -1,7 +1,8 @@
-E→TG
-G→+E|$
-T→FH
+E→T G
+G→+ E| $
+T→F H
 H→T|$
-F→PM
-M→*M|$
-P→(E)|a|b|∧
+F→P M
+M→* M|$
+P→( E )|a|b|∧
+

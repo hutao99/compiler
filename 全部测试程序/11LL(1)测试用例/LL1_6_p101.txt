@@ -1,6 +1,6 @@
-E->TG
-G->+TG|$
-T->FH
-H->*FH|$
-F->(E)
+E->T G
+G->+ T G|$
+T->F H
+H->* F H|$
+F->( E )
 F->i

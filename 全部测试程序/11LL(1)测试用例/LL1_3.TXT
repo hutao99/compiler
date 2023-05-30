@@ -1,4 +1,4 @@
-A->aT
-T->ABl |$
-B->dF   
-F->bF |$
+A->a T
+T->A B l |$
+B->d F
+F->b F |$

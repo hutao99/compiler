@@ -1,3 +1,4 @@
+
 import os
 import sys
 
@@ -5,25 +6,18 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
-from MY_DESIGN_DAG import MyDesiger_DAG
 from MY_DESIGN_LL1 import MyDesiger_LL
-from MyDesign_suanfu import MyDesiger_suanfu
-
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Laxer1 import LexicalAnalysis
-
 # import webbrowser
-# webbrowser.open(fname[0])  # 打开chm格式的文件
+#webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
-from create_DAG import create_DAG, optimize, Partition_Basic_Block
-
+from creat_DAG import create_DAG, optimize,Partition_Basic_Block
 # REG
 from REG_control import REG_MainWindow
-
-
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super(DetailUI, self).__init__()
@@ -90,16 +84,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
         self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
         self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
-        self.actionDAG_.triggered.connect(self.DAG__)  # DAG优化
-        """
-            算符优先
-        """
-        self.actionsuanfu_first.triggered.connect(self.suanfu_analyze)
+
         """
         REG正则表达式转换
         """
         self.actionNFA_DFA.triggered.connect(self.REG_transform)
-
     def recent_folders(self):
         try:
             # 添加根节点
@@ -467,10 +456,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
 
-    def DAG__(self):
-        self.DAG_window = MyDesiger_DAG()
-        self.DAG_window.show()
-
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):
         self.recursive_or_lr_flag = 1
@@ -479,7 +464,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.wordlist, self.errorlist, self.lbword = a.print_out()
         self.textEdit_3.setText(self.wordlist)
         self.textEdit_2.setText(self.errorlist)
-
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         self.recursive_or_lr_flag = 1
@@ -487,21 +471,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         rda = recDesc_analysis(file_object)
         self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
             self.lbword)
+        self.textEdit_3.setText(self.text1 + '\n' + self.text2)
         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-        all_text = self.text1 + '\n' + self.text2 + text1
-        self.textEdit_2.setText(all_text)
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Syntax_Tree/tree.gv.png')
+        self.textEdit_2.setText(text1)
 
-        # 在QTextEdit中插入图片
-        cursor = self.textEdit_3.textCursor()
-        cursor.insertImage(image_format)
-
-        self.textEdit_3.show()
     # 中间代码
     def middle_analysis(self):
-        if self.recursive_or_lr_flag == 1:  # 递归下井中间代码
+        if self.recursive_or_lr_flag == 1: # 递归下井中间代码
             text = ''
             for quad in self.siyuanshi:
                 text += ','.join([str(s) for s in quad]) + '\n'
@@ -510,24 +486,18 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 目标代码
     def Object_analysis(self):
-        if self.recursive_or_lr_flag == 1:  # 递归下降目标代码
+        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
             text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
             self.textEdit_2.setText(text)
 
-
     # DAG优化
     def DAG_optimization(self):
-        a = 1
+        a=1
 
-    # REG正则表达式转换
     def REG_transform(self):
         self.reg_window = REG_MainWindow()
         self.reg_window.show()
 
-    # 算符优先
-    def suanfu_analyze(self):
-        self.suanfu_window = MyDesiger_suanfu()
-        self.suanfu_window.show()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
