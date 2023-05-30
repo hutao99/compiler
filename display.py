@@ -15,20 +15,15 @@ from Laxer1 import LexicalAnalysis
 #webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
-import ObjectCode1
 from creat_DAG import create_DAG, optimize,Partition_Basic_Block
 # REG
 from REG_control import REG_MainWindow
-# LR
-import LR
-from Analyzer import AnalyzerLex
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super(DetailUI, self).__init__()
         self.setupUi(self)
         self.setWindowTitle('编译器')
         self.tree_view = self.treeView
-
 
         self.model = QDirModel()  # 显示文件系统
         # self.model.setRootPath(self.data_path)
@@ -93,31 +88,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         REG正则表达式转换
         """
         self.actionNFA_DFA.triggered.connect(self.REG_transform)
-
-        """
-        LR(1)分析
-        """
-        # 初始化LR分析
-        self.LR = LR.CLRParser()
-        f = open('文法修改.txt', 'r', encoding='utf-8')
-        f1 = open('文法修改1.txt', 'r', encoding='utf-8')
-        self.LR.input(f.read())
-        lr1 = LR.CLRParser()
-        lr1.input(f1.read())
-        lr1.Action_and_GoTo_Table()
-        self.LR.Action_and_GoTo_Table()
-        self.LR.parsing_table1 = lr1.parsing_table
-        self.LR.reduction1 = lr1.reduction
-        self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
-        self.actionfrom_down_to_up.triggered.connect(self.SyntaxAndSemanticAnalyzer)  # 语法分析
-        #self.action_middle_code.triggered.connect(self.genMiddleCode)
-        #self.actionhuibian_code.triggered.connect(self.getTargetCode)
-
-        """
-        算符优先
-        """
-        # self.actionsuanfu_first
-
     def recent_folders(self):
         try:
             # 添加根节点
@@ -512,54 +482,12 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 text += ','.join([str(s) for s in quad]) + '\n'
             print(text)
             self.textEdit_3.setText(text)
-        else:  # LR中间代码
-            lex = AnalyzerLex()
-            text = self.textEdit.toPlainText()
-            lex.input(text)
-            tokens = []
-            while True:
-                tok = lex.token()
-                if not tok:
-                    break
-                tokens.append([tok.type, tok.value, tok.lineno,
-                               lex.find_column(tok.lexer.lexdata, tok)])
-            tokens.append(['keyword', '#'])
-            self.LR.ControlProgram(tokens)
-            s = ''
-            if len(self.LR.errors) == 0 and len(lex.error) == 0:
-                self.LR.IntermediateCodeGenerator(tokens)
-                getcode = self.LR.code
-                for i in range(len(getcode)):
-                    s += str(i) + ':' + str(getcode[i]) + '\n'
-                self.textEdit_3.setText(s)
-            else:
-                errors = []
-                errors.extend(lex.error)
-                errors.extend(self.LR.errors)
-                errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                for i in errors:
-                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
-                self.textEdit_2.setText(s)
 
     # 目标代码
     def Object_analysis(self):
         if self.recursive_or_lr_flag == 1: # 递归下降目标代码
             text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
             self.textEdit_2.setText(text)
-        else:  # LR目标代码
-            MiddleCode = self.LR.code
-            function_param_list = self.LR.function_param_list
-            function_jubu_list = self.LR.function_jubu_list
-            function_array_list = self.LR.function_array_list
-            global_array_list = self.LR.global_array_list
-            for i in range(len(MiddleCode)):
-                for j in range(4):
-                    if MiddleCode[i][j] == '':
-                        MiddleCode[i][j] = '_'
-            if len(MiddleCode) != 0:
-                self.textEdit_2.setText(
-                    ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                      global_array_list))
 
     # DAG优化
     def DAG_optimization(self):
@@ -568,75 +496,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def REG_transform(self):
         self.reg_window = REG_MainWindow()
         self.reg_window.show()
-
-    def LexicalAnalysis(self):  # LR词法分析相应函数,自动
-        self.recursive_or_lr_flag = 2
-        text = self.textEdit.toPlainText()
-        lex = AnalyzerLex()
-        lex.input(text+'\n')
-        s = ''
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            s += ("值:{:<15}行:{:<10}列:{:<10}类型:{:<20}\n".format(
-                tok.value, tok.lineno, lex.find_column(tok.lexer.lexdata, tok), tok.type))
-        self.textEdit_3.setText(s)
-        s = ''
-        for i in lex.error:
-            s += (
-                ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
-        self.textEdit_2.setText(s)
-
-    def SyntaxAndSemanticAnalyzer(self):  # LR语法分析和语义分析
-        lex = AnalyzerLex()
-        text = self.textEdit.toPlainText()
-        lex.input(text)
-        tokens = []
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            tokens.append([tok.type, tok.value, tok.lineno,
-                          lex.find_column(tok.lexer.lexdata, tok)])
-        tokens.append(['keyword', '#'])
-        # print(tokens)
-        self.LR.ControlProgram(tokens)
-        # self.display1.append(self.LR.PrintParseTree())
-        self.textEdit_2.setText(self.LR.PrintParseTree())  # 语法树
-        errors = []
-        errors.extend(lex.error)
-        errors.extend(self.LR.errors)
-        errors = sorted(errors, key=lambda x: (x[0], x[1]))
-        s = ''
-        s += '常量表:\n'
-        for i in self.LR.ConstantTable:
-            s += i + ": "
-            for j in self.LR.ConstantTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '变量表:\n'
-        for i in self.LR.VariableTable:
-            s += i + ": "
-            for j in self.LR.VariableTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '数组表:\n'
-        for i in self.LR.ArrayTable:
-            s += i + ": "
-            for j in self.LR.ArrayTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '函数表:\n'
-        for i in self.LR.FunctionTable:
-            s += i + ": "
-            s += str(vars(self.LR.FunctionTable[i])) + '\n'
-        s += '\nerror %d\n' % len(errors)
-        for i in errors:  # 语法和语义错误
-            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-        for i in self.LR.warning:
-            s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-        self.textEdit_3.setText(s)
 
 
 if __name__ == "__main__":
