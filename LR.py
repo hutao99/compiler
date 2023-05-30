@@ -98,6 +98,9 @@ class CLRParser:
         self.status_include_num = None
         self.direction = None
 
+        # Digraph图片
+        self.dot = Digraph(comment='LR_DFA_Digraph')
+
     def input(self, data):
         p = FirstAndFollow()
         p.input(data)
@@ -351,13 +354,13 @@ class CLRParser:
         prod_state_exchange = {v: k for k, v in self.prod_state.items()}
         dot = Digraph(comment='LR_Digraph')
         for i in range(len(self.status_include_num)):
-            lab = ''
+            lab = 'I' + str(i) + '\n'
             for j in self.status_include_num[i]:
                 lab += prod_state_exchange[j] + '\n'
             dot.node(str(i), lab)
         for i in self.direction:
             dot.edge(str(i[0]), str(i[2]), i[1])
-        dot.render('LR_Digraph', view=True, format='png', directory='LR_Digraph')
+        dot.render('LR_Digraph.gv', view=True, format='png', directory='LR_Digraph')
 
     def ControlProgram(self, token):
         self.errors.clear()
@@ -367,6 +370,7 @@ class CLRParser:
         self.FunctionTable.clear()
         self.warning.clear()
         self.ArrayTable.clear()
+        self.dot.clear()
         # read函数
         previse_fun = FunctionInfo()
         previse_fun.type = 'int'
@@ -379,6 +383,10 @@ class CLRParser:
         previse_fun.para_num = 1
         previse_fun.para_type = 'int'
         self.FunctionTable['write'] = previse_fun
+
+        # 节点标号
+        node_index = 0
+        stack_num = []
 
         # 符号列表
         sign_list = []
@@ -525,11 +533,13 @@ class CLRParser:
                 production = self.reduction[int(status[1:])]
                 idx = production.find(':')
                 father = Node(production[0:idx])
+                self.dot.node(str(node_index), production[0:idx], fontname="SimHei")
                 if idx + 1 < len(production):
                     prod = production[idx+1:].split(' ')
                     for i in range(len(prod)):
                         stack_state.pop()
                         stack_symbol.pop()
+                        self.dot.edge(str(node_index), str(stack_num.pop()))
                         stack_node.pop().parent = father
                     # 综合属性传递
                     if father.name == '类型':
@@ -876,10 +886,11 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[-1].children[-1].symbol_info[2], father.children[-1].children[-1].symbol_info[3],
                                      "'%s'变量未声明" % father.children[-1].children[-1].symbol_info[1]])
-
                 stack_symbol.append(production[0:idx])
                 stack_node.append(father)
+                stack_num.append(node_index)
                 stack_state.append(int(self.parsing_table[stack_state[-1]][stack_symbol[-1]]))
+                node_index += 1
             elif status == 'acc':
                 for i in self.var_num:
                     for j in self.var_num[i]:
@@ -890,6 +901,9 @@ class CLRParser:
                 break
             else:
                 stack_node.append(Node(name, symbol_info=token[index]))
+                self.dot.node(str(node_index), token[index][1])
+                stack_num.append(node_index)
+                node_index += 1
                 if name == '{':
                     scope.append([scope[-1][0] + ',' + str(scope[-1][1]), 0])
                 elif name == '}':
@@ -906,10 +920,11 @@ class CLRParser:
 
     # 语法树
     def PrintParseTree(self):
-        tree = ''
+        self.dot.render('tree.gv', view=False, format='png', directory='Syntax_Tree')
+        '''tree = ''
         for pre, fill, node in RenderTree(self.node):
             tree += ("%s%s\n" % (pre, node.name))
-        return tree
+        return tree'''
 
     def IntermediateCodeGenerator(self, token):
         self.code.clear()
