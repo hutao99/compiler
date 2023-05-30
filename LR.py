@@ -1326,8 +1326,9 @@ class CLRParser:
                         index_code += 1
                     elif father.name == '函数调用':
                         if self.FunctionTable[father.children[-1].symbol_info[1]].type != 'void':
-                            self.code.append(['call', father.children[-1].symbol_info[1], '', 'return_value'])
-                            father.value = 'return_value'
+                            self.code.append(['call', father.children[-1].symbol_info[1], '', 'T' + str(count)])
+                            father.value = 'T' + str(count)
+                            count += 1
                         else:
                            self.code.append(['call', father.children[-1].symbol_info[1], '', ''])
                         index_code += 1
