@@ -8,8 +8,16 @@ stack segment
 	db 1024 dup (0)
 stack ends
 
+dispmsg macro message
+    lea dx, message
+    mov ah, 9
+    int 21h
+endm
+
 data segment
 	_buff_p db 256 dup (24h)
 	_buff_s db 256 dup (0)
 	_msg_p db 0ah,'Output:',0
 	_msg_s db 0ah,'Input:',0
+    next_row db 0dh,0ah,'$'
+    error db 'input error, please re-enter: ','$'
