@@ -38,6 +38,7 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
             print("Error: ", e)
 
 
+
 app = QApplication(sys.argv)
 LL_window = MyDesiger_LR()
 LL_window.show()

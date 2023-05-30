@@ -141,6 +141,7 @@ class Ui_MainWindow_LR(object):
         self.pushButton_3.setText("分析")
         self.gridLayout.addWidget(self.pushButton_3, 6, 6, 1, 1)
 
+
         self.textEdit_4 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_4.setGeometry(QtCore.QRect(0, 0, 511, 191))
         font = QtGui.QFont()
