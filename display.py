@@ -6,6 +6,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
+from MY_DESIGN_DAG import MyDesiger_DAG
 from MY_DESIGN_LL1 import MyDesiger_LL
 from MyDesign_suanfu import MyDesiger_suanfu
 
@@ -95,6 +96,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         REG正则表达式转换
         """
         self.actionNFA_DFA.triggered.connect(self.REG_transform)
+
+        '''
+        DAG
+        '''
+        self.actionDAG_.triggered.connect(self.DAG_analyze)
     def recent_folders(self):
         try:
             # 添加根节点
@@ -461,6 +467,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def LL1_analyze(self):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
+
+    def DAG_analyze(self):
+        self.DAG_window = MyDesiger_DAG()
+        self.DAG_window.show()
 
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):

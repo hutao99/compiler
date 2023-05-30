@@ -305,7 +305,7 @@ class Ui_MainWindow(object):
         self.menu_O.setTitle(_translate("MainWindow", "目标代码生成(O)"))
         self.menu_H.setTitle(_translate("MainWindow", "帮助(H)"))
         self.menu_2.setTitle(_translate("MainWindow", "视图(V)"))
-        self.menuDAG.setTitle(_translate("MainWindow", "DAG优化(基本快)"))
+        self.menuDAG.setTitle(_translate("MainWindow", "DAG优化(基本块)"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionOPEN.setText(_translate("MainWindow", "打开"))
         self.actionOPEN.setShortcut(_translate("MainWindow", "Ctrl+O"))
