@@ -477,13 +477,13 @@ def check_charset(file_path):
 
 
 
-filename = r'全部测试程序\00编译阶段 部分错误测试用例\语义分析测试用例1.txt'
-with open(filename, encoding=check_charset(filename)) as f:
-    text = f.read()
-    a = LexicalAnalysis(text)  # 读入文章
-    c,d ,e= a.print_out()
-    print(c)
-    print(d)
-    print(e)
+# filename = r'D:\pythonProject\fundamentals of compiling\全部测试程序\00编译阶段 部分错误测试用例\语义分析测试用例1.txt'
+# with open(filename, encoding=check_charset(filename)) as f:
+#     text = f.read()
+#     a = LexicalAnalysis(text)  # 读入文章
+#     c,d ,e= a.print_out()
+#     print(c)
+#     print(d)
+#     print(e)
 
 

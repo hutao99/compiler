@@ -4,7 +4,7 @@ import sys
 
 # 界面UI类
 from PyQt5.QtGui import QColor
-
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication
 
 
 class Ui_MainWindow_LL(object):
@@ -148,3 +148,9 @@ class Ui_MainWindow_LL(object):
         self.tableAnalyze.horizontalHeader().setVisible(False)  # 隐藏水平表头
         MainWindow.setCentralWidget(self.centralwidget)
 
+        # self.tableAnalyze.setColumnCount(0)
+        # self.tableAnalyze.setRowCount(0)
+
+
+
+# https://blog.51cto.com/u_13796931/5869022

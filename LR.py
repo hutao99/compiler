@@ -1139,10 +1139,6 @@ class CLRParser:
                             index_code += 1
                     elif father.name == '变量声明':
                         if fun_flag:
-                            if fun_name not in self.function_jubu_list:
-                                self.function_jubu_list[fun_name] = []
-                            if fun_name not in self.function_array_list:
-                                self.function_array_list[fun_name] = []
                             if len(father.children) >= 3 and father.children[-3].name == 'identifier':
                                 self.function_jubu_list[fun_name].append(father.children[-3].symbol_info[1])
                             elif father.children[-2].name == 'identifier':
@@ -1336,6 +1332,10 @@ class CLRParser:
                            self.code.append(['call', father.children[-1].symbol_info[1], '', ''])
                         index_code += 1
                     elif father.name == '函数(2)':
+                        if fun_name not in self.function_jubu_list:
+                            self.function_jubu_list[fun_name] = []
+                        if fun_name not in self.function_array_list:
+                            self.function_array_list[fun_name] = []
                         fun_name = father.children[0].symbol_info[1]
                         self.code.append([father.children[0].symbol_info[1], '', '', ''])
                         index_code += 1
