@@ -34,6 +34,9 @@ function_param_list = {}
 function_jubu_list = {}
 function_array_list = {}
 global_array_list = []
+temporary_address = {}
+temporary = {}
+
 
 def function_get(quaternion_list):
     sys = quaternion_list.index(['sys', '_', '_', '_'])
@@ -54,6 +57,19 @@ def function_get(quaternion_list):
                     global_main_symbol.append(var)
     print(global_main_symbol)
 
+    num = 0
+    f_name = ''
+    for i in quaternion_list[sys+1:]:
+        if i[0] in function_jubu_list:
+            f_name = i[0]
+            temporary[f_name] = []
+            num = len(function_jubu_list[f_name])*2+2
+        for j in i[1:]:
+            if str(j)[0] == 'T' and j not in temporary[f_name]:
+                temporary[f_name].append(j)
+                temporary_address[j] = 'ss:[bp-%s]' % num
+                num += 2
+
     for i, v in function_jubu_list.items():  # i是函数名 v对应参数名
         # function[i] = [{}, {}] #function[i][0]存参数字典 参数以及ss值 function[i][1]存局部变量
         for j in v:
@@ -71,7 +87,7 @@ def function_get(quaternion_list):
             function[i][1][vv] = 'ss:[bp-' + \
                 str(2 + (s * 2)) + ']'  # BP-2 Bp-4  临时变量
     for i in function_array_list:
-        length = len(function[i][1])*2+2
+        length = len(function[i][1])*2+2+len(temporary[i])*2
         for j in function_array_list[i]:
             function_array[i][j[0]] = length
             if j[2] == '':
@@ -84,6 +100,7 @@ def function_get(quaternion_list):
     '''
     print('function', function)
 
+
 def array_address1(fun_name1, name):
     print(function_array_list)
     print(function_array)
@@ -93,14 +110,14 @@ def array_address1(fun_name1, name):
             t = match[0]
             p = ''
             if t[0] == 'T':
-                p = 'es:[' + str(int(t[1:]) * 2) + ']'
+                p = temporary_address[t]  # 'es:[' + str(int(t[1:]) * 2) + ']'
             elif t.isdigit():
                 p = t
             elif t in function[fun_name][1]:
                 p = function[fun_name][1][t]
             else:
                 p = function[fun_name][0][t]
-            return 'lea si, [bp - %d]\n\tmov di, %s\n\tshl di, 1\n\tsub si, di\n\t'%(int(function_array[fun_name1][name[:name.index('[')]]),p)
+            return 'lea si, [bp - %d]\n\tmov di, %s\n\tshl di, 1\n\tsub si, di\n\t'%(int(function_array[fun_name1][name[:name.index('[')]]), p)
     else:
         if '[' in name:
             match = re.findall(regex, name)
@@ -108,10 +125,13 @@ def array_address1(fun_name1, name):
             p = ''
             if t[0] == 'T':
                 p = 'es:[' + str(int(t[1:]) * 2) + ']'
-            else:
+            elif t.isdigit():
                 p = t
+            else:
+                p = '_' + t
             return 'lea si, [_%s]\n\tmov di, %s\n\tshl di, 1\n\tadd si, di\n\t' % (name[:name.index('[')], p)
     return ''
+
 
 def target_code(four_table):
     global s
@@ -124,7 +144,10 @@ def target_code(four_table):
     for i in global_main_symbol:
         s += '\t_' + i + ' dw 0\n'
     for i in global_array_list:
-        s += '\t_' + i[0] + ' dw %d dup(0)\n' % (int(i[1])*int(i[2]))
+        if i[2] == '':
+            s += '\t_' + i[0] + ' dw %d dup(0)\n' % int(i[1])
+        else:
+            s += '\t_' + i[0] + ' dw %d dup(0)\n' % (int(i[1])*int(i[2]))
     f.close()
     f = open('./target/code_segment1.txt', 'r')
     s1 = f.read()
@@ -166,9 +189,11 @@ def target_code(four_table):
                 two = function[fun_name][1][two]
             elif two != '_' and two in global_main_symbol:  # 从ds取出数据
                 two = 'ds:[_' + two + ']'
-            elif two[0] == 'T':  # 将临时变量放到es T1对应es:[2]  每个临时变量占用两个
+            elif two[0] == 'T' and fun_name == '**':  # 将临时变量放到es T1对应es:[2]  每个临时变量占用两个
                 # 用变量序号作为存放es的地址值 每个变量都不一样 所以不会被冲掉 四元式不会出现(+,T0,T0,T1)这种情况
                 two = 'es:[' + str(int(two[1:]) * 2) + ']'
+            elif two[0] == 'T':
+                two = temporary_address[two]
             # 对函数的参数进行处理
             if fun_name != '**' and three in function[fun_name][0]:
                 three = function[fun_name][0][three]
@@ -176,16 +201,20 @@ def target_code(four_table):
                 three = function[fun_name][1][three]
             elif three != '_' and three in global_main_symbol:
                 three = 'ds:[_' + three + ']'
-            elif three[0] == 'T':  # 将临时变量放到es区
+            elif three[0] == 'T' and fun_name == '**':  # 将临时变量放到es区
                 three = 'es:[' + str(int(three[1:]) * 2) + ']'
+            elif three[0] == 'T':
+                three = temporary_address[three]
             if fun_name != '**' and four in function[fun_name][0]:
                 four = function[fun_name][0][four]
             elif fun_name != '**' and four in function[fun_name][1]:
                 four = function[fun_name][1][four]
             elif four != '_' and four in global_main_symbol:
                 four = 'ds:[_' + four + ']'
-            elif four[0] == 'T':
+            elif four[0] == 'T' and fun_name == '**':
                 four = 'es:[' + str(int(four[1:]) * 2) + ']'
+            elif four[0] == 'T':
+                four = temporary_address[four]
         print(2222222222222222222222222222222222,
               one, two, three, four, fun_name)
 
@@ -197,7 +226,10 @@ def target_code(four_table):
                 'ADD AX,' + three + '\n\t' + array_address1(fun_name,four1) +'MOV ' + four + ',AX\n'
         elif one == '-' or one == '@':  # 对负号进行处理
             if three == '_':
-                three = '0'
+                three1 = two1
+                two1 = '_'
+                three = two
+                two = '0'
             s += '_%d:\t' % (i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +\
                 'SUB AX,' + three + '\n\t' + array_address1(fun_name,four1) +'MOV ' + four + ',AX\n'
         elif one == '*':
@@ -312,18 +344,19 @@ def target_code(four_table):
             SUB SP: SP向上移动 
             '''
             length = 0
-            for i in function_array_list[fun_name]:
-                if i[2] == '':
-                    length = int(i[1])*2
-                else:
-                    length = int(i[1]) * int(i[2]) * 2
+            if len(function_array_list) != 0:
+                for i in function_array_list[fun_name]:
+                    if i[2] == '':
+                        length = int(i[1])*2
+                    else:
+                        length = int(i[1]) * int(i[2]) * 2
             s += one + ':\t' + 'PUSH BP\n\t' + 'MOV BP,SP\n\t' + 'SUB SP,' + \
-                str(len(function[fun_name][1]) * 2+length) + '\n'  # 根据局部变量的个数 确定栈顶位置
+                str(len(function[fun_name][1]) * 2+length+len(temporary[fun_name])*2) + '\n'  # 根据局部变量的个数 确定栈顶位置
             print('000000000000000000000000000000')
             print(len(function[fun_name][1]) * 2)
             print(length)
             print(one + ':\t' + 'PUSH BP\n\t' + 'MOV BP,SP\n\t' +
-                  'SUB SP,' + str(len(function[fun_name][1]) * 2+length) + '\n')
+                  'SUB SP,' + str(len(function[fun_name][1]) * 2+length+len(temporary[fun_name])*2) + '\n')
     return s + rear
 
 
