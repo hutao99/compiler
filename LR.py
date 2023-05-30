@@ -102,6 +102,7 @@ class CLRParser:
         self.dot = Digraph(comment='LR_DFA_Digraph')
 
     def input(self, data):
+        self.__init__()
         p = FirstAndFollow()
         p.input(data)
         self.first = p.first
@@ -172,7 +173,7 @@ class CLRParser:
             h = stack.pop(0)
             prod = self.Formula[h[0]]
             inx = h[1].index('.')
-            # 求出展望符
+            # 求出展望符(向前搜索符)
             lookahead_symbol = []
             # 没有到末尾
             if inx+2 < len(h[1]):
@@ -354,13 +355,13 @@ class CLRParser:
         prod_state_exchange = {v: k for k, v in self.prod_state.items()}
         dot = Digraph(comment='LR_Digraph')
         for i in range(len(self.status_include_num)):
-            lab = 'I' + str(i) + '\n'
+            lab = 'I' + str(i+1) + '\n'
             for j in self.status_include_num[i]:
                 lab += prod_state_exchange[j] + '\n'
             dot.node(str(i), lab)
         for i in self.direction:
             dot.edge(str(i[0]), str(i[2]), i[1])
-        dot.render('LR_Digraph.gv', view=True, format='png', directory='LR_Digraph')
+        dot.render('LR_Digraph.gv', view=False, format='png', directory='LR_Digraph')
 
     def ControlProgram(self, token):
         self.errors.clear()
