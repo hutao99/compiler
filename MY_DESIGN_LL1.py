@@ -274,7 +274,7 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
             print("Error: ", e)
 
 
-app = QApplication(sys.argv)
-LL_window = MyDesiger_LL()
-LL_window.show()
-sys.exit(app.exec_())
+# app = QApplication(sys.argv)
+# LL_window = MyDesiger_LL()
+# LL_window.show()
+# sys.exit(app.exec_())
