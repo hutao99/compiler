@@ -229,6 +229,8 @@ class LL:
                     print("分析错误")
                     self.flag = 1
                     return
+
+
 test = LL()
 path = "全部测试程序\\11LL(1)测试用例\LL1_1.TXT"
 ans = "i+i#"
