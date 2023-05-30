@@ -1333,11 +1333,11 @@ class CLRParser:
                            self.code.append(['call', father.children[-1].symbol_info[1], '', ''])
                         index_code += 1
                     elif father.name == '函数(2)':
+                        fun_name = father.children[0].symbol_info[1]
                         if fun_name not in self.function_jubu_list:
                             self.function_jubu_list[fun_name] = []
                         if fun_name not in self.function_array_list:
                             self.function_array_list[fun_name] = []
-                        fun_name = father.children[0].symbol_info[1]
                         self.code.append([father.children[0].symbol_info[1], '', '', ''])
                         index_code += 1
                     elif father.name == '函数(1)':
