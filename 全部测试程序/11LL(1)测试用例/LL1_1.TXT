@@ -1,5 +1,5 @@
-E->TB
-B->+TB|$
-T->FP
-P->*FP|$
-F->(E)|i
+E->T B
+B->+ T B|$
+T->F P
+P->* F P|$
+F->( E )|i

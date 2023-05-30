@@ -14,81 +14,71 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
-      <x>11</x>
-      <y>10</y>
-      <width>811</width>
-      <height>501</height>
+      <x>80</x>
+      <y>100</y>
+      <width>104</width>
+      <height>64</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0" colspan="3">
-      <widget class="QPlainTextEdit" name="plainTextEdit">
-       <property name="minimumSize">
-        <size>
-         <width>801</width>
-         <height>121</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>801</width>
-         <height>121</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPlainTextEdit" name="plainTextEdit_2">
-       <property name="minimumSize">
-        <size>
-         <width>261</width>
-         <height>371</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>261</width>
-         <height>371</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPlainTextEdit" name="plainTextEdit_3">
-       <property name="minimumSize">
-        <size>
-         <width>261</width>
-         <height>371</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>261</width>
-         <height>371</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPlainTextEdit" name="plainTextEdit_4">
-       <property name="minimumSize">
-        <size>
-         <width>261</width>
-         <height>371</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>261</width>
-         <height>371</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="plainText">
+     <string>输入正规式:(输入前请删除此行)</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>100</y>
+      <width>104</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <property name="plainText">
+     <string>输入待识别的符号串:</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit_3">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>100</y>
+      <width>104</width>
+      <height>64</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>200</y>
+      <width>104</width>
+      <height>64</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>200</y>
+      <width>104</width>
+      <height>64</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit_3">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>200</y>
+      <width>104</width>
+      <height>64</height>
+     </rect>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -102,21 +92,29 @@
    </property>
    <widget class="QMenu" name="menu_F">
     <property name="title">
-     <string>REG正则表达式转换</string>
+     <string>打开文件</string>
     </property>
-    <addaction name="action_NFA"/>
-    <addaction name="actionNFA_DFA"/>
-    <addaction name="actionDFA_MFA"/>
     <addaction name="action_7"/>
+    <addaction name="action_10"/>
    </widget>
    <widget class="QMenu" name="menu_E">
     <property name="title">
-     <string>词法分析</string>
+     <string>REG正则表达式转换</string>
     </property>
     <addaction name="action_6"/>
+    <addaction name="actionNFA_DFA_2"/>
+    <addaction name="actionDFA_MFA_2"/>
+    <addaction name="action_8"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>词法分析</string>
+    </property>
+    <addaction name="action_9"/>
    </widget>
    <addaction name="menu_F"/>
    <addaction name="menu_E"/>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -177,12 +175,37 @@
   </action>
   <action name="action_6">
    <property name="text">
-    <string>词法分析</string>
+    <string>正规式转NFA</string>
    </property>
   </action>
   <action name="action_7">
    <property name="text">
+    <string>打开正规式文件</string>
+   </property>
+  </action>
+  <action name="actionNFA_DFA_2">
+   <property name="text">
+    <string>NFA转DFA</string>
+   </property>
+  </action>
+  <action name="actionDFA_MFA_2">
+   <property name="text">
+    <string>DFA转MFA</string>
+   </property>
+  </action>
+  <action name="action_8">
+   <property name="text">
     <string>一键三连</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>词法分析</string>
+   </property>
+  </action>
+  <action name="action_10">
+   <property name="text">
+    <string>打开待识别符号串文件</string>
    </property>
   </action>
  </widget>

@@ -83,10 +83,10 @@ class Ui_MainWindow_LL(object):
 
         self.gridLayout.addWidget(self.tableStack, 2, 2, 2, 1)
 
-        self.tableStack.setColumnCount(4)
+        self.tableStack.setColumnCount(1)
 
         # 设置tablewidget 栈分析表的表头
-        self.tableStack.setHorizontalHeaderLabels(["输入栈", "剩余输入串", "所用表达式", "动作"])
+        self.tableStack.setHorizontalHeaderLabels(["符号栈"])
 
         self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_2.setGeometry(QtCore.QRect(0, 0, 511, 191))

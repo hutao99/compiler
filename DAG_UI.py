@@ -87,6 +87,7 @@ class Ui_MainWindow_DAG(object):
         font.setItalic(False)
         font.setUnderline(False)
         font.setWeight(50)
+
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText("四元式优化")
@@ -108,3 +109,5 @@ class Ui_MainWindow_DAG(object):
         self.gridLayout.addWidget(self.textEdit_3, 4,2,2,2)
 
         MainWindow.setCentralWidget(self.centralwidget)
+
+
