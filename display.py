@@ -7,6 +7,8 @@ from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_LL1 import MyDesiger_LL
+from MyDesign_suanfu import MyDesiger_suanfu
+
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -85,6 +87,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
         self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
 
+        """
+        算符优先
+        """
+        self.actionsuanfu_first.triggered.connect(self.suanfu)
         """
         REG正则表达式转换
         """
@@ -497,6 +503,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def REG_transform(self):
         self.reg_window = REG_MainWindow()
         self.reg_window.show()
+
+    def suanfu(self):
+        self.suanfu_window = MyDesiger_suanfu()
+        self.suanfu_window.show()
 
 
 if __name__ == "__main__":
