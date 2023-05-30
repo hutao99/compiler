@@ -216,6 +216,8 @@ class Ui_MainWindow(object):
         self.actionsuanfu_first.setObjectName("actionsuanfu_first")
         self.actionDAG = QtWidgets.QAction(MainWindow)
         self.actionDAG.setObjectName("actionDAG")
+        self.actionLR1 = QtWidgets.QAction(MainWindow)
+        self.actionLR1.setObjectName("actionLR1")
         ##############
 
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
@@ -243,6 +245,7 @@ class Ui_MainWindow(object):
         self.menu_yufa.addAction(self.actionfrom_down_to_up)
         self.menu_yufa.addAction(self.actionLL1)
         self.menu_yufa.addAction(self.actionsuanfu_first)
+        self.menu_yufa.addAction(self.actionLR1)
         self.menu_Quaternion.addAction(self.action_middle_code)
         self.menu_Quaternion.addAction(self.action_basic_block)
         self.menu_Quaternion.addAction(self.actionDAG)
@@ -329,7 +332,7 @@ class Ui_MainWindow(object):
         self.actionstate_transition.setText(_translate("MainWindow", "手动词法分析(递归下降)"))
         self.actionPLY.setText(_translate("MainWindow", "自动词法分析(LR)"))
         self.actionfrom_up_to_down.setText(_translate("MainWindow", "递归下降语法分析"))
-        self.actionfrom_down_to_up.setText(_translate("MainWindow", "LR语法分析"))
+        self.actionfrom_down_to_up.setText(_translate("MainWindow", "LR1语法分析"))
         self.action_middle_code.setText(_translate("MainWindow", "中间代码"))
         self.action_basic_block.setText(_translate("MainWindow", "基本块划分"))
         self.actionup_start.setText(_translate("MainWindow", "自上而下"))
@@ -351,6 +354,7 @@ class Ui_MainWindow(object):
         self.actionblue_font.setText(_translate("MainWindow", "蓝色字体"))
         self.actionNFA_DFA.setText(_translate("MainWindow", "NFA_DFA"))
         self.actionLL1.setText(_translate("MainWindow", "LL1预测分析"))
+        self.actionLR1.setText(_translate("MainWindow", "LR1自定义语法分析"))
         self.actionsuanfu_first.setText(_translate("MainWindow", "算符优先分析"))
         self.actionDAG.setText(_translate("MainWindow", "DAG优化"))
         self.actionDAG_.setText(_translate("MainWindow", "DAG优化(基本块)"))

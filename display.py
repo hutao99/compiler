@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 from MY_DESIGN_DAG import MyDesiger_DAG
 from MY_DESIGN_LL1 import MyDesiger_LL
 from MyDesign_suanfu import MyDesiger_suanfu
+from MY_DESIGN_LR import MyDesiger_LR
 
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
@@ -123,6 +124,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.LR.reduction1 = lr1.reduction
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         self.actionfrom_down_to_up.triggered.connect(self.SyntaxAndSemanticAnalyzer)  # 语法分析
+        # LR1自定义语法分析
+        self.actionLR1.triggered.connect(self.LR1_analyze)
 
 
     def recent_folders(self):
@@ -491,6 +494,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def LL1_analyze(self):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
+
+    def LR1_analyze(self):
+        self.LR_window = MyDesiger_LR()
+        self.LR_window.show()
 
     def DAG__(self):
         self.DAG_window = MyDesiger_DAG()
