@@ -1,20 +1,24 @@
 # -*- coding: UTF-8 -*-
 import sys
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
 from LR_UI import Ui_MainWindow_LR
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
+import LR
 
 
 class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LR, self).__init__(parent)
+        self.LR = LR.CLRParser()
         self.setWindowTitle("LR分析")
         self.setupUi(self)
         # 设置响应槽
-        self.pushButton_1.clicked.connect(self.open_text)
+        self.pushButton.clicked.connect(self.open_text)
+        self.pushButton_1.clicked.connect(self.LR_image)
+        self.pushButton_2.clicked.connect(self.LR_Table)
 
     def check_charset(self, file_path):
         import chardet
@@ -33,13 +37,52 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
                 with open(fname[0], encoding=self.check_charset(fname[0])) as f:
                     str = f.read()
                     print(str)
-                    self.textEdit_2.setText(str)
+                    self.textEdit.setText(str)
         except Exception as e:
             print("Error: ", e)
 
+    def LR_image(self):  # 画图
+        text = self.textEdit.toPlainText()
+        self.LR.input(text)
+        self.LR.Action_and_GoTo_Table()
+        self.LR.draw_graphic()
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./LR_Digraph/LR_Digraph.gv.png')
 
+        # 在QTextEdit中插入图片
+        self.textEdit_2.clear()
+        cursor = self.textEdit_2.textCursor()
+        cursor.insertImage(image_format)
 
-app = QApplication(sys.argv)
-LL_window = MyDesiger_LR()
-LL_window.show()
-sys.exit(app.exec_())
+        self.textEdit_2.show()
+
+    def LR_Table(self):
+        row_count = len(self.LR.parsing_table)
+        col_count = max(len(v) for v in self.LR.parsing_table.values())
+
+        # 非终结符
+        non_terminal = list(self.LR.first.keys())
+        # 终结符
+        terminal = set()
+        for i in self.LR.direction:
+            if i[1] not in non_terminal:
+                terminal.add(i[1])
+        terminal = list(terminal)
+        terminal.append('#')
+
+        self.tableStack.setColumnCount(col_count+2)  # 设置列数
+        self.tableStack.setRowCount(row_count)  # 设置行数
+        print(self.LR.parsing_table)
+        terminal.extend(non_terminal)  # 融合
+        print(terminal)
+        idx = {item: index for index, item in enumerate(terminal)}
+        self.tableStack.setHorizontalHeaderLabels(terminal)
+        for i in range(row_count):
+            for j in self.LR.parsing_table[i]:
+                t = self.LR.parsing_table[i][j]
+                if t.isdigit():
+                    t = str(int(t)+1)
+                item = QtWidgets.QTableWidgetItem(t)
+                self.tableStack.setItem(i, idx[j], item)
+
