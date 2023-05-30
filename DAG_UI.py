@@ -108,3 +108,5 @@ class Ui_MainWindow_DAG(object):
         self.gridLayout.addWidget(self.textEdit_3, 4,2,2,2)
 
         MainWindow.setCentralWidget(self.centralwidget)
+
+

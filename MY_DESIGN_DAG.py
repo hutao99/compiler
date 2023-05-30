@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
@@ -67,7 +67,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
 
 
 
-# app = QApplication(sys.argv)
-# LL_window = MyDesiger_DAG()
-# LL_window.show()
-# sys.exit(app.exec_())
+app = QApplication(sys.argv)
+LL_window = MyDesiger_DAG()
+LL_window.show()
+sys.exit(app.exec_())
