@@ -18,7 +18,7 @@ from Laxer1 import LexicalAnalysis
 #webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
-from creat_DAG import create_DAG, optimize,Partition_Basic_Block
+from create_DAG import create_DAG, optimize,Partition_Basic_Block,all_basic_optimize
 # REG
 from REG_control import REG_MainWindow
 class DetailUI(Ui_MainWindow, QMainWindow):
@@ -84,10 +84,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionLL1.triggered.connect(self.LL1_analyze)
         self.actionstate_transition.triggered.connect(self.Manual_lexical_analysis)  # 递归下降手动词法分析
         self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 递归下降语法分析
+        self.action_basic_block.triggered.connect(self.Basic_Block)  # 基本块划分
+        self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
         self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
         self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
-        self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
-
         """
         算符优先
         """
@@ -490,6 +490,15 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.textEdit_3.setText(self.text1 + '\n' + self.text2)
         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
         self.textEdit_2.setText(text1)
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Syntax_Tree/tree.gv.png')
+
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit_3.textCursor()
+        cursor.insertImage(image_format)
+
+        self.textEdit_3.show()
 
     # 中间代码
     def middle_analysis(self):
@@ -500,15 +509,47 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             print(text)
             self.textEdit_3.setText(text)
 
+    # 基本块划分
+    def Basic_Block(self):
+        text = self.textEdit_3.toPlainText() # 获取四元式序列
+        # 格式转换
+        tokens = [token.split(",") for token in text.split("\n")]
+        codes = []
+        for i in tokens:
+            if len(i) == 5:
+                codes.append(i[1:])
+        self.basic_blocks=Partition_Basic_Block(codes)
+        print('basic_blocks',self.basic_blocks)
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Basic_Block/basic_block.gv.png')
+
+
+        # 在QTextEdit中插入图片
+        self.textEdit_2.clear()
+        cursor = self.textEdit_2.textCursor()
+        cursor.insertImage(image_format)
+
+        self.textEdit_2.show()
+
+
+    # DAG优化
+    def DAG_optimization(self):
+        optimize_quaternion = all_basic_optimize(self.basic_blocks)
+        text = ''
+        idx = 0
+        for i in optimize_quaternion:
+            text+=str(idx)+':'+str(i)+'\n'
+            idx+=1
+        self.textEdit_3.setText(text)
+        print('optimize_quaternion', optimize_quaternion)
+
+
     # 目标代码
     def Object_analysis(self):
         if self.recursive_or_lr_flag == 1: # 递归下降目标代码
             text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
             self.textEdit_2.setText(text)
-
-    # DAG优化
-    def DAG_optimization(self):
-        a=1
 
     def REG_transform(self):
         self.reg_window = REG_MainWindow()

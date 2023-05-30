@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
-from creat_DAG import create_DAG, optimize, DAG_draw  # DAG模型
+from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 
@@ -37,6 +37,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./DAG/visible.gv.png')
         # 在QTextEdit中插入图片
+        self.textEdit_2.clear()
         cursor = self.textEdit_2.textCursor()
         cursor.insertImage(image_format)
 
