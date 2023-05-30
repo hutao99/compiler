@@ -4,9 +4,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
-from create_DAG import create_DAG, optimize, DAG_draw # DAG模型
+from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
-
 
 
 class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
@@ -43,7 +42,6 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
 
         self.textEdit_2.show()
 
-
     def check_charset(self, file_path):
         import chardet
         with open(file_path, "rb") as f:
@@ -64,7 +62,6 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
                     self.textEdit.setText(str)
         except Exception as e:
             print("Error: ", e)
-
 
 
 app = QApplication(sys.argv)
