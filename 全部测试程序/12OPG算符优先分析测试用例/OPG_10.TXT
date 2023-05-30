@@ -1,4 +1,4 @@
-S -> (R)|a|∧
-R -> T
-T -> S,T|S
-V-> #S#
+V: # S #
+S: ( R ) | a | ∧
+R: T
+T: S , T | S

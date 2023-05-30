@@ -1,0 +1,3 @@
+auto|break|int|char|float
+apple
+baby

@@ -1,5 +1,5 @@
-S -> aABe
-A -> b
-A -> Abc
-B -> d
-V-> #S#
+V: #S#
+S: a A B e
+A: b
+A: A b c
+B: d
