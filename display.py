@@ -1,3 +1,4 @@
+
 import os
 import sys
 
@@ -14,19 +15,16 @@ from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Laxer1 import LexicalAnalysis
-
 # import webbrowser
-# webbrowser.open(fname[0])  # 打开chm格式的文件
+#webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode_cr import solve
 import ObjectCode1
-# REG
-from REG_control import REG_MainWindow
 # LR
 import LR
 from Analyzer import AnalyzerLex
-from creat_DAG import create_DAG, optimize, Partition_Basic_Block
 
+from create_DAG import create_DAG, optimize,Partition_Basic_Block,all_basic_optimize
 # REG
 from REG_control import REG_MainWindow
 
@@ -37,7 +35,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.setupUi(self)
         self.setWindowTitle('编译器')
         self.tree_view = self.treeView
-
 
         self.model = QDirModel()  # 显示文件系统
         # self.model.setRootPath(self.data_path)
@@ -87,6 +84,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionorange_font.triggered.connect(self.set_orange_font)
         self.actionpurple_font.triggered.connect(self.set_purple_font)
 
+
         '''
         LL1预测分析
         '''
@@ -94,11 +92,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionLL1.triggered.connect(self.LL1_analyze)
         self.actionstate_transition.triggered.connect(self.Manual_lexical_analysis)  # 递归下降手动词法分析
         self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 递归下降语法分析
+        self.action_basic_block.triggered.connect(self.Basic_Block)  # 基本块划分
+        self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
         self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
         self.actionhuibian_code.triggered.connect(self.Object_analysis)  # 目标代码
-        self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
-        self.actionDAG_.triggered.connect(self.DAG__)  # DAG优化
-
         """
         算符优先
         """
@@ -107,6 +104,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         REG正则表达式转换
         """
         self.actionNFA_DFA.triggered.connect(self.REG_transform)
+
+        '''
+        DAG
+        '''
+        self.actionDAG_.triggered.connect(self.DAG_analyze)
 
         """
         LR(1)分析
@@ -495,13 +497,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.LL_window = MyDesiger_LL()
         self.LL_window.show()
 
+    def DAG_analyze(self):
+        self.DAG_window = MyDesiger_DAG()
+        self.DAG_window.show()
+
     def LR1_analyze(self):
         self.LR_window = MyDesiger_LR()
         self.LR_window.show()
-
-    def DAG__(self):
-        self.DAG_window = MyDesiger_DAG()
-        self.DAG_window.show()
 
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):
@@ -511,7 +513,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.wordlist, self.errorlist, self.lbword = a.print_out()
         self.textEdit_3.setText(self.wordlist)
         self.textEdit_2.setText(self.errorlist)
-
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         self.recursive_or_lr_flag = 1
@@ -519,9 +520,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         rda = recDesc_analysis(file_object)
         self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
             self.lbword)
+        self.textEdit_3.setText(self.text1 + '\n' + self.text2)
         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-        all_text = self.text1 + '\n' + self.text2 + text1
-        self.textEdit_2.setText(all_text)
+        self.textEdit_2.setText(text1)
         # 设置图片路径
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./Syntax_Tree/tree.gv.png')
@@ -534,12 +535,12 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 中间代码
     def middle_analysis(self):
-        if self.recursive_or_lr_flag == 1:  # 递归下井中间代码
+        if self.recursive_or_lr_flag == 1: # 递归下井中间代码
             text = ''
             for quad in self.siyuanshi:
                 text += ','.join([str(s) for s in quad]) + '\n'
             print(text)
-            self.textEdit_3.setText(text)
+            self.textEdit_3.setText(text)        
         else:  # LR中间代码
             lex = AnalyzerLex()
             text = self.textEdit.toPlainText()
@@ -569,9 +570,43 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
                 self.textEdit_2.setText(s)
 
+    # 基本块划分
+    def Basic_Block(self):
+        text = self.textEdit_3.toPlainText() # 获取四元式序列
+        # 格式转换
+        tokens = [token.split(",") for token in text.split("\n")]
+        codes = []
+        for i in tokens:
+            if len(i) == 5:
+                codes.append(i[1:])
+        self.basic_blocks=Partition_Basic_Block(codes)
+        print('basic_blocks',self.basic_blocks)
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Basic_Block/basic_block.gv.png')
+
+
+        # 在QTextEdit中插入图片
+        self.textEdit_2.clear()
+        cursor = self.textEdit_2.textCursor()
+        cursor.insertImage(image_format)
+
+        self.textEdit_2.show()
+
+    # DAG优化
+    def DAG_optimization(self):
+        optimize_quaternion = all_basic_optimize(self.basic_blocks)
+        text = ''
+        idx = 0
+        for i in optimize_quaternion:
+            text+=str(idx)+':'+str(i)+'\n'
+            idx+=1
+        self.textEdit_3.setText(text)
+        print('optimize_quaternion', optimize_quaternion)
+
     # 目标代码
     def Object_analysis(self):
-        if self.recursive_or_lr_flag == 1:  # 递归下降目标代码
+        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
             text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
             self.textEdit_2.setText(text)
         else:  # LR目标代码
@@ -589,10 +624,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
                                       global_array_list))
 
-
-    # DAG优化
-    def DAG_optimization(self):
-        a = 1
 
     def REG_transform(self):
         self.reg_window = REG_MainWindow()

@@ -15,7 +15,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         self.setupUi(self)
         # 设置响应槽
         self.pushButton.clicked.connect(self.open_text)
-        self.pushButton_2.clicked.connect(self.DAG_optimal)
+        self.pushButton_1.clicked.connect(self.DAG_optimal)
 
     def DAG_optimal(self):
         s = self.textEdit.toPlainText()
@@ -37,6 +37,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./DAG/visible.gv.png')
         # 在QTextEdit中插入图片
+        self.textEdit_2.clear()
         cursor = self.textEdit_2.textCursor()
         cursor.insertImage(image_format)
 
@@ -64,7 +65,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             print("Error: ", e)
 
 
-app = QApplication(sys.argv)
-LL_window = MyDesiger_DAG()
-LL_window.show()
-sys.exit(app.exec_())
+# app = QApplication(sys.argv)
+# LL_window = MyDesiger_DAG()
+# LL_window.show()
+# sys.exit(app.exec_())

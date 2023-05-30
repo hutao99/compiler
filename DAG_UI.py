@@ -58,7 +58,7 @@ class Ui_MainWindow_DAG(object):
         font.setWeight(50)
         self.pushButton_1.setFont(font)
         self.pushButton_1.setObjectName("pushButton_1")
-        self.pushButton_1.setText("树形图")
+        self.pushButton_1.setText("DAG优化")
         self.gridLayout.addWidget(self.pushButton_1, 0, 2, 1, 1)
 
 
@@ -77,21 +77,6 @@ class Ui_MainWindow_DAG(object):
 
         self.gridLayout.addWidget(self.textEdit_2, 1, 2, 2, 2)
 
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_2.setEnabled(True)
-        self.pushButton_2.setGeometry(QtCore.QRect(0, 190, 511, 51))
-        font = QtGui.QFont()
-        font.setFamily("仿宋")
-        font.setPointSize(15)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setWeight(50)
-
-        self.pushButton_2.setFont(font)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.setText("四元式优化")
-        self.gridLayout.addWidget(self.pushButton_2, 3,2, 1, 1)
 
         self.textEdit_3 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_3.setGeometry(QtCore.QRect(0, 240, 256, 192))
@@ -106,7 +91,7 @@ class Ui_MainWindow_DAG(object):
         self.textEdit_3.setObjectName("textEdit_3")
         self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
 
-        self.gridLayout.addWidget(self.textEdit_3, 4,2,2,2)
+        self.gridLayout.addWidget(self.textEdit_3, 3,2,3,2)
 
         MainWindow.setCentralWidget(self.centralwidget)
 

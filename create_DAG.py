@@ -209,53 +209,12 @@ def optimize(DAG_node):
 
 
 
-'''
-传入四元式序列
-code = [('-', '1', '', 'T0'), ('=', 'T0', '', 'A')]
-'''
-# def Partition_Basic_Block(codes):
-#     # 划分基本块
-#     basic_blocks = []
-#     flag = []  # 入口flag
-#     flag.append(0) #刚开始的语句是入口
-#     for i in range(len(codes)):
-#         if codes[i][0] == ['j', 'jz', 'jnz']:
-#             if codes[i][3] not in flag: # 跳转语句跳转到的地方是入口
-#                 flag.append(codes[i][3])
-#             if (i + 1) < len(codes) and (i + 1) not in flag:  # 跳转语句的下一条语句也是入口
-#                 flag.append(i + 1)
-#
-#     flag.append(len(codes))
-#     flag.sort()  # 对列表进行排序
-#     print(flag)
-#
-#     j = 1
-#     # 当前基本块
-#     current_blocks = []
-#     for i in range(len(codes)):
-#         if i < flag[j]:
-#             current_blocks.append(codes[i])
-#         else:
-#             basic_blocks.append(current_blocks)
-#             current_blocks = []
-#             current_blocks.append(codes[i])
-#             j += 1
-#     basic_blocks.append(current_blocks)
-#     optimize_quaternion = []
-#     count = 0
-#     for code in basic_blocks: #取出每一块四元式
-#         prelen = len(code)
-#         DAG = create_DAG(code)
-#         codes = optimize(DAG)
-#         newlen = len(codes)
-#         for c in codes:
-#             if c[0] in ['j', 'jz', 'jnz']:
-#                 c[3]-=count
-#             optimize_quaternion.append(c)
-#     #返回优化后的四元式列表
-#     return optimize_quaternion
 
+
+#切分基本块
 def Partition_Basic_Block(codes):
+    filename = './Basic_Block/basic_block'
+    dot = Digraph(filename, 'Basic_Block', None, None, 'png', None, "UTF-8")
     # 划分基本块
     basic_blocks = []
     flag = []  # 入口flag
@@ -263,9 +222,9 @@ def Partition_Basic_Block(codes):
     for i in range(len(codes)):
         if codes[i][0] in ['j', 'jz', 'jnz']:
             if codes[i][3] not in flag: # 跳转语句跳转到的地方是入口
-                flag.append(codes[i][3])
+                flag.append(int(codes[i][3]))
             if (i + 1) < len(codes) and (i + 1) not in flag:  # 跳转语句的下一条语句也是入口
-                flag.append(i + 1)
+                flag.append(int(i + 1))
     '''
     将运算四元式与函数调用、跳转等四元式进行划分
     '''
@@ -275,15 +234,16 @@ def Partition_Basic_Block(codes):
             if pre_sym!=1:
                 pre_sym = 1
                 if i not in flag:
-                    flag.append(i)
+                    flag.append(int(i))
         else:
             if pre_sym!=2:
                 pre_sym=2
                 if i not in flag:
-                    flag.append(i)
-    flag.append(len(codes))
+                    flag.append(int(i))
+    flag.append(int(len(codes)))
+    print(flag)
     flag.sort()  # 对列表进行排序
-    print('flag',flag)
+    print('基本块切分序号列表',flag)
 
     j = 1
     # 当前基本块
@@ -296,9 +256,42 @@ def Partition_Basic_Block(codes):
             current_blocks = []
             current_blocks.append(codes[i])
             j += 1
-    basic_blocks.append(current_blocks)
+    if len(current_blocks)!=0:
+        basic_blocks.append(current_blocks)
+    # 基本块流程图
+    # 基本块序号
+    basic_number = 0
+    first = 0 # 标记是否是第一个基本块
+    idx = 0 # 四元式序号
+    for code in basic_blocks:
+        text = ''
+        for c in code:
+            text+=str(idx)+":"+str(c)+'\n'
+            idx+=1
+        dot.node(str(basic_number),text, fontname="SimHei",shape='rectangle')
+        basic_number+=1
+    max_basic_number = basic_number-1 #最后一个基本块的编号
+    basic_number = 0
+    for code in basic_blocks:
+        if code[-1][0] == 'jz':
+            dot.edge(str(basic_number-1), str(basic_number))
+        if len(code[-1][0])>=2 and code[-1][0][0] == 'j' and  code[-1][0][1] in ['=','>','<','!']:
+            dot.edge(str(basic_number), str(basic_number + 1))
+        if code[-1][0][0] == 'j':
+            id = int(code[-1][3])
+            basic_idx = flag.index(id)
+            dot.edge(str(basic_number),str(basic_idx))
+        else:
+            if basic_number < max_basic_number:# 不是最后一个基本块
+                dot.edge(str(basic_number),str(basic_number+1))
+        basic_number+=1
+    dot.render()
+    return basic_blocks
+
+
+#对程序中的所有基本块进行优化
+def all_basic_optimize(basic_blocks):
     optimize_quaternion = []
-    #count表示当前四元式长度变化
     number = -1  # 标识读到哪条四元式
     for code in basic_blocks:
         count = 0  # 每个四元式块缩减条数
@@ -309,23 +302,24 @@ def Partition_Basic_Block(codes):
             codes = optimize(DAG)
             newlen = len(codes)
             count=(prelen-newlen)
-            print('number',number,'count',count)
             for c in codes:
-                optimize_quaternion.append(c)
+                optimize_quaternion.append(list(c))
             for c1 in basic_blocks: # 更新四元式跳转语句
                 for c2 in c1:
                     if c2[0] in ['j', 'jz', 'jnz']:
                         l = list(c2)
-                        if c2[3] > number:
-                            c2[3] = c2[3] - count
+                        if int(c2[3]) > number:
+                            c2[3] = int(c2[3]) - count
 
             count = 0
         else:
             for c in code:
-                    optimize_quaternion.append(c)
+                    optimize_quaternion.append(list(c))
             number+=len(code)
     #返回优化后的四元式列表
     return optimize_quaternion
+
+
 
 def test1():#基本块内优化
     with open(r'D:\pythonProject\fundamentals of compiling\全部测试程序\14DAG测试用例\DAG_1.txt', 'r') as f:
@@ -340,8 +334,20 @@ def test1():#基本块内优化
     # print('optcodes:',codes)
 
 def test2(): # 将程序划分为基本块，得到DAG优化代码
-    codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    optimize_quaternion = Partition_Basic_Block(codes)
+    # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
+    # codes=[['=', '1000', '_', 'max'], ['main', '_', '_', '_'], ['=', '100', '_', 'm'], ['/', 'max', '2', 'T0'], ['<', 'm', 'T0', 'T1'], ['jnz', 'T1', '_', 10], ['jz', 'T1', '_', 32], ['+', 'm', '1', 'T2'], ['=', 'T2', '_', 'm'], ['j', '_', '_', 3], ['/', 'm', '100', 'T3'], ['=', 'T3', '_', 'a'], ['/', 'm', '10', 'T4'], ['%', 'T4', '10', 'T5'], ['=', 'T5', '_', 'b'], ['%', 'm', '10', 'T6'], ['=', 'T6', '_', 'c'], ['*', 'a', 'a', 'T7'], ['*', 'T7', 'a', 'T8'], ['*', 'b', 'b', 'T9'], ['*', 'T9', 'b', 'T10'], ['+', 'T8', 'T10', 'T11'], ['*', 'c', 'c', 'T12'], ['*', 'T12', 'c', 'T13'], ['+', 'T11', 'T13', 'T14'], ['==', 'm', 'T14', 'T15'], ['jnz', 'T15', '_', 28], ['jz', 'T15', '_', 31], ['para', 'm', '_', '_'], ['call', 'write', '_', 'T16'], ['j', '_', '_', 31], ['j', '_', '_', 7], ['ret', '0', '_', '_'], ['sys', '_', '_', '_']]
+    codes=[['=', '1', '_', 'a'], ['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['call',
+                                                                                                              'read',
+                                                                                                              '_',
+                                                                                                              'T1'], [
+              '=', 'T1', '_', 'M'], ['>=', 'M', 'N', 'T2'], ['jnz', 'T2', '_', '9'], ['jz', 'T2', '_', '11'], ['=', 'M',
+                                                                                                               '_',
+                                                                                                               'result'], [
+              'j', '_', '_', '12'], ['=', 'N', '_', 'result'], ['+', 'result', '100', 'T3'], ['=', 'T3', '_', 'a'], [
+              'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['sys', '_', '_', '_']]
+
+    basic_blocks=Partition_Basic_Block(codes)
+    optimize_quaternion = all_basic_optimize(basic_blocks)
     print('optimize_quaternion',optimize_quaternion)
 
 def test3():
@@ -352,7 +358,7 @@ def test3():
     print('cc:',cc)
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
-# test1()
+# test2()
 
 '''
 codes: [('=', '3', '', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B')]
