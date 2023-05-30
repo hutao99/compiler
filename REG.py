@@ -2,7 +2,8 @@ from graphviz import Digraph
 
 # 生成nfa的状态转换图
 def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节点和nfa 经过正规式转nfa后 初始节点和开始节点只有一个
-    nfa_graph = Digraph(comment='nfa_graph')
+    filename = './Reg_Graph/NFA'
+    nfa_graph = Digraph(filename, 'NFA_graph', None, None, 'png', None, "UTF-8")
     for value in result:
         if value[0] == start:  # 开始节点填满红色
             nfa_graph.node(str(value[0]), str(value[0]), fillcolor="red", style="filled")
@@ -14,7 +15,7 @@ def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节
             nfa_graph.node(str(value[2]), str(value[2]))
         # 边
         nfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
-    nfa_graph.render('test-output/NFA.gv', view=True)
+    nfa_graph.render()
 
 def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代码code进行词法分析,final_states为终结状态集
     result = []  # 识别结果
@@ -32,8 +33,7 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                     state = arc[2]  # 进入下一个状态
                     flag1 = 1
                     break
-            if flag1 == 0 and state not in final_states:  # 表示下一个输入符有错
-                print("222")
+            if flag1 == 0:  # 表示当前输入符有错
                 index2 = index
                 while index2 < len(code):  # 一直找到空格或者换行位置
                     if code[index2] not in [" ", "\n"]:
@@ -42,17 +42,27 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                         break
                 result.append(code[index1: index2] + "识别错误")
                 index1 = index2 + 1
-            # print(state)
-            if state in final_states:  # 如果已经到达终结状态了就 判断是否还能继续识别下一个符号 不能就重新将state置0
+                state = 0
+            elif state not in final_states and index + 1 < len(code) and code[index + 1] in [" ", "\n"]:
+                index2 = index
+                while index2 < len(code):  # 一直找到不是空格和换行位置
+                    if code[index2] in [" ", "\n"]:
+                        index2 += 1
+                    else:
+                        break
+                result.append(code[index1: index + 1] + "识别错误")
+                index1 = index2 + 1
+                state = 0
+            elif state in final_states:  # 如果已经到达终结状态了就 判断是否还能继续识别下一个符号 不能就重新将state置0
                 flag = 0
                 for arc in mfa:
-                    if state == arc[0] and index+1 < len(code) and code[index + 1] == arc[1]:  # 能识别下一个符号
+                    if state == arc[0] and index+1 < len(code) and (code[index + 1] == arc[1]):  # 能识别下一个符号
                         flag = 1
                         break
                 if flag == 0:
+                    print(index)
                     if index+1 < len(code) and (code[index + 1] not in [" ", "\n"]):  # 后面有错误的输入符
                         index2 = index
-                        print("11111")
                         while index2 < len(code):   # 一直找到空格或者换行位置
                             if code[index2] not in [" ", "\n"]:
                                 index2 += 1
@@ -60,12 +70,13 @@ def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代
                                 break
                         result.append(code[index1: index2] + "识别错误")
                         index1 = index2 + 1
+                        state = 0
                     else:
                         result.append(code[index1: index + 1] + "识别成功")  # [index1: index]不包含index
                         index1 = index + 1
                         state = 0
-    # if state != 0:
-    #     result.append(code[index1: len(code)] + "识别错误")
+    if state != 0 and (code[index1: len(code)] + "识别错误") not in result:
+        result.append(code[index1: len(code)] + "识别错误")
     return result
 
 """
@@ -85,8 +96,8 @@ def nfa_associate(nfa_union):
                 id_max = nfa1[index][2]
         id_max += 1
         new_nfa = nfa1
-        new_nfa.insert(0, [0, 'β', new_nfa[0][0]])
-        new_nfa.append([new_nfa[len(new_nfa) - 1][2], 'β', id_max])
+        new_nfa.insert(0, [0, 'ε', new_nfa[0][0]])
+        new_nfa.append([new_nfa[len(new_nfa) - 1][2], 'ε', id_max])
         end = id_max     # 记录结束状态,后面添加要用到
         nfa2 = nfa_union[1]
         add = id_max + 1
@@ -97,11 +108,11 @@ def nfa_associate(nfa_union):
                 id_max = nfa2[index][0]
             if nfa2[index][2] > id_max:
                 id_max = nfa2[index][2]
-        new_nfa.append([0, 'β', nfa2[0][0]])
+        new_nfa.append([0, 'ε', nfa2[0][0]])
         for arc in nfa2:
             new_nfa.append([arc[0], arc[1], arc[2]])
         id_max += 1
-        new_nfa.append([new_nfa[len(new_nfa) - 1][2], 'β', end])
+        new_nfa.append([new_nfa[len(new_nfa) - 1][2], 'ε', end])
         # 删除头两个nfa
         nfa_union.pop(0)
         nfa_union.pop(0)
@@ -187,15 +198,15 @@ class NfaDfaMfa:
                             因此需要找到最长的（即最终的）弧来进行或运算
                             这里直接找到最后一个即可，因为添加弧的过程中每天新弧都比之前的弧长
                         """
-                        # new_list = [self.max, 'β']  # S|T应该当成一条弧
+                        # new_list = [self.max, 'ε']  # S|T应该当成一条弧
                         for index, arc in enumerate(self.arc_queue):  # 找到起始状态为 s 状态的弧
                             if arc[0] == int(s):
-                                new_list = [self.max, 'β']  # 与下文中的 new_list2 = [] 作用相同
+                                new_list = [self.max, 'ε']  # 与下文中的 new_list2 = [] 作用相同
                                 # 构造新弧入队列
-                                # new_list = [self.max, 'β']
+                                # new_list = [self.max, 'ε']
                                 for point in arc:
                                     new_list.append(point)
-                                new_list.append('β')
+                                new_list.append('ε')
                                 new_list.append(self.max + 1)
 
                         for index, arc in enumerate(self.arc_queue):  # 找到起始状态为 t 状态的弧
@@ -205,12 +216,12 @@ class NfaDfaMfa:
                                 for value in new_list:
                                     new_list2.append(value)  # 直接 new_list2 = new_list  会出错
                                 # 构造新弧入队列
-                                # new_list = [self.max, 'β']
+                                # new_list = [self.max, 'ε']
                                 new_list2.append(self.max)
-                                new_list2.append('β')
+                                new_list2.append('ε')
                                 for point in arc:
                                     new_list2.append(point)
-                                new_list2.append('β')
+                                new_list2.append('ε')
                                 new_list2.append(self.max + 1)
                         # print(new_list2)
                         self.arc_queue.append(new_list2)
@@ -261,20 +272,20 @@ class NfaDfaMfa:
                         new_list_total = []  # 新弧可能有多条
                         for index, arc in enumerate(self.arc_queue):  # 找到起始状态为s状态的弧
                             if arc[0] == int(s):
-                                new_list = [self.max, 'β']
+                                new_list = [self.max, 'ε']
                                 for point in arc:
                                     new_list.append(point)  # 依次加入s的各个节点
                                 # s的终结点引空弧到新的终结点
-                                new_list.append('β')
+                                new_list.append('ε')
                                 new_list.append(self.max + 1)
                                 # s的终结点引空弧到开始节点
                                 end = arc[len(arc) - 1]
                                 new_list.append(end)
-                                new_list.append('β')
+                                new_list.append('ε')
                                 new_list.append(arc[0])
                                 # 新初始节点引空弧到终结点
                                 new_list.append(self.max)
-                                new_list.append('β')
+                                new_list.append('ε')
                                 new_list.append(self.max + 1)
                                 new_list_total.append(new_list)
                                 # self.arc_queue.pop(index)
@@ -345,8 +356,8 @@ class NfaDfaMfa:
     def nfa_to_dfa(self, nfa):
         assistant_key = []
         # 在NFA上添加新的初始状态和新的终结状态
-        nfa.insert(0, [-1, 'β', nfa[0][0]])
-        nfa.append([nfa[len(nfa) - 1][2], 'β', -2])  # -1 表示新的初始节点，-2 表示新的结束节点
+        nfa.insert(0, [-1, 'ε', nfa[0][0]])
+        nfa.append([nfa[len(nfa) - 1][2], 'ε', -2])  # -1 表示新的初始节点，-2 表示新的结束节点
 
         """
             用字典实现状态转换表,{[-1,4,2]: [[第一种输入符后的closure集],[第二种],[第n种]]}
@@ -358,7 +369,7 @@ class NfaDfaMfa:
         # 求得nfa 的输入符号集
         symbol_input = []
         for value in nfa:
-            if value[1] != 'β' and value[1] not in symbol_input:  # 第二条件避免重复录入
+            if value[1] != 'ε' and value[1] not in symbol_input:  # 第二条件避免重复录入
                 symbol_input.append(value[1])
 
         final_states = []  # 记录终结状态集,  dfa的初始状态只有一个且在本算法中为状态号为0，所以无需记录
@@ -437,7 +448,8 @@ class NfaDfaMfa:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
 
         # 生成nfa的状态转换图
-        dfa_graph = Digraph(comment='dfa_graph')
+        filename = './Reg_Graph/DFA'
+        dfa_graph = Digraph(filename, 'DFA_graph', None, None, 'png', None, "UTF-8")
         for value in dfa:
             # 出发节点
             if value[0] == 0:  # 初始节点
@@ -456,7 +468,7 @@ class NfaDfaMfa:
                 dfa_graph.node(str(value[2]), str(value[2]))
             # 加边
             dfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
-        dfa_graph.render('test-output/DFA.gv', view=True)
+        dfa_graph.render()
 
         # 返回dfa和终态集
         return dfa, final_states, symbol_input
@@ -486,7 +498,7 @@ class NfaDfaMfa:
             if state not in closure:
                 closure.append(state)  # 首先当前状态入队列
             for arc in nfa:
-                if arc[0] == state and arc[1] == 'β' and arc[2] not in move:  # 找到一条空弧转换
+                if arc[0] == state and arc[1] == 'ε' and arc[2] not in move:  # 找到一条空弧转换
                     move.append(arc[2])  # 添加进状态表
         return closure
 
@@ -596,28 +608,32 @@ class NfaDfaMfa:
 
 
         # 优化mfa编号 如将[2,'0',2,2,'1',2] 变成 [0,'0',0,0,'1',0] 即编号从小到大
-        # Max = 0
-        # for arc in final_mfa:
-        #     if arc[0] > Max:
-        #         Max = arc[0]
-        #     if arc[2] > Max:
-        #         Max = arc[2]
-        # Min = 0
-        # while Min < Max:
-        #     flag = 0
-        #     for arc in final_mfa:
-        #         if arc[0] == Min or arc[2] == Min:
-        #             flag = 1
-        #             break
-        #     if flag == 0:       # 说明mfa中没有 编号为Min的状态, 这时候将所有大于Min的状态编号减一
-        #         for index, value in enumerate(final_mfa):
-        #             if value[0] > Min:
-        #                 final_mfa[index][0] -= 1
-        #             if value[2] > Min:
-        #                 final_mfa[index][2] -= 1
-        #         Max -= 1    # 同时最大值减一
-        #     else:
-        #         Min += 1
+        Max = 0
+        for arc in final_mfa:
+            if arc[0] > Max:
+                Max = arc[0]
+            if arc[2] > Max:
+                Max = arc[2]
+        Min = 0
+        while Min < Max:
+            flag = 0
+            for arc in final_mfa:
+                if arc[0] == Min or arc[2] == Min:
+                    flag = 1
+                    break
+            if flag == 0:       # 说明mfa中没有 编号为Min的状态, 这时候将所有大于Min的状态编号减一
+                for index, value in enumerate(final_mfa):
+                    if value[0] > Min:
+                        final_mfa[index][0] -= 1
+                    if value[2] > Min:
+                        final_mfa[index][2] -= 1
+                    # 同时终结状态集中大于 Min的状态编号也要减一
+                    for index2, value2 in enumerate(final_states):
+                        if value2 > Min:
+                            final_states[index2] -= 1
+                Max -= 1    # 同时最大值减一
+            else:
+                Min += 1
 
 
         # 结果写入文件
@@ -630,7 +646,8 @@ class NfaDfaMfa:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
 
         # 生成nfa的状态转换图
-        mfa_graph = Digraph(comment='mfa_graph')
+        filename = './Reg_Graph/MFA'
+        mfa_graph = Digraph(filename, 'MFA_graph', None, None, 'png', None, "UTF-8")
         for value in final_mfa:
             # 出发节点
             if value[0] == 0:  # 初始节点
@@ -650,7 +667,7 @@ class NfaDfaMfa:
                 mfa_graph.node(str(value[2]), str(value[2]))
             # 加边
             mfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
-        mfa_graph.render('test-output/MFA.gv', view=True)
+        mfa_graph.render()
 
         # 修改终结状态集 如[7,8]合并成了[7] 就需要将8删掉
         for index, final_state in enumerate(final_states):
