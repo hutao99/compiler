@@ -184,6 +184,7 @@ class LL:
                     for fk in self.last[k]:
                         self.predict_table[k][fk] = k + '->' + next_grammar.replace(" ", "")
 
+
     # 书上112页
     def analysis(self, analyze_str):
         stack = []
