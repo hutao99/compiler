@@ -518,23 +518,26 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
             if self.recursive_or_lr_flag == 1:
-                file_object = open('文法.txt')
-                rda = recDesc_analysis(file_object)
-                self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
-                    self.lbword)
-                text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-                all_text = self.text1 + '\n' + self.text2 + '\n' + text1
-                self.textEdit_2.setText(all_text)
-                # 设置图片路径
-                self.textEdit_3.clear()
-                image_format = QtGui.QTextImageFormat()
-                image_format.setName('./Syntax_Tree/tree.gv.png')
+                if self.lbword == [] or self.lbword == None:
+                    QMessageBox.warning(self, '警告', '请先进行词法分析！')
+                else:
+                    file_object = open('文法.txt')
+                    rda = recDesc_analysis(file_object)
+                    self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
+                        self.lbword)
+                    text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+                    all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+                    self.textEdit_2.setText(all_text)
+                    # 设置图片路径
+                    self.textEdit_3.clear()
+                    image_format = QtGui.QTextImageFormat()
+                    image_format.setName('./Syntax_Tree/tree.gv.png')
 
-                # 在QTextEdit中插入图片
-                cursor = self.textEdit_3.textCursor()
-                cursor.insertImage(image_format)
+                    # 在QTextEdit中插入图片
+                    cursor = self.textEdit_3.textCursor()
+                    cursor.insertImage(image_format)
 
-                self.textEdit_3.show()
+                    self.textEdit_3.show()
             else:
                 lex = AnalyzerLex()
                 text = self.textEdit.toPlainText()
