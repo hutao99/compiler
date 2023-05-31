@@ -340,14 +340,16 @@ class NfaDfaMfa:
         f.write(self.text)
         f.write("\n起始状态\t接收符号\t结束状态\n")
         f.close()
-        # for
+        start = final_nfa[0]  # 开始节点
+        end = final_nfa[len(final_nfa) - 1]  # 结束节点
         for value in result:
             with open('NFA.txt', 'a') as f:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
-
+        with open('NFA.txt', 'a') as f:
+            f.write("初始节点:\t" + str(start) + "\n终结节点:\t" + str(end))
+        with open('MFA.txt', 'a') as f:
+            f.write("\n")
         # # 生成nfa的状态转换图
-        start = final_nfa[0]  # 开始节点
-        end = final_nfa[len(final_nfa) - 1]  # 结束节点
         nfa_graph(start, end, result)
 
         # 返回nfa
@@ -447,7 +449,13 @@ class NfaDfaMfa:
         for value in dfa:
             with open('DFA.txt', 'a') as f:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
-
+        with open('DFA.txt', 'a') as f:
+            f.write("初始节点:\t0\n终结节点:\t")
+        for value in final_states:
+            with open('DFA.txt', 'a') as f:
+                f.write(str(value) + "\t")
+        with open('MFA.txt', 'a') as f:
+            f.write("\n")
         # 生成nfa的状态转换图
         filename = './Reg_Graph/DFA'
         dfa_graph = Digraph(filename, 'DFA_graph', None, None, 'png', None, "UTF-8")
@@ -646,7 +654,13 @@ class NfaDfaMfa:
         for value in final_mfa:
             with open('MFA.txt', 'a') as f:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
-
+        with open('MFA.txt', 'a') as f:
+            f.write("初始节点:\t0\n终结节点:\t")
+        for value in final_states:
+            with open('MFA.txt', 'a') as f:
+                f.write(str(value) + "\t")
+        with open('MFA.txt', 'a') as f:
+            f.write("\n")
         # 生成nfa的状态转换图
         filename = './Reg_Graph/MFA'
         mfa_graph = Digraph(filename, 'MFA_graph', None, None, 'png', None, "UTF-8")

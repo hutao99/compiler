@@ -1,28 +1,25 @@
 // comment
 digraph "./DAG/visible" {
 	node [color=black shape=circle size="20,5"]
-	1 [label="A|"]
-	2 [label="B|"]
-	3 [label="\"+\"|t_1"]
-	4 [label="\"-\"|t_2"]
-	5 [label="\"*\"|F"]
-	6 [label="C|"]
-	7 [label="\"-\"|T2"]
-	8 [label="\"-\"|T3"]
-	9 [label="\"*\"|T1"]
-	10 [label="\"*\"|G"]
+	1 [label="a|"]
+	2 [label="b|"]
+	3 [label="+|T0"]
+	4 [label="-|T1"]
+	5 [label="c|"]
+	6 [label="d|"]
+	7 [label="+|T2"]
+	8 [label="*|T3"]
+	9 [label="+|T5"]
+	10 [label="-|n"]
 	3 -> 2
 	3 -> 1
-	4 -> 2
-	4 -> 1
-	5 -> 4
-	5 -> 3
+	4 -> 3
 	7 -> 6
-	7 -> 1
-	8 -> 6
-	8 -> 2
-	9 -> 7
-	9 -> 4
-	10 -> 8
+	7 -> 5
+	8 -> 7
+	8 -> 4
+	9 -> 5
+	9 -> 3
 	10 -> 9
+	10 -> 8
 }
