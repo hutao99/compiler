@@ -567,46 +567,45 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     image_format = QtGui.QTextImageFormat()
                     image_format.setName('./Syntax_Tree/tree.gv.png')
 
+                    # 在QTextEdit中插入图片
+                    self.textEdit_3.setText('')
+                    cursor = self.textEdit_3.textCursor()
+                    cursor.insertImage(image_format)
+                    self.textEdit_3.show()  # 语法树
 
-                # 在QTextEdit中插入图片
-                self.textEdit_3.setText('')
-                cursor = self.textEdit_3.textCursor()
-                cursor.insertImage(image_format)
-                self.textEdit_3.show()  # 语法树
+                    errors = []
+                    errors.extend(lex.error)
+                    errors.extend(self.LR.errors)
+                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                    s = ''
+                    s += '常量表:\n'
+                    for i in self.LR.ConstantTable:
+                        s += i + ": "
+                        for j in self.LR.ConstantTable[i]:
+                            s += str(vars(j)) + '\n'
 
-                errors = []
-                errors.extend(lex.error)
-                errors.extend(self.LR.errors)
-                errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                s = ''
-                s += '常量表:\n'
-                for i in self.LR.ConstantTable:
-                    s += i + ": "
-                    for j in self.LR.ConstantTable[i]:
-                        s += str(vars(j)) + '\n'
+                    s += '变量表:\n'
+                    for i in self.LR.VariableTable:
+                        s += i + ": "
+                        for j in self.LR.VariableTable[i]:
+                            s += str(vars(j)) + '\n'
 
-                s += '变量表:\n'
-                for i in self.LR.VariableTable:
-                    s += i + ": "
-                    for j in self.LR.VariableTable[i]:
-                        s += str(vars(j)) + '\n'
+                    s += '数组表:\n'
+                    for i in self.LR.ArrayTable:
+                        s += i + ": "
+                        for j in self.LR.ArrayTable[i]:
+                            s += str(vars(j)) + '\n'
 
-                s += '数组表:\n'
-                for i in self.LR.ArrayTable:
-                    s += i + ": "
-                    for j in self.LR.ArrayTable[i]:
-                        s += str(vars(j)) + '\n'
-
-                s += '函数表:\n'
-                for i in self.LR.FunctionTable:
-                    s += i + ": "
-                    s += str(vars(self.LR.FunctionTable[i])) + '\n'
-                s += '\nerror %d\n' % len(errors)
-                for i in errors:  # 语法和语义错误
-                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-                for i in self.LR.warning:
-                    s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-                self.textEdit_2.setText(s)
+                    s += '函数表:\n'
+                    for i in self.LR.FunctionTable:
+                        s += i + ": "
+                        s += str(vars(self.LR.FunctionTable[i])) + '\n'
+                    s += '\nerror %d\n' % len(errors)
+                    for i in errors:  # 语法和语义错误
+                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+                    for i in self.LR.warning:
+                        s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+                    self.textEdit_2.setText(s)
 
     # 中间代码
     def middle_analysis(self):
@@ -713,9 +712,12 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         if MiddleCode[i][j] == '':
                             MiddleCode[i][j] = '_'
                 if len(MiddleCode) != 0:
-                    self.textEdit_2.setText(
-                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                          global_array_list))
+                    try:
+                        self.textEdit_2.setText(
+                            ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                              global_array_list))
+                    except:
+                        QMessageBox.warning(self, '警告', '系统无法处理！')
 
 
     def REG_transform(self):
