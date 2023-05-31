@@ -530,64 +530,66 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             self.textEdit_3.show()
         else:
-            lex = AnalyzerLex()
+            # LR语法分析
             text = self.textEdit.toPlainText()
-            lex.input(text)
-            tokens = []
-            while True:
-                tok = lex.token()
-                if not tok:
-                    break
-                tokens.append([tok.type, tok.value, tok.lineno,
-                               lex.find_column(tok.lexer.lexdata, tok)])
-            tokens.append(['keyword', '#'])
-            # print(tokens)
-            self.LR.ControlProgram(tokens)
-            # self.display1.append(self.LR.PrintParseTree())
-            self.LR.PrintParseTree()  # 画语法树图
-            # 设置图片路径
-            image_format = QtGui.QTextImageFormat()
-            image_format.setName('./Syntax_Tree/tree.gv.png')
+            if len(text) != 0:
+                lex = AnalyzerLex()
+                lex.input(text)
+                tokens = []
+                while True:
+                    tok = lex.token()
+                    if not tok:
+                        break
+                    tokens.append([tok.type, tok.value, tok.lineno,
+                                   lex.find_column(tok.lexer.lexdata, tok)])
+                tokens.append(['keyword', '#'])
+                # print(tokens)
+                self.LR.ControlProgram(tokens)
+                # self.display1.append(self.LR.PrintParseTree())
+                self.LR.PrintParseTree()  # 画语法树图
+                # 设置图片路径
+                image_format = QtGui.QTextImageFormat()
+                image_format.setName('./Syntax_Tree/tree.gv.png')
 
-            # 在QTextEdit中插入图片
-            self.textEdit_3.setText('')
-            cursor = self.textEdit_3.textCursor()
-            cursor.insertImage(image_format)
-            self.textEdit_3.show()  # 语法树
+                # 在QTextEdit中插入图片
+                self.textEdit_3.setText('')
+                cursor = self.textEdit_3.textCursor()
+                cursor.insertImage(image_format)
+                self.textEdit_3.show()  # 语法树
 
-            errors = []
-            errors.extend(lex.error)
-            errors.extend(self.LR.errors)
-            errors = sorted(errors, key=lambda x: (x[0], x[1]))
-            s = ''
-            s += '常量表:\n'
-            for i in self.LR.ConstantTable:
-                s += i + ": "
-                for j in self.LR.ConstantTable[i]:
-                    s += str(vars(j)) + '\n'
+                errors = []
+                errors.extend(lex.error)
+                errors.extend(self.LR.errors)
+                errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                s = ''
+                s += '常量表:\n'
+                for i in self.LR.ConstantTable:
+                    s += i + ": "
+                    for j in self.LR.ConstantTable[i]:
+                        s += str(vars(j)) + '\n'
 
-            s += '变量表:\n'
-            for i in self.LR.VariableTable:
-                s += i + ": "
-                for j in self.LR.VariableTable[i]:
-                    s += str(vars(j)) + '\n'
+                s += '变量表:\n'
+                for i in self.LR.VariableTable:
+                    s += i + ": "
+                    for j in self.LR.VariableTable[i]:
+                        s += str(vars(j)) + '\n'
 
-            s += '数组表:\n'
-            for i in self.LR.ArrayTable:
-                s += i + ": "
-                for j in self.LR.ArrayTable[i]:
-                    s += str(vars(j)) + '\n'
+                s += '数组表:\n'
+                for i in self.LR.ArrayTable:
+                    s += i + ": "
+                    for j in self.LR.ArrayTable[i]:
+                        s += str(vars(j)) + '\n'
 
-            s += '函数表:\n'
-            for i in self.LR.FunctionTable:
-                s += i + ": "
-                s += str(vars(self.LR.FunctionTable[i])) + '\n'
-            s += '\nerror %d\n' % len(errors)
-            for i in errors:  # 语法和语义错误
-                s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-            for i in self.LR.warning:
-                s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-            self.textEdit_2.setText(s)
+                s += '函数表:\n'
+                for i in self.LR.FunctionTable:
+                    s += i + ": "
+                    s += str(vars(self.LR.FunctionTable[i])) + '\n'
+                s += '\nerror %d\n' % len(errors)
+                for i in errors:  # 语法和语义错误
+                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+                for i in self.LR.warning:
+                    s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+                self.textEdit_2.setText(s)
 
     # 中间代码
     def middle_analysis(self):
@@ -600,39 +602,40 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             print(text)
             self.textEdit_3.setText(text)        
         else:  # LR中间代码
-            lex = AnalyzerLex()
             text = self.textEdit.toPlainText()
-            lex.input(text)
-            tokens = []
-            while True:
-                tok = lex.token()
-                if not tok:
-                    break
-                tokens.append([tok.type, tok.value, tok.lineno,
-                               lex.find_column(tok.lexer.lexdata, tok)])
-            tokens.append(['keyword', '#'])
-            self.LR.ControlProgram(tokens)
-            s = ''
-            if len(self.LR.errors) == 0 and len(lex.error) == 0:
-                self.LR.IntermediateCodeGenerator(tokens)
-                getcode = self.LR.code
-                for i in range(len(getcode)):
-                    s += str(i) + ':' + str(getcode[i]) + '\n'
-                self.textEdit_3.setText(s)
-            else:
-                errors = []
-                errors.extend(lex.error)
-                errors.extend(self.LR.errors)
-                errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                for i in errors:
-                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
-                self.textEdit_2.setText(s)
+            if len(text) != 0:
+                lex = AnalyzerLex()
+                lex.input(text)
+                tokens = []
+                while True:
+                    tok = lex.token()
+                    if not tok:
+                        break
+                    tokens.append([tok.type, tok.value, tok.lineno,
+                                   lex.find_column(tok.lexer.lexdata, tok)])
+                tokens.append(['keyword', '#'])
+                self.LR.ControlProgram(tokens)
+                s = ''
+                if len(self.LR.errors) == 0 and len(lex.error) == 0:
+                    self.LR.IntermediateCodeGenerator(tokens)
+                    getcode = self.LR.code
+                    for i in range(len(getcode)):
+                        s += str(i) + ':' + str(getcode[i]) + '\n'
+                    self.textEdit_3.setText(s)
+                else:
+                    errors = []
+                    errors.extend(lex.error)
+                    errors.extend(self.LR.errors)
+                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                    for i in errors:
+                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
+                    self.textEdit_2.setText(s)
 
     # 基本块划分
     def Basic_Block(self):
         s = self.textEdit_3.toPlainText() # 获取四元式序列
         codes = self.format_conversion(s)
-        self.basic_blocks=Partition_Basic_Block(codes)
+        self.basic_blocks = Partition_Basic_Block(codes)
         print('basic_blocks',self.basic_blocks)
         # 设置图片路径
         image_format = QtGui.QTextImageFormat()
