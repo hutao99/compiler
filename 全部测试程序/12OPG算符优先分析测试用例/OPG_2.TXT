@@ -1,4 +1,4 @@
 M: # S #
 S: T | S v T
-T: U | T ^ U
+T: U | T * U
 U: identifier | - U

@@ -21,6 +21,10 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.action_7.triggered.connect(self.open_file)
         # 打开待输入符号串文件
         self.action_10.triggered.connect(self.open_file1)
+        # 按钮
+        self.pushButton.clicked.connect(self.open_nfa)
+        self.pushButton_2.clicked.connect(self.open_dfa)
+        self.pushButton_3.clicked.connect(self.open_mfa)
 
         self.my_object = None
         self.nfa = []
@@ -49,7 +53,6 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
             self.plainTextEdit_2.setPlainText(text)
 
     def reg_to_nfa(self):
-        print("33333")
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
         if "\n" in reg:    # 多个正规式
             text = reg.split("\n")
@@ -71,31 +74,53 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         text1 = "NFA:\n" + text
         self.plainTextEdit_3.appendPlainText(text1)
         self.textEdit.clear()
+        self.textEdit.append("NFA:\n")
         # 设置图片路径
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./Reg_Graph/NFA.gv.png')
-        # 在QTextEdit中插入图片
+        # 在TextEdit中插入图片
         cursor = self.textEdit.textCursor()
         cursor.insertImage(image_format)
         # 显示
         self.textEdit.show()
 
     def nfa_to_dfa(self):
+        nfa = self.plainTextEdit.toPlainText()
+        if "起始状态" in nfa:
+            final_nfa = []
+            nfa = nfa.split("\n")
+            for index, value in enumerate(nfa):
+                if index < 1:   # 跳过 起始状态 接收状态 结束状态这一行
+                    continue
+                else:
+                    arc = []
+                    for value1 in value:
+                        if value1 != '\t':
+                            if value1.isdigit():
+                                arc.append(int(value1))
+                            else:
+                                arc.append(value1)
+                    if len(arc) > 0:
+                        final_nfa.append(arc)
+            my_object = REG.NfaDfaMfa("")
+            dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
+
         self.dfa, self.final_states, self.input_symbols = self.my_object.nfa_to_dfa(self.nfa)
         f = open("DFA.txt")
         text = f.read()
         f.close()
         text1 = "DFA:\n" + text
         self.plainTextEdit_3.appendPlainText(text1)
-        self.textEdit_2.clear()
+        self.textEdit.clear()
+        self.textEdit.append("DFA:\n")
         # 设置图片路径
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./Reg_Graph/DFA.gv.png')
         # 在QTextEdit中插入图片
-        cursor = self.textEdit_2.textCursor()
+        cursor = self.textEdit.textCursor()
         cursor.insertImage(image_format)
         # 显示
-        self.textEdit_2.show()
+        self.textEdit.show()
 
     def dfa_to_mfa(self):
         self.mfa, self.final_states = self.my_object.dfa_to_mfa(self.dfa, self.final_states, self.input_symbols)
@@ -104,15 +129,16 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         f.close()
         text1 = "MFA:\n" + text
         self.plainTextEdit_3.appendPlainText(text1)
-        self.textEdit_3.clear()
+        self.textEdit.clear()
+        self.textEdit.append("MFA:\n")
         # 设置图片路径
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./Reg_Graph/MFA.gv.png')
         # 在QTextEdit中插入图片
-        cursor = self.textEdit_3.textCursor()
+        cursor = self.textEdit.textCursor()
         cursor.insertImage(image_format)
         # 显示
-        self.textEdit_3.show()
+        self.textEdit.show()
 
     # 全部展示
     def show_all(self):
@@ -120,27 +146,60 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.nfa_to_dfa()
         self.dfa_to_mfa()
 
+    def open_nfa(self):
+        self.textEdit.clear()
+        self.textEdit.append("NFA:\n")
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Reg_Graph/NFA.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit.textCursor()
+        cursor.insertImage(image_format)
+        # 显示
+        self.textEdit.show()
+    def open_dfa(self):
+        self.textEdit.clear()
+        self.textEdit.append("DFA:\n")
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Reg_Graph/DFA.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit.textCursor()
+        cursor.insertImage(image_format)
+        # 显示
+        self.textEdit.show()
+    def open_mfa(self):
+        self.textEdit.clear()
+        self.textEdit.append("MFA:\n")
+        # 设置图片路径
+        image_format = QtGui.QTextImageFormat()
+        image_format.setName('./Reg_Graph/MFA.gv.png')
+        # 在QTextEdit中插入图片
+        cursor = self.textEdit.textCursor()
+        cursor.insertImage(image_format)
+        # 显示
+        self.textEdit.show()
 
     def Lexical_Analysis(self):
         code = self.plainTextEdit_2.toPlainText()  # 获取用户输入代码
         result = REG.Lexical_Analysis(code, self.mfa, self.final_states)
         self.plainTextEdit_3.clear()
         print(result)
-        text = "识别结果:\n"
+        text1 = "符合输入正规式的单词:\n"
+        text2 = "不符合输入正规式的单词:\n"
         for value in result:
-            text += value + "\n"
-        self.plainTextEdit_3.appendPlainText(text)
+            if value[len(value)-4: len(value)] == "识别成功":
+                text1 += value[0: len(value)-4] + "\n"
+            elif value[len(value)-4: len(value)] == "识别错误":
+                text2 += value[0: len(value)-4] + "\n"
+        self.plainTextEdit_3.appendPlainText(text1)
+        self.plainTextEdit_3.appendPlainText(text2)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)  # 创建应用程序对象
     mainwindow = REG_MainWindow()
-    # MainWindow = QMainWindow()  # 创建主窗口
-    # ui = interface.Ui_MainWindow()
-    # ui.setupUi(MainWindow)
-    # MainWindow.resize(700, 800)
-    # MainWindow.move(1100, 75)
     # 窗口宽高
-    mainwindow.resize(850, 600)
+    mainwindow.resize(1033, 837)
     # 窗口左上角与屏幕左上角的相对坐标
     # mainwindow.move(1100, 75)
     mainwindow.show()  # 显示主窗口
