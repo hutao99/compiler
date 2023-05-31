@@ -270,29 +270,36 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 self.textEdit.setText(str)
 
     def save_text(self):
-        # 弹出文件对话框，让用户选择要保存的文件路径和文件名
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)",
-                                                   options=options)
-        if file_name:
-            # 如果用户选择了文件路径和文件名，则执行保存操作
-            with open(file_name, 'w') as f:
-                f.write(self.textEdit.toPlainText())
+        text = self.textEdit.toPlainText()
+        if text == '':
+            QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
+        else:
+            # 弹出文件对话框，让用户选择要保存的文件路径和文件名
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            file_name, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)",
+                                                       options=options)
+            if file_name:
+                # 如果用户选择了文件路径和文件名，则执行保存操作
+                with open(file_name, 'w') as f:
+                    f.write(self.textEdit.toPlainText())
 
     def onFileSaveAs(self):
-
-        # 弹出文件对话框，让用户选择要保存的文件路径和文件名
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save As", "", "Text Files (*.txt);;All Files (*)",
-                                                   options=options)
-        if file_name:
-            # 如果用户选择了文件路径和文件名，则执行保存操作
-            with open(file_name, 'w') as f:
-                f.write(self.text_edit.toPlainText())
-            # 更新当前文件名
-            self.file_name = file_name
+        text = self.textEdit.toPlainText()
+        if text == '':
+            QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
+        else:
+            # 弹出文件对话框，让用户选择要保存的文件路径和文件名
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            file_name, _ = QFileDialog.getSaveFileName(self, "Save As", "", "Text Files (*.txt);;All Files (*)",
+                                                       options=options)
+            if file_name:
+                # 如果用户选择了文件路径和文件名，则执行保存操作
+                with open(file_name, 'w') as f:
+                    f.write(self.text_edit.toPlainText())
+                # 更新当前文件名
+                self.file_name = file_name
 
 
     def closeEvent(self, event):
@@ -539,24 +546,27 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
                     self.textEdit_3.show()
             else:
-                lex = AnalyzerLex()
+                # LR语法分析
                 text = self.textEdit.toPlainText()
-                lex.input(text)
-                tokens = []
-                while True:
-                    tok = lex.token()
-                    if not tok:
-                        break
-                    tokens.append([tok.type, tok.value, tok.lineno,
-                                   lex.find_column(tok.lexer.lexdata, tok)])
-                tokens.append(['keyword', '#'])
-                # print(tokens)
-                self.LR.ControlProgram(tokens)
-                # self.display1.append(self.LR.PrintParseTree())
-                self.LR.PrintParseTree()  # 画语法树图
-                # 设置图片路径
-                image_format = QtGui.QTextImageFormat()
-                image_format.setName('./Syntax_Tree/tree.gv.png')
+                if len(text) != 0:
+                    lex = AnalyzerLex()
+                    lex.input(text)
+                    tokens = []
+                    while True:
+                        tok = lex.token()
+                        if not tok:
+                            break
+                        tokens.append([tok.type, tok.value, tok.lineno,
+                                       lex.find_column(tok.lexer.lexdata, tok)])
+                    tokens.append(['keyword', '#'])
+                    # print(tokens)
+                    self.LR.ControlProgram(tokens)
+                    # self.display1.append(self.LR.PrintParseTree())
+                    self.LR.PrintParseTree()  # 画语法树图
+                    # 设置图片路径
+                    image_format = QtGui.QTextImageFormat()
+                    image_format.setName('./Syntax_Tree/tree.gv.png')
+
 
                 # 在QTextEdit中插入图片
                 self.textEdit_3.setText('')
@@ -615,33 +625,34 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     print(text)
                     self.textEdit_3.setText(text)
             else:  # LR中间代码
-                lex = AnalyzerLex()
                 text = self.textEdit.toPlainText()
-                lex.input(text)
-                tokens = []
-                while True:
-                    tok = lex.token()
-                    if not tok:
-                        break
-                    tokens.append([tok.type, tok.value, tok.lineno,
-                                   lex.find_column(tok.lexer.lexdata, tok)])
-                tokens.append(['keyword', '#'])
-                self.LR.ControlProgram(tokens)
-                s = ''
-                if len(self.LR.errors) == 0 and len(lex.error) == 0:
-                    self.LR.IntermediateCodeGenerator(tokens)
-                    getcode = self.LR.code
-                    for i in range(len(getcode)):
-                        s += str(i) + ':' + str(getcode[i]) + '\n'
-                    self.textEdit_3.setText(s)
-                else:
-                    errors = []
-                    errors.extend(lex.error)
-                    errors.extend(self.LR.errors)
-                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                    for i in errors:
-                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
-                    self.textEdit_2.setText(s)
+                if len(text) != 0:
+                    lex = AnalyzerLex()
+                    lex.input(text)
+                    tokens = []
+                    while True:
+                        tok = lex.token()
+                        if not tok:
+                            break
+                        tokens.append([tok.type, tok.value, tok.lineno,
+                                       lex.find_column(tok.lexer.lexdata, tok)])
+                    tokens.append(['keyword', '#'])
+                    self.LR.ControlProgram(tokens)
+                    s = ''
+                    if len(self.LR.errors) == 0 and len(lex.error) == 0:
+                        self.LR.IntermediateCodeGenerator(tokens)
+                        getcode = self.LR.code
+                        for i in range(len(getcode)):
+                            s += str(i) + ':' + str(getcode[i]) + '\n'
+                        self.textEdit_3.setText(s)
+                    else:
+                        errors = []
+                        errors.extend(lex.error)
+                        errors.extend(self.LR.errors)
+                        errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                        for i in errors:
+                            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
+                        self.textEdit_2.setText(s)
 
     # 基本块划分
     def Basic_Block(self):
