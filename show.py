@@ -20,6 +20,7 @@ class Ui_MainWindow(object):
         #https://k.sina.com.cn/article_3588040610_pd5dd27a202700c2hy.html
         # http://www.360doc.com/content/09/0731/11/59625_4571056.shtml
 
+
         MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setObjectName("textEdit")
