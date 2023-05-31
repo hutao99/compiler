@@ -672,7 +672,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 目标代码
     def Object_analysis(self):
-        if self.siyuanshi == None:
+        if self.siyuanshi == None or self.siyuanshi == []:
             QMessageBox.warning(self, '警告', '请先生成中间代码!')
         else:
             if self.recursive_or_lr_flag == 1: # 递归下降目标代码
