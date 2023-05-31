@@ -25,6 +25,9 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.pushButton.clicked.connect(self.open_nfa)
         self.pushButton_2.clicked.connect(self.open_dfa)
         self.pushButton_3.clicked.connect(self.open_mfa)
+        # 单独转换
+        self.action_NFA_DFA.triggered.connect(self.nfa_to_dfa2)
+        self.action_DFA_MFA_2.triggered.connect(self.dfa_to_mfa2)
 
         self.my_object = None
         self.nfa = []
@@ -93,28 +96,6 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         if nfa == '':
             QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
         else:
-            if "状态" in nfa:
-                final_nfa = []
-                nfa = nfa.split("\n")
-                for index, value in enumerate(nfa):
-                    if index == 0:   # 跳过 起始状态 接收状态 结束状态这一行
-                        continue
-                        # if value != "起始状态 接收符号 结束状态":
-                        #     self.plainTextEdit_2.appendPlainText("请以 起始状态 接收符号 结束状态的形式输入nfa")
-                        #     break
-                    else:
-                        arc = []
-                        for value1 in value:
-                            if value1 not in ['\t', ' ']:
-                                if value1.isdigit():
-                                    arc.append(int(value1))
-                                else:
-                                    arc.append(value1)
-                        if len(arc) > 0:
-                            final_nfa.append(arc)
-                self.my_object = REG.NfaDfaMfa("")
-                self.nfa = final_nfa
-                # dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
             if len(self.nfa) == 0:
                 QMessageBox.warning(self, '警告', '请先点击正规式转为nfa')
             else:
@@ -221,6 +202,98 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                         text2 += value[0: len(value)-4] + "\n"
                 self.plainTextEdit_3.appendPlainText(text1)
                 self.plainTextEdit_3.appendPlainText(text2)
+
+    def nfa_to_dfa2(self):
+        nfa = self.plainTextEdit.toPlainText()
+        if nfa == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            if "状态" not in nfa or "节点" not in nfa:
+                QMessageBox.warning(self, '警告', '请输入正确的NFA形式')
+            else:
+                final_nfa = []
+                nfa = nfa.split("\n")
+                for index, value in enumerate(nfa):
+                    if "状态" in value or "节点" in value:
+                        continue
+                    else:
+                        arc = []
+                        for value1 in value:
+                            if value1 not in ['\t', ' ']:
+                                if value1.isdigit():
+                                    arc.append(int(value1))
+                                else:
+                                    arc.append(value1)
+                        if len(arc) > 0:
+                            final_nfa.append(arc)
+                my_object = REG.NfaDfaMfa("")
+                dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
+                f = open("DFA.txt")
+                text = f.read()
+                f.close()
+                text1 = "DFA:" + text
+                self.plainTextEdit_3.clear()
+                self.plainTextEdit_3.appendPlainText(text1)
+                self.textEdit.clear()
+                self.textEdit.append("DFA:\n")
+                # 设置图片路径
+                image_format = QtGui.QTextImageFormat()
+                image_format.setName('./Reg_Graph/DFA.gv.png')
+                # 在QTextEdit中插入图片
+                cursor = self.textEdit.textCursor()
+                cursor.insertImage(image_format)
+                # 显示
+                self.textEdit.show()
+    def dfa_to_mfa2(self):
+        dfa = self.plainTextEdit.toPlainText()
+        if dfa == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            if "状态" not in dfa or "节点" not in dfa:
+                QMessageBox.warning(self, '警告', '请输入正确的DFA形式')
+            else:
+                final_dfa = []
+                final_states = []
+                input_symbols = []
+                dfa = dfa.split("\n")
+                print(dfa)
+                for index, value in enumerate(dfa):
+                    if "状态" in value or "初始节点" in value:
+                        continue
+                    elif "终结节点" in value:
+                        for state in value:
+                            if state.isdigit():
+                                final_states.append(int(state))
+                    else:
+                        arc = []
+                        for value1 in value:
+                            if value1 not in ['\t', ' ']:
+                                if value1.isdigit():
+                                    arc.append(int(value1))
+                                else:
+                                    arc.append(value1)
+                                    if value1 != 'ε':
+                                        input_symbols.append(value1)
+                        if len(arc) > 0:
+                            final_dfa.append(arc)
+                my_object = REG.NfaDfaMfa("")
+                mfa, final_states = my_object.dfa_to_mfa(final_dfa, final_states, input_symbols)
+                f = open("MFA.txt")
+                text = f.read()
+                f.close()
+                text1 = "MFA:" + text
+                self.plainTextEdit_3.clear()
+                self.plainTextEdit_3.appendPlainText(text1)
+                self.textEdit.clear()
+                self.textEdit.append("MFA:\n")
+                # 设置图片路径
+                image_format = QtGui.QTextImageFormat()
+                image_format.setName('./Reg_Graph/MFA.gv.png')
+                # 在QTextEdit中插入图片
+                cursor = self.textEdit.textCursor()
+                cursor.insertImage(image_format)
+                # 显示
+                self.textEdit.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)  # 创建应用程序对象

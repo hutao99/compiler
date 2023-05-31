@@ -127,6 +127,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         # LR1自定义语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
+        '''
+        对一些变量进行初始化
+        '''
+        self.siyuanshi = None
 
 
     def recent_folders(self):
@@ -517,144 +521,160 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.textEdit_2.setText(self.errorlist)
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
-        if self.recursive_or_lr_flag == 1:
-            print('lbword',self.lbword)
-            file_object = open('文法.txt')
-            rda = recDesc_analysis(file_object)
-            self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
-                self.lbword)
-            text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-            all_text = self.text1 + '\n' + self.text2 + '\n' + text1
-            self.textEdit_2.setText(all_text)
-            # 设置图片路径
-            self.textEdit_3.clear()
-            image_format = QtGui.QTextImageFormat()
-            image_format.setName('./Syntax_Tree/tree.gv.png')
-
-            # 在QTextEdit中插入图片
-            cursor = self.textEdit_3.textCursor()
-            cursor.insertImage(image_format)
-
-            self.textEdit_3.show()
+        if self.recursive_or_lr_flag == 0:
+            QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
-            lex = AnalyzerLex()
-            text = self.textEdit.toPlainText()
-            lex.input(text)
-            tokens = []
-            while True:
-                tok = lex.token()
-                if not tok:
-                    break
-                tokens.append([tok.type, tok.value, tok.lineno,
-                               lex.find_column(tok.lexer.lexdata, tok)])
-            tokens.append(['keyword', '#'])
-            # print(tokens)
-            self.LR.ControlProgram(tokens)
-            # self.display1.append(self.LR.PrintParseTree())
-            self.LR.PrintParseTree()  # 画语法树图
-            # 设置图片路径
-            image_format = QtGui.QTextImageFormat()
-            image_format.setName('./Syntax_Tree/tree.gv.png')
+            if self.recursive_or_lr_flag == 1:
+                if self.lbword == [] or self.lbword == None:
+                    QMessageBox.warning(self, '警告', '请先进行词法分析！')
+                else:
+                    file_object = open('文法.txt')
+                    rda = recDesc_analysis(file_object)
+                    self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
+                        self.lbword)
+                    text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+                    all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+                    self.textEdit_2.setText(all_text)
+                    # 设置图片路径
+                    self.textEdit_3.clear()
+                    image_format = QtGui.QTextImageFormat()
+                    image_format.setName('./Syntax_Tree/tree.gv.png')
 
-            # 在QTextEdit中插入图片
-            self.textEdit_3.setText('')
-            cursor = self.textEdit_3.textCursor()
-            cursor.insertImage(image_format)
-            self.textEdit_3.show()  # 语法树
+                    # 在QTextEdit中插入图片
+                    cursor = self.textEdit_3.textCursor()
+                    cursor.insertImage(image_format)
 
-            errors = []
-            errors.extend(lex.error)
-            errors.extend(self.LR.errors)
-            errors = sorted(errors, key=lambda x: (x[0], x[1]))
-            s = ''
-            s += '常量表:\n'
-            for i in self.LR.ConstantTable:
-                s += i + ": "
-                for j in self.LR.ConstantTable[i]:
-                    s += str(vars(j)) + '\n'
-
-            s += '变量表:\n'
-            for i in self.LR.VariableTable:
-                s += i + ": "
-                for j in self.LR.VariableTable[i]:
-                    s += str(vars(j)) + '\n'
-
-            s += '数组表:\n'
-            for i in self.LR.ArrayTable:
-                s += i + ": "
-                for j in self.LR.ArrayTable[i]:
-                    s += str(vars(j)) + '\n'
-
-            s += '函数表:\n'
-            for i in self.LR.FunctionTable:
-                s += i + ": "
-                s += str(vars(self.LR.FunctionTable[i])) + '\n'
-            s += '\nerror %d\n' % len(errors)
-            for i in errors:  # 语法和语义错误
-                s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-            for i in self.LR.warning:
-                s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-            self.textEdit_2.setText(s)
-
-    # 中间代码
-    def middle_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下降中间代码
-            text = ''
-            idx = 0
-            for quad in self.siyuanshi:
-                text += str(idx)+':'+str(quad[1:]) + '\n'
-                idx+=1
-            print(text)
-            self.textEdit_3.setText(text)        
-        else:  # LR中间代码
-            lex = AnalyzerLex()
-            text = self.textEdit.toPlainText()
-            lex.input(text)
-            tokens = []
-            while True:
-                tok = lex.token()
-                if not tok:
-                    break
-                tokens.append([tok.type, tok.value, tok.lineno,
-                               lex.find_column(tok.lexer.lexdata, tok)])
-            tokens.append(['keyword', '#'])
-            self.LR.ControlProgram(tokens)
-            s = ''
-            if len(self.LR.errors) == 0 and len(lex.error) == 0:
-                self.LR.IntermediateCodeGenerator(tokens)
-                getcode = self.LR.code
-                for i in range(len(getcode)):
-                    s += str(i) + ':' + str(getcode[i]) + '\n'
-                self.textEdit_3.setText(s)
+                    self.textEdit_3.show()
             else:
+                lex = AnalyzerLex()
+                text = self.textEdit.toPlainText()
+                lex.input(text)
+                tokens = []
+                while True:
+                    tok = lex.token()
+                    if not tok:
+                        break
+                    tokens.append([tok.type, tok.value, tok.lineno,
+                                   lex.find_column(tok.lexer.lexdata, tok)])
+                tokens.append(['keyword', '#'])
+                # print(tokens)
+                self.LR.ControlProgram(tokens)
+                # self.display1.append(self.LR.PrintParseTree())
+                self.LR.PrintParseTree()  # 画语法树图
+                # 设置图片路径
+                image_format = QtGui.QTextImageFormat()
+                image_format.setName('./Syntax_Tree/tree.gv.png')
+
+                # 在QTextEdit中插入图片
+                self.textEdit_3.setText('')
+                cursor = self.textEdit_3.textCursor()
+                cursor.insertImage(image_format)
+                self.textEdit_3.show()  # 语法树
+
                 errors = []
                 errors.extend(lex.error)
                 errors.extend(self.LR.errors)
                 errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                for i in errors:
-                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
+                s = ''
+                s += '常量表:\n'
+                for i in self.LR.ConstantTable:
+                    s += i + ": "
+                    for j in self.LR.ConstantTable[i]:
+                        s += str(vars(j)) + '\n'
+
+                s += '变量表:\n'
+                for i in self.LR.VariableTable:
+                    s += i + ": "
+                    for j in self.LR.VariableTable[i]:
+                        s += str(vars(j)) + '\n'
+
+                s += '数组表:\n'
+                for i in self.LR.ArrayTable:
+                    s += i + ": "
+                    for j in self.LR.ArrayTable[i]:
+                        s += str(vars(j)) + '\n'
+
+                s += '函数表:\n'
+                for i in self.LR.FunctionTable:
+                    s += i + ": "
+                    s += str(vars(self.LR.FunctionTable[i])) + '\n'
+                s += '\nerror %d\n' % len(errors)
+                for i in errors:  # 语法和语义错误
+                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+                for i in self.LR.warning:
+                    s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
                 self.textEdit_2.setText(s)
+
+    # 中间代码
+    def middle_analysis(self):
+        if self.recursive_or_lr_flag == 0 :
+            QMessageBox.warning(self, '警告', '请先进行词法分析！')
+        else:
+            if self.recursive_or_lr_flag == 1: # 递归下降中间代码
+                if self.siyuanshi == None or self.siyuanshi == []:
+                    QMessageBox.warning(self, '警告', '请先进行语法分析！')
+                else:
+                    text = ''
+                    idx = 0
+                    for quad in self.siyuanshi:
+                        text += str(idx)+':'+str(quad[1:]) + '\n'
+                        idx+=1
+                    print(text)
+                    self.textEdit_3.setText(text)
+            else:  # LR中间代码
+                lex = AnalyzerLex()
+                text = self.textEdit.toPlainText()
+                lex.input(text)
+                tokens = []
+                while True:
+                    tok = lex.token()
+                    if not tok:
+                        break
+                    tokens.append([tok.type, tok.value, tok.lineno,
+                                   lex.find_column(tok.lexer.lexdata, tok)])
+                tokens.append(['keyword', '#'])
+                self.LR.ControlProgram(tokens)
+                s = ''
+                if len(self.LR.errors) == 0 and len(lex.error) == 0:
+                    self.LR.IntermediateCodeGenerator(tokens)
+                    getcode = self.LR.code
+                    for i in range(len(getcode)):
+                        s += str(i) + ':' + str(getcode[i]) + '\n'
+                    self.textEdit_3.setText(s)
+                else:
+                    errors = []
+                    errors.extend(lex.error)
+                    errors.extend(self.LR.errors)
+                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                    for i in errors:
+                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
+                    self.textEdit_2.setText(s)
 
     # 基本块划分
     def Basic_Block(self):
         s = self.textEdit_3.toPlainText() # 获取四元式序列
-        codes = self.format_conversion(s)
-        self.basic_blocks=Partition_Basic_Block(codes)
-        print('basic_blocks',self.basic_blocks)
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Basic_Block/basic_block.gv.png')
+        if  s == '':
+            QMessageBox.warning(self, '警告', '请先生成四元式！')
+        else:
+            codes = self.format_conversion(s)
+            self.basic_blocks=Partition_Basic_Block(codes)
+            print('basic_blocks',self.basic_blocks)
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Basic_Block/basic_block.gv.png')
 
 
-        # 在QTextEdit中插入图片
-        self.textEdit_2.clear()
-        cursor = self.textEdit_2.textCursor()
-        cursor.insertImage(image_format)
+            # 在QTextEdit中插入图片
+            self.textEdit_2.clear()
+            cursor = self.textEdit_2.textCursor()
+            cursor.insertImage(image_format)
 
-        self.textEdit_2.show()
+            self.textEdit_2.show()
 
     # DAG优化
     def DAG_optimization(self):
+        if len(self.basic_blocks) == 0:
+            QMessageBox.warning(self, '警告', '请先生成四元式！')
         optimize_quaternion = all_basic_optimize(self.basic_blocks)
         text = ''
         idx = 0
@@ -666,23 +686,32 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 目标代码
     def Object_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
-            text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
-            self.textEdit_2.setText(text)
-        else:  # LR目标代码
-            MiddleCode = self.LR.code
-            function_param_list = self.LR.function_param_list
-            function_jubu_list = self.LR.function_jubu_list
-            function_array_list = self.LR.function_array_list
-            global_array_list = self.LR.global_array_list
-            for i in range(len(MiddleCode)):
-                for j in range(4):
-                    if MiddleCode[i][j] == '':
-                        MiddleCode[i][j] = '_'
-            if len(MiddleCode) != 0:
-                self.textEdit_2.setText(
-                    ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                      global_array_list))
+        if self.recursive_or_lr_flag == 0 :
+            QMessageBox.warning(self, '警告', '请先进行词法分析！')
+        else:
+            if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+                if self.siyuanshi == None or self.siyuanshi == []:
+                    QMessageBox.warning(self, '警告', '请先生成中间代码!')
+                else:
+                    try:
+                        text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
+                        self.textEdit_2.setText(text)
+                    except:
+                        QMessageBox.warning(self, '警告', '系统无法处理！')
+            else:  # LR目标代码
+                MiddleCode = self.LR.code
+                function_param_list = self.LR.function_param_list
+                function_jubu_list = self.LR.function_jubu_list
+                function_array_list = self.LR.function_array_list
+                global_array_list = self.LR.global_array_list
+                for i in range(len(MiddleCode)):
+                    for j in range(4):
+                        if MiddleCode[i][j] == '':
+                            MiddleCode[i][j] = '_'
+                if len(MiddleCode) != 0:
+                    self.textEdit_2.setText(
+                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                          global_array_list))
 
 
     def REG_transform(self):

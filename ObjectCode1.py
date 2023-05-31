@@ -53,6 +53,7 @@ def function_get(quaternion_list):
     for i, line in enumerate(quaternion_list[0:sys+1]):  # i从0标号 line[1:]
         if line[0] not in ['jnz', 'para', 'call', 'j', 'jz', 'j<', 'j>', 'j<=', 'j>=', 'j==', 'j!=']:  # 如果不是跳转语句 不是函数调用
             for var in line[1:]:  # 全局变量表添加
+                print('line1',line[1:])
                 if is_var(var) and var not in global_main_symbol + ['_'] and var[0] != 'T':
                     global_main_symbol.append(var)
     print(global_main_symbol)

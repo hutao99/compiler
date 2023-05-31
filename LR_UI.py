@@ -146,16 +146,16 @@ class Ui_MainWindow_LR(object):
         self.tableStack1.setObjectName("tableStack")
         self.tableStack1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
 
-        self.gridLayout.addWidget(self.tableStack1, 1, 6, 3, 2)
+        self.gridLayout.addWidget(self.tableStack1, 7, 6, 2, 2)
 
-
-        self.textEdit_4 = QtWidgets.QTextEdit(self.centralwidget)
-        self.textEdit_4.setGeometry(QtCore.QRect(0, 0, 511, 191))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self.textEdit_4.setFont(font)
-        self.textEdit_4.setObjectName("textEdit_4")
-        self.textEdit_4.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
-        self.gridLayout.addWidget(self.textEdit_4, 7, 6, 2, 2)
+        #
+        # self.textEdit_4 = QtWidgets.QTextEdit(self.centralwidget)
+        # self.textEdit_4.setGeometry(QtCore.QRect(0, 0, 511, 191))
+        # font = QtGui.QFont()
+        # font.setPointSize(18)
+        # self.textEdit_4.setFont(font)
+        # self.textEdit_4.setObjectName("textEdit_4")
+        # self.textEdit_4.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        # self.gridLayout.addWidget(self.textEdit_4, 7, 6, 2, 2)
 
         MainWindow.setCentralWidget(self.centralwidget)
