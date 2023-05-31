@@ -3,21 +3,23 @@ digraph "./DAG/visible" {
 	node [color=black shape=circle size="20,5"]
 	1 [label="a|"]
 	2 [label="b|"]
-	3 [label="-|T0"]
-	4 [label="x|"]
-	5 [label="*|T1"]
-	6 [label="+|T2"]
-	7 [label="y|"]
-	8 [label="*|T4"]
-	9 [label="+|m"]
+	3 [label="+|T0"]
+	4 [label="-|T1"]
+	5 [label="c|"]
+	6 [label="d|"]
+	7 [label="+|T2"]
+	8 [label="*|T3"]
+	9 [label="+|T5"]
+	10 [label="-|n"]
 	3 -> 2
 	3 -> 1
-	5 -> 3
-	5 -> 4
-	6 -> 5
-	6 -> 4
+	4 -> 3
+	7 -> 6
+	7 -> 5
 	8 -> 7
-	8 -> 3
-	9 -> 8
-	9 -> 6
+	8 -> 4
+	9 -> 5
+	9 -> 3
+	10 -> 9
+	10 -> 8
 }

@@ -1,4 +1,4 @@
-// Syntax Tree
-digraph "./Syntax_Tree/tree" {
-	0 [label="程序" fontname=SimHei]
+// LR_DFA_Digraph
+digraph {
+	0 [label=""]
 }
