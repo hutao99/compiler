@@ -313,7 +313,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def onEditDelete(self):
         tc = self.textEdit.textCursor()
-        # tc.select(QtGui.QTextCursor.BlockUnderCursor) 这样删除一行
         tc.removeSelectedText()
 
     def file_name(self, Qmodelidx):
@@ -323,7 +322,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def increase_font(self):
         # 创建一个QFont对象，并设置初始字体大小为12
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
 
         # 获取当前字体大小
@@ -342,7 +341,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def on_increase_font_size_clicked(self):
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前选中的文本
         cursor = self.textEdit.textCursor()
@@ -351,13 +350,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-        font__size = 10
+        font__size = 13
         # 获取当前字体大小，并增加2个点
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size + 3)
 
         # 将选中的文本应用新的格式
@@ -365,7 +362,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def on_decrease_font_size_clicked(self):
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前选中的文本
         cursor = self.textEdit.textCursor()
@@ -374,13 +371,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-        font__size = 10
-        # 获取当前字体大小，并增加2个点
+        font__size = 13
+        # 获取当前字体大小，并减小2个点
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size - 2)
 
         # 将选中的文本应用新的格式
@@ -388,7 +383,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def decrease_font(self):
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前字体大小
         font_size = self.textEdit.fontPointSize()
@@ -520,10 +515,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         rda = recDesc_analysis(file_object)
         self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
             self.lbword)
-        self.textEdit_3.setText(self.text1 + '\n' + self.text2)
         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-        self.textEdit_2.setText(text1)
+        all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+        self.textEdit_2.setText(all_text)
         # 设置图片路径
+        self.textEdit_3.clear()
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./Syntax_Tree/tree.gv.png')
 
@@ -535,10 +531,12 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 中间代码
     def middle_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下井中间代码
+        if self.recursive_or_lr_flag == 1: # 递归下降中间代码
             text = ''
+            idx = 0
             for quad in self.siyuanshi:
-                text += ','.join([str(s) for s in quad]) + '\n'
+                text += str(idx)+':'+str(quad[1:]) + '\n'
+                idx+=1
             print(text)
             self.textEdit_3.setText(text)        
         else:  # LR中间代码
@@ -572,13 +570,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 基本块划分
     def Basic_Block(self):
-        text = self.textEdit_3.toPlainText() # 获取四元式序列
-        # 格式转换
-        tokens = [token.split(",") for token in text.split("\n")]
-        codes = []
-        for i in tokens:
-            if len(i) == 5:
-                codes.append(i[1:])
+        s = self.textEdit_3.toPlainText() # 获取四元式序列
+        codes = self.format_conversion(s)
         self.basic_blocks=Partition_Basic_Block(codes)
         print('basic_blocks',self.basic_blocks)
         # 设置图片路径
@@ -601,7 +594,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         for i in optimize_quaternion:
             text+=str(idx)+':'+str(i)+'\n'
             idx+=1
-        self.textEdit_3.setText(text)
+        self.textEdit_2.setText(text)
         print('optimize_quaternion', optimize_quaternion)
 
     # 目标代码
@@ -712,7 +705,24 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
         self.textEdit_2.setText(s)
 
-
+        #将文本框中的四元式转换
+    def format_conversion(self,s):
+        print('s',s)
+        # 去掉末尾的换行符
+        s = s.strip()
+        # 按照换行符分割成多个行字符串
+        lines = s.split('\n')
+        # 初始化结果列表
+        result = []
+        # 对于每个行字符串，手动将第一个元素转化为一个列表，并去掉第一个元素
+        for line in lines:
+            if line:
+                l = line.split(':')
+                lst = eval(l[1])
+                lst = [elem if elem != '' else '_' for elem in lst]
+                result.append(lst)
+        print('result',result)
+        return result
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = DetailUI()
