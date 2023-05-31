@@ -595,18 +595,20 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 中间代码
     def middle_analysis(self):
-        print('siyuanshi',self.siyuanshi)
-        if self.recursive_or_lr_flag == 0 or (self.recursive_or_lr_flag == 1 and self.siyuanshi == None):
+        if self.recursive_or_lr_flag == 0 :
             QMessageBox.warning(self, '警告', '请先进行语法分析！')
         else:
             if self.recursive_or_lr_flag == 1: # 递归下降中间代码
-                text = ''
-                idx = 0
-                for quad in self.siyuanshi:
-                    text += str(idx)+':'+str(quad[1:]) + '\n'
-                    idx+=1
-                print(text)
-                self.textEdit_3.setText(text)
+                if self.siyuanshi == None or self.siyuanshi == []:
+                    QMessageBox.warning(self, '警告', '请先进行语法分析！')
+                else:
+                    text = ''
+                    idx = 0
+                    for quad in self.siyuanshi:
+                        text += str(idx)+':'+str(quad[1:]) + '\n'
+                        idx+=1
+                    print(text)
+                    self.textEdit_3.setText(text)
             else:  # LR中间代码
                 lex = AnalyzerLex()
                 text = self.textEdit.toPlainText()
@@ -672,26 +674,29 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 目标代码
     def Object_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
-            if self.siyuanshi == None or self.siyuanshi == []:
-                QMessageBox.warning(self, '警告', '请先生成中间代码!')
-            else:
-                text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
-                self.textEdit_2.setText(text)
-        else:  # LR目标代码
-            MiddleCode = self.LR.code
-            function_param_list = self.LR.function_param_list
-            function_jubu_list = self.LR.function_jubu_list
-            function_array_list = self.LR.function_array_list
-            global_array_list = self.LR.global_array_list
-            for i in range(len(MiddleCode)):
-                for j in range(4):
-                    if MiddleCode[i][j] == '':
-                        MiddleCode[i][j] = '_'
-            if len(MiddleCode) != 0:
-                self.textEdit_2.setText(
-                    ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                      global_array_list))
+        if self.recursive_or_lr_flag == 0 :
+            QMessageBox.warning(self, '警告', '请先进行语法分析！')
+        else:
+            if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+                if self.siyuanshi == None or self.siyuanshi == []:
+                    QMessageBox.warning(self, '警告', '请先生成中间代码!')
+                else:
+                    text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
+                    self.textEdit_2.setText(text)
+            else:  # LR目标代码
+                MiddleCode = self.LR.code
+                function_param_list = self.LR.function_param_list
+                function_jubu_list = self.LR.function_jubu_list
+                function_array_list = self.LR.function_array_list
+                global_array_list = self.LR.global_array_list
+                for i in range(len(MiddleCode)):
+                    for j in range(4):
+                        if MiddleCode[i][j] == '':
+                            MiddleCode[i][j] = '_'
+                if len(MiddleCode) != 0:
+                    self.textEdit_2.setText(
+                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                          global_array_list))
 
 
     def REG_transform(self):
