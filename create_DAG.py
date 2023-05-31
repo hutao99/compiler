@@ -275,9 +275,13 @@ def Partition_Basic_Block(codes):
     for code in basic_blocks:
         if code[-1][0] == 'jz':
             dot.edge(str(basic_number-1), str(basic_number))
-        if len(code[-1][0])>=2 and code[-1][0][0] == 'j' and  code[-1][0][1] in ['=','>','<','!']:
-            dot.edge(str(basic_number), str(basic_number + 1))
         if code[-1][0][0] == 'j':
+            if len(code)>=2:
+                print('code',code,code[-2][0][0])
+                if code[-2][0][0] == 'j' and code[-2][0][1] in ['=','<','>','!']:
+                    id = int(code[-2][3])
+                    basic_idx = flag.index(id)
+                    dot.edge(str(basic_number), str(basic_idx))
             id = int(code[-1][3])
             basic_idx = flag.index(id)
             dot.edge(str(basic_number),str(basic_idx))

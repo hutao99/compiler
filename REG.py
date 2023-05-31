@@ -4,6 +4,7 @@ from graphviz import Digraph
 def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节点和nfa 经过正规式转nfa后 初始节点和开始节点只有一个
     filename = './Reg_Graph/NFA'
     nfa_graph = Digraph(filename, 'NFA_graph', None, None, 'png', None, "UTF-8")
+    nfa_graph.attr(rankdir="LR")  # 图从左到右 L -> R
     for value in result:
         if value[0] == start:  # 开始节点填满红色
             nfa_graph.node(str(value[0]), str(value[0]), fillcolor="red", style="filled")
@@ -14,7 +15,7 @@ def nfa_graph(start, end, result):    # 参数分别为开始节点， 结束节
         else:
             nfa_graph.node(str(value[2]), str(value[2]))
         # 边
-        nfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
+        nfa_graph.edge(str(value[0]), str(value[2]), label=value[1], rankdir="LR")
     nfa_graph.render()
 
 def Lexical_Analysis(code, mfa, final_states):  # 依靠mfa对需要分析的代码code进行词法分析,final_states为终结状态集
@@ -450,6 +451,7 @@ class NfaDfaMfa:
         # 生成nfa的状态转换图
         filename = './Reg_Graph/DFA'
         dfa_graph = Digraph(filename, 'DFA_graph', None, None, 'png', None, "UTF-8")
+        dfa_graph.attr(rankdir="LR")  # 图从左到右 L -> R
         for value in dfa:
             # 出发节点
             if value[0] == 0:  # 初始节点
@@ -648,6 +650,7 @@ class NfaDfaMfa:
         # 生成nfa的状态转换图
         filename = './Reg_Graph/MFA'
         mfa_graph = Digraph(filename, 'MFA_graph', None, None, 'png', None, "UTF-8")
+        mfa_graph.attr(rankdir="LR")  # 图从左到右 L -> R
         for value in final_mfa:
             # 出发节点
             if value[0] == 0:  # 初始节点
