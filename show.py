@@ -365,7 +365,7 @@ class Ui_MainWindow(object):
         self.actionpurple_font.setText(_translate("MainWindow", "紫色字体"))
         self.actionorange_font.setText(_translate("MainWindow", "橙色字体"))
         self.actionblue_font.setText(_translate("MainWindow", "蓝色字体"))
-        self.actionNFA_DFA.setText(_translate("MainWindow", "NFA_DFA"))
+        self.actionNFA_DFA.setText(_translate("MainWindow", "REG正则表达式转换"))
         self.actionLL1.setText(_translate("MainWindow", "LL1预测分析"))
         self.actionLR1.setText(_translate("MainWindow", "LR1自定义语法分析"))
         self.actionsuanfu_first.setText(_translate("MainWindow", "算符优先分析"))
