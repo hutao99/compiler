@@ -686,8 +686,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 if self.siyuanshi == None or self.siyuanshi == []:
                     QMessageBox.warning(self, '警告', '请先生成中间代码!')
                 else:
-                    text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
-                    self.textEdit_2.setText(text)
+                    try:
+                        text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
+                        self.textEdit_2.setText(text)
+                    except:
+                        QMessageBox.warning(self, '警告', '系统无法处理！')
             else:  # LR目标代码
                 MiddleCode = self.LR.code
                 function_param_list = self.LR.function_param_list
