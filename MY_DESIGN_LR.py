@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 from LR_UI import Ui_MainWindow_LR
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 import LR
-
+from Analyzer import AnalyzerLex
 
 class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
     def __init__(self, parent=None):
@@ -19,6 +19,7 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
         self.pushButton.clicked.connect(self.open_text)
         self.pushButton_1.clicked.connect(self.LR_image)
         self.pushButton_2.clicked.connect(self.LR_Table)
+        self.pushButton_3.clicked.connect(self.LR_Analyse)
 
     def check_charset(self, file_path):
         import chardet
@@ -43,19 +44,20 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
 
     def LR_image(self):  # 画图
         text = self.textEdit.toPlainText()
-        self.LR.input(text)
-        self.LR.Action_and_GoTo_Table()
-        self.LR.draw_graphic()
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./LR_Digraph/LR_Digraph.gv.png')
+        if len(text) != 0:
+            self.LR.input(text)
+            self.LR.Action_and_GoTo_Table()
+            self.LR.draw_graphic()
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./LR_Digraph/LR_Digraph.gv.png')
 
-        # 在QTextEdit中插入图片
-        self.textEdit_2.clear()
-        cursor = self.textEdit_2.textCursor()
-        cursor.insertImage(image_format)
+            # 在QTextEdit中插入图片
+            self.textEdit_2.clear()
+            cursor = self.textEdit_2.textCursor()
+            cursor.insertImage(image_format)
 
-        self.textEdit_2.show()
+            self.textEdit_2.show()
 
     def LR_Table(self):
         row_count = len(self.LR.parsing_table)
@@ -86,3 +88,17 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
                 item = QtWidgets.QTableWidgetItem(t)
                 self.tableStack.setItem(i, idx[j], item)
 
+    def LR_Analyse(self):
+        '''text = self.textEdit.toPlainText()
+        lex.input(text)
+        tokens = []
+        while True:
+            tok = lex.token()
+            if not tok:
+                break
+            tokens.append([tok.type, tok.value, tok.lineno,
+                           lex.find_column(tok.lexer.lexdata, tok)])
+        tokens.append(['keyword', '#'])
+        self.LR.ControlProgram(tokens)'''
+        self.tableStack1.setColumnCount(2)  # 设置列数
+        self.tableStack1.setRowCount(2)  # 设置行数

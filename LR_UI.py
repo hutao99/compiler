@@ -94,7 +94,7 @@ class Ui_MainWindow_LR(object):
 
         self.gridLayout.addWidget(self.tableStack, 1, 6, 3, 2)
 
-        self.tableStack.setColumnCount(4)
+        # self.tableStack.setColumnCount(4)
 
         # 设置tablewidget 栈分析表的表头
         # self.tableStack.setHorizontalHeaderLabels(["输入栈", "剩余输入串", "所用表达式", "动作"])
@@ -111,7 +111,7 @@ class Ui_MainWindow_LR(object):
         font.setUnderline(False)
         font.setWeight(50)
         self.pushButton_4.setFont(font)
-        self.pushButton_4.setObjectName("pushButton_2")
+        self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_4.setText("输入分析句子")
         self.gridLayout.addWidget(self.pushButton_4, 4, 6, 1, 1)
 
@@ -137,9 +137,16 @@ class Ui_MainWindow_LR(object):
         font.setUnderline(False)
         font.setWeight(50)
         self.pushButton_3.setFont(font)
-        self.pushButton_3.setObjectName("pushButton_2")
+        self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("分析")
         self.gridLayout.addWidget(self.pushButton_3, 6, 6, 1, 1)
+
+        self.tableStack1 = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableStack1.setGeometry(QtCore.QRect(510, 240, 521, 240))
+        self.tableStack1.setObjectName("tableStack")
+        self.tableStack1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+
+        self.gridLayout.addWidget(self.tableStack1, 1, 6, 3, 2)
 
 
         self.textEdit_4 = QtWidgets.QTextEdit(self.centralwidget)
