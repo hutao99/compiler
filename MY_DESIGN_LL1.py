@@ -204,7 +204,7 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
             res += new_s.strip() + '\n'
         print(res)
 
-        grammar = grammar.replace('->', ':')
+        grammar = res.replace(' - > ', ':')
         print(grammar)
         test.input(grammar)
         print(test.first)
