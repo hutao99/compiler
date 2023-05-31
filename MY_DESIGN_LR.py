@@ -6,13 +6,13 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 
 from LR_UI import Ui_MainWindow_LR
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
-import LR
+import LR_use_interface
 from Analyzer import AnalyzerLex
 
 class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_LR, self).__init__(parent)
-        self.LR = LR.CLRParser()
+        self.LR = LR_use_interface.CLRParser()
         self.setWindowTitle("LR分析")
         self.setupUi(self)
         # 设置响应槽
@@ -45,57 +45,67 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
             self.LR.input(text)
             self.LR.Action_and_GoTo_Table()
             self.LR.draw_graphic()
-            # 设置图片路径
-            image_format = QtGui.QTextImageFormat()
-            image_format.setName('./LR_Digraph/LR_Digraph.gv.png')
+            s = ''
+            for i in range(1, len(self.LR.reduction)):
+                s += 'r' + str(i) + '->' + self.LR.reduction[i] + '\n'
 
-            # 在QTextEdit中插入图片
-            self.textEdit_2.clear()
-            cursor = self.textEdit_2.textCursor()
-            cursor.insertImage(image_format)
-
-            self.textEdit_2.show()
+            self.textEdit_2.setText(s)
 
     def LR_Table(self):
-        row_count = len(self.LR.parsing_table)
-        col_count = max(len(v) for v in self.LR.parsing_table.values())
-
-        # 非终结符
-        non_terminal = list(self.LR.first.keys())
-        # 终结符
-        terminal = set()
-        for i in self.LR.direction:
-            if i[1] not in non_terminal:
-                terminal.add(i[1])
-        terminal = list(terminal)
-        terminal.append('#')
-
-        self.tableStack.setColumnCount(col_count+2)  # 设置列数
-        self.tableStack.setRowCount(row_count)  # 设置行数
-        print(self.LR.parsing_table)
-        terminal.extend(non_terminal)  # 融合
-        print(terminal)
-        idx = {item: index for index, item in enumerate(terminal)}
-        self.tableStack.setHorizontalHeaderLabels(terminal)
-        for i in range(row_count):
-            for j in self.LR.parsing_table[i]:
-                t = self.LR.parsing_table[i][j]
-                if t.isdigit():
-                    t = str(int(t)+1)
-                item = QtWidgets.QTableWidgetItem(t)
-                self.tableStack.setItem(i, idx[j], item)
+        text = self.textEdit.toPlainText()
+        if len(text) != 0:
+            self.LR.input(text)
+            self.LR.Action_and_GoTo_Table()
+            row_count = len(self.LR.parsing_table)
+            # 非终结符
+            non_terminal = list(self.LR.first.keys())
+            # 终结符
+            terminal = set()
+            for i in self.LR.direction:
+                if i[1] not in non_terminal:
+                    terminal.add(i[1])
+            terminal = list(terminal)
+            terminal.append('#')
+            terminal.extend(non_terminal)  # 融合
+            print(terminal)
+            self.tableStack.setColumnCount(len(terminal))  # 设置列数
+            self.tableStack.setRowCount(row_count)  # 设置行数
+            idx = {item: index for index, item in enumerate(terminal)}
+            self.tableStack.setHorizontalHeaderLabels(terminal)
+            for i in range(row_count):
+                item1 = QtWidgets.QTableWidgetItem(str(i))
+                self.tableStack.setVerticalHeaderItem(i, item1)
+                for j in self.LR.parsing_table[i]:
+                    item = QtWidgets.QTableWidgetItem(self.LR.parsing_table[i][j])
+                    self.tableStack.setItem(i, idx[j], item)
 
     def LR_Analyse(self):
-        '''text = self.textEdit.toPlainText()
-        lex.input(text)
-        tokens = []
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            tokens.append([tok.type, tok.value, tok.lineno,
-                           lex.find_column(tok.lexer.lexdata, tok)])
-        tokens.append(['keyword', '#'])
-        self.LR.ControlProgram(tokens)'''
-        self.tableStack1.setColumnCount(2)  # 设置列数
-        self.tableStack1.setRowCount(2)  # 设置行数
+        self.tableStack1.clear()
+        text = self.textEdit_3.toPlainText()
+        if len(text) != 0:
+            lex = AnalyzerLex()
+            t = [[], [], [], []]
+            if len(text) != 0:
+                lex.input(text)
+                tokens = []
+                while True:
+                    tok = lex.token()
+                    if not tok:
+                        break
+                    tokens.append([tok.type, tok.value, tok.lineno,lex.find_column(tok.lexer.lexdata, tok)])
+                tokens.append(['keyword', '#'])
+                t[0], t[1], t[2], t[3], result = self.LR.ControlProgram(tokens)
+                self.tableStack1.setColumnCount(4)  # 设置列数
+                self.tableStack1.setRowCount(len(t[0])+1)  # 设置行数
+                self.tableStack1.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
+            for i in range(len(t[0])):
+                for j in range(4):
+                    if len(t[j]) == i:
+                        item = QtWidgets.QTableWidgetItem('错误')
+                        self.tableStack1.setItem(len(t[0]), 0, item)
+                        break
+                    p = str(t[j][i])
+                    if j == 3 and str(t[j][i]).isdigit():
+                        p = 'goto ' + p
+                    item = QtWidgets.QTableWidgetItem(p)
+                    self.tableStack1.setItem(i, j, item)
