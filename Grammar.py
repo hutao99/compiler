@@ -638,7 +638,8 @@ class recDesc_analysis:
     def solve(self, wordlist):
         # 语法树
         global tree
-        tree = Digraph(comment='Syntax Tree')
+        filename = './Syntax_Tree/tree'
+        tree = Digraph(filename, 'Syntax Tree', None, None, 'png', None, "UTF-8")
         """ 文法字典预处理 """
         self.goal_list = wordlist
         print(wordlist)
@@ -667,10 +668,12 @@ class recDesc_analysis:
         print(self.warnings_str)
         print(self.quaternions)
         for i in self.quaternions:
-            print(i)
+            if i[0] == '@':
+                i[0] = '_'
         print(self.function_param_list)
         print(self.function_jubu_list)
         """打印符号表"""
+        tree.render()
         # print(tree.source)
         # tree.render('test-output/test-table.gv', view=True)
         return self.fun_list, self.function_param_list, self.function_jubu_list, self.quaternions, self.syntax_error, self.warnings_str, self.text1, self.text2

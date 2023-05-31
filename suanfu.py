@@ -274,13 +274,13 @@ class Suanfufirst:
                             print("将",str,"归约为N")
                             if len(str) != 1:
                                 if str[1] == '=':
-                                    str_list.append([count, str[1], digit_stack[-1], None, 'T%s' % placeid])
+                                    str_list.append([count, str[1], digit_stack[-1], '_', 'T%s' % placeid])
                                     del digit_stack[len(digit_stack) - 1:]
                                     digit_stack.append('T%s' % placeid)
                                     count += 1
                                     placeid += 1
                                 if str[0] == '!' or str[0] == '@': # !a @a
-                                    str_list.append([count, str[0], digit_stack[-1], None, 'T%s' % placeid])
+                                    str_list.append([count, str[0], digit_stack[-1], '_', 'T%s' % placeid])
                                     del digit_stack[len(digit_stack) - 1:]
                                     digit_stack.append('T%s' % placeid)
                                     count += 1
