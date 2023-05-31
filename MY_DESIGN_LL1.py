@@ -189,6 +189,7 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
         test = LL()
         # 对LL1输入文法的格式进行处理，考虑到两个非终结符之间没有空格的情况
         text = self.textEdit_2.toPlainText()
+        grammar=self.textEdit_2.toPlainText()
         lines = text.splitlines(True)
         res = ""
         for line in lines:
@@ -203,7 +204,7 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
             res += new_s.strip() + '\n'
         print(res)
 
-        grammar = res.replace(' - > ', ':')
+        grammar = grammar.replace('->', ':')
         print(grammar)
         test.input(grammar)
         print(test.first)
