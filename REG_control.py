@@ -105,7 +105,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                     else:
                         arc = []
                         for value1 in value:
-                            if value1 != '\t':
+                            if value1 not in ['\t', ' ']:
                                 if value1.isdigit():
                                     arc.append(int(value1))
                                 else:
