@@ -125,7 +125,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.LR.parsing_table1 = lr1.parsing_table
         self.LR.reduction1 = lr1.reduction
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
-        self.actionfrom_down_to_up.triggered.connect(self.SyntaxAndSemanticAnalyzer)  # 语法分析
         # LR1自定义语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
 
@@ -267,31 +266,30 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 self.textEdit.setText(str)
 
     def save_text(self):
-        choice = QMessageBox.question(self, "Question", "Do you want to save it?",
-                                      QMessageBox.Yes | QMessageBox.No)
-
-        if choice == QMessageBox.Yes:
-            with open('save text.txt', 'w') as f:
+        # 弹出文件对话框，让用户选择要保存的文件路径和文件名
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)",
+                                                   options=options)
+        if file_name:
+            # 如果用户选择了文件路径和文件名，则执行保存操作
+            with open(file_name, 'w') as f:
                 f.write(self.textEdit.toPlainText())
-            self.close()
-        elif choice == QMessageBox.No:
-            self.close()
 
     def onFileSaveAs(self):
-        path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '文本文件 (*.txt)')
-        if not path:
-            return
-        self._saveToPath(path)
 
-    def _saveToPath(self, path):
-        text = self.textEdit.toPlainText()
-        try:
-            with open(path, 'w') as f:
-                f.write(text)
-        except Exception as e:
-            print(str(e))
-        else:
-            self.path = path
+        # 弹出文件对话框，让用户选择要保存的文件路径和文件名
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save As", "", "Text Files (*.txt);;All Files (*)",
+                                                   options=options)
+        if file_name:
+            # 如果用户选择了文件路径和文件名，则执行保存操作
+            with open(file_name, 'w') as f:
+                f.write(self.text_edit.toPlainText())
+            # 更新当前文件名
+            self.file_name = file_name
+
 
     def closeEvent(self, event):
         # 保存设置
