@@ -524,6 +524,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
         self.textEdit_2.setText(text1)
         # 设置图片路径
+        self.textEdit_3.clear()
         image_format = QtGui.QTextImageFormat()
         image_format.setName('./Syntax_Tree/tree.gv.png')
 
@@ -579,6 +580,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         for i in tokens:
             if len(i) == 5:
                 codes.append(i[1:])
+        print(codes)
         self.basic_blocks=Partition_Basic_Block(codes)
         print('basic_blocks',self.basic_blocks)
         # 设置图片路径
