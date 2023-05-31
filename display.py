@@ -672,26 +672,26 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 目标代码
     def Object_analysis(self):
-        if self.siyuanshi == None or self.siyuanshi == []:
-            QMessageBox.warning(self, '警告', '请先生成中间代码!')
-        else:
-            if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+        if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+            if self.siyuanshi == None or self.siyuanshi == []:
+                QMessageBox.warning(self, '警告', '请先生成中间代码!')
+            else:
                 text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
                 self.textEdit_2.setText(text)
-            else:  # LR目标代码
-                MiddleCode = self.LR.code
-                function_param_list = self.LR.function_param_list
-                function_jubu_list = self.LR.function_jubu_list
-                function_array_list = self.LR.function_array_list
-                global_array_list = self.LR.global_array_list
-                for i in range(len(MiddleCode)):
-                    for j in range(4):
-                        if MiddleCode[i][j] == '':
-                            MiddleCode[i][j] = '_'
-                if len(MiddleCode) != 0:
-                    self.textEdit_2.setText(
-                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                          global_array_list))
+        else:  # LR目标代码
+            MiddleCode = self.LR.code
+            function_param_list = self.LR.function_param_list
+            function_jubu_list = self.LR.function_jubu_list
+            function_array_list = self.LR.function_array_list
+            global_array_list = self.LR.global_array_list
+            for i in range(len(MiddleCode)):
+                for j in range(4):
+                    if MiddleCode[i][j] == '':
+                        MiddleCode[i][j] = '_'
+            if len(MiddleCode) != 0:
+                self.textEdit_2.setText(
+                    ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                      global_array_list))
 
 
     def REG_transform(self):
