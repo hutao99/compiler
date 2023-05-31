@@ -9,9 +9,11 @@ class LL:
         self.Formula = dict()
         self.begin = ''
         self.predict_table = dict()
+        self.predict_table_ = dict()
         self.vn = []
         self.vt = []
         self.grammars = dict()
+        self.flag = 0
 
     def input(self, data):
         # 处理文法
@@ -30,14 +32,14 @@ class LL:
         self.Last_()
         self.get_predict_table_(data)
         print("\n预测表如下\n")
-        for i in self.predict_table:
-            print(i, self.predict_table[i])
+        for i in self.predict_table_:
+            print(i, self.predict_table_[i])
+        self.get_predict_table(data)
 
         print(self.predict_table)
 
     def get_vn_vt(self, data):
         grammar_list = {}
-        houxuan_list = []
         for line in re.split('\n', data):
             if ':' in line:
                 if line.split(':')[0] not in self.vn:
@@ -166,24 +168,23 @@ class LL:
 
     def get_predict_table_(self, data):
         for item in self.grammars:
-            self.predict_table[item] = {}
+            self.predict_table_[item] = {}
             for next_t in self.grammars[item]:
                 next_value = next_t.split()[0]
                 if next_value in self.grammars:
                     out = self.first[next_value]
                     for i in out:
                         if i != '$':
-                            self.predict_table[item][i] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
+                            self.predict_table_[item][i] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
                 else:
-                    self.predict_table[item][next_value] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
+                    self.predict_table_[item][next_value] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
         for k in self.grammars:
             for next_grammar in self.grammars[k]:
                 next_k = next_grammar.split()[0]
                 # 参考书上113页第3条
                 if next_k in self.grammars and "$" in self.first[next_k] or next_k == "$":
                     for fk in self.last[k]:
-                        self.predict_table[k][fk] = k + '->' + next_grammar.replace(" ", "")
-
+                        self.predict_table_[k][fk] = k + '->' + next_grammar.replace(" ", "")
 
     # 书上112页
     def analysis(self, analyze_str):
@@ -204,12 +205,13 @@ class LL:
                         index -= 1
                 else:
                     print("分析错误")
+                    self.flag = 1
                     break
 
             else:
                 a = analyze_str[index]
                 if a in self.predict_table[cur]:
-                    if self.predict_table[cur][a] != "$":
+                    if self.predict_table[cur][a] == "$":
                         continue
                     next_epr = self.predict_table[cur][a].split()
                     node_list = []
@@ -225,5 +227,21 @@ class LL:
                         stack.append(nl)
                 else:
                     print("分析错误")
+                    self.flag = 1
                     return
-
+test = LL()
+path = "全部测试程序\\11LL(1)测试用例\LL1_1.TXT"
+ans = "i+i#"
+grammar = str(open(path).read())
+grammar = grammar.replace(' - > ', ':')
+print(grammar)
+test.input(grammar)
+print("\nfirst集合如下\n")
+for i in test.first:
+    print(i, test.first[i])
+print("\nfollow集合如下\n")
+for j in test.last:
+    print(j, test.last[j])
+print(test.first)
+print(test.last)
+test.analysis(ans)
