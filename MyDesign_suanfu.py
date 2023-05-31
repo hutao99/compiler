@@ -74,6 +74,8 @@ class MyDesiger_suanfu(Ui_MainWindow_LL, QMainWindow):
         # 界面显示 first集
         self.textFirst_set.setPlainText(first_vt)
 
+        # print(g.first)
+        # print(g.last)
         text_followvt = 'LASTVT集合如下：\n'
         for key, value in g.last.items():
             text_followvt += '{}: {}\n'.format(key, value)
@@ -83,14 +85,14 @@ class MyDesiger_suanfu(Ui_MainWindow_LL, QMainWindow):
         row = []
         for key, value in sequence1.items():
             row.append(key)
+        # print(row)
+        self.tableAnalyze.setColumnCount(len(row)+1)  # 设置列数
+        self.tableAnalyze.setRowCount(len(row)+1)  # 设置行数
 
-        self.tableAnalyze.setColumnCount(len(row))  # 设置列数
-        self.tableAnalyze.setRowCount(len(row))  # 设置行数
-
-        for size in range(len(row)):
-            self.tableAnalyze.setColumnWidth(size, 70)
-            item1 = QtWidgets.QTableWidgetItem(row[size])
-            self.tableAnalyze.setItem(0, size + 1, item1)
+        for index, value in enumerate(row):
+            self.tableAnalyze.setColumnWidth(index, 70)
+            item = QtWidgets.QTableWidgetItem(value)
+            self.tableAnalyze.setItem(0, index + 1, item)
 
         for i in range(len(row)):
             item1 = QtWidgets.QTableWidgetItem(row[i])

@@ -91,7 +91,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.recursive_or_lr_flag = 0  # 为1表示使用递归下降 为2表示使用lr
         self.actionLL1.triggered.connect(self.LL1_analyze)
         self.actionstate_transition.triggered.connect(self.Manual_lexical_analysis)  # 递归下降手动词法分析
-        self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 递归下降语法分析
+        self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 语法分析
         self.action_basic_block.triggered.connect(self.Basic_Block)  # 基本块划分
         self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
         self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
@@ -502,30 +502,92 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def Manual_lexical_analysis(self):
         self.recursive_or_lr_flag = 1
         text = self.textEdit.toPlainText()
+        if text == '':
+            QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
         a = LexicalAnalysis(text)
         self.wordlist, self.errorlist, self.lbword = a.print_out()
         self.textEdit_3.setText(self.wordlist)
         self.textEdit_2.setText(self.errorlist)
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
-        self.recursive_or_lr_flag = 1
-        file_object = open('文法.txt')
-        rda = recDesc_analysis(file_object)
-        self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
-            self.lbword)
-        text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-        all_text = self.text1 + '\n' + self.text2 + '\n' + text1
-        self.textEdit_2.setText(all_text)
-        # 设置图片路径
-        self.textEdit_3.clear()
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Syntax_Tree/tree.gv.png')
+        if self.recursive_or_lr_flag == 1:
+            print('lbword',self.lbword)
+            file_object = open('文法.txt')
+            rda = recDesc_analysis(file_object)
+            self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
+                self.lbword)
+            text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+            all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+            self.textEdit_2.setText(all_text)
+            # 设置图片路径
+            self.textEdit_3.clear()
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Syntax_Tree/tree.gv.png')
 
-        # 在QTextEdit中插入图片
-        cursor = self.textEdit_3.textCursor()
-        cursor.insertImage(image_format)
+            # 在QTextEdit中插入图片
+            cursor = self.textEdit_3.textCursor()
+            cursor.insertImage(image_format)
 
-        self.textEdit_3.show()
+            self.textEdit_3.show()
+        else:
+            lex = AnalyzerLex()
+            text = self.textEdit.toPlainText()
+            lex.input(text)
+            tokens = []
+            while True:
+                tok = lex.token()
+                if not tok:
+                    break
+                tokens.append([tok.type, tok.value, tok.lineno,
+                               lex.find_column(tok.lexer.lexdata, tok)])
+            tokens.append(['keyword', '#'])
+            # print(tokens)
+            self.LR.ControlProgram(tokens)
+            # self.display1.append(self.LR.PrintParseTree())
+            self.LR.PrintParseTree()  # 画语法树图
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Syntax_Tree/tree.gv.png')
+
+            # 在QTextEdit中插入图片
+            self.textEdit_3.setText('')
+            cursor = self.textEdit_3.textCursor()
+            cursor.insertImage(image_format)
+            self.textEdit_3.show()  # 语法树
+
+            errors = []
+            errors.extend(lex.error)
+            errors.extend(self.LR.errors)
+            errors = sorted(errors, key=lambda x: (x[0], x[1]))
+            s = ''
+            s += '常量表:\n'
+            for i in self.LR.ConstantTable:
+                s += i + ": "
+                for j in self.LR.ConstantTable[i]:
+                    s += str(vars(j)) + '\n'
+
+            s += '变量表:\n'
+            for i in self.LR.VariableTable:
+                s += i + ": "
+                for j in self.LR.VariableTable[i]:
+                    s += str(vars(j)) + '\n'
+
+            s += '数组表:\n'
+            for i in self.LR.ArrayTable:
+                s += i + ": "
+                for j in self.LR.ArrayTable[i]:
+                    s += str(vars(j)) + '\n'
+
+            s += '函数表:\n'
+            for i in self.LR.FunctionTable:
+                s += i + ": "
+                s += str(vars(self.LR.FunctionTable[i])) + '\n'
+            s += '\nerror %d\n' % len(errors)
+            for i in errors:  # 语法和语义错误
+                s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+            for i in self.LR.warning:
+                s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+            self.textEdit_2.setText(s)
 
     # 中间代码
     def middle_analysis(self):
@@ -643,65 +705,65 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
         self.textEdit_2.setText(s)
 
-    def SyntaxAndSemanticAnalyzer(self):  # LR语法分析和语义分析
-        lex = AnalyzerLex()
-        text = self.textEdit.toPlainText()
-        lex.input(text)
-        tokens = []
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            tokens.append([tok.type, tok.value, tok.lineno,
-                          lex.find_column(tok.lexer.lexdata, tok)])
-        tokens.append(['keyword', '#'])
-        # print(tokens)
-        self.LR.ControlProgram(tokens)
-        # self.display1.append(self.LR.PrintParseTree())
-        self.LR.PrintParseTree()  # 画语法树图
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Syntax_Tree/tree.gv.png')
-
-        # 在QTextEdit中插入图片
-        self.textEdit_3.setText('')
-        cursor = self.textEdit_3.textCursor()
-        cursor.insertImage(image_format)
-        self.textEdit_3.show()  # 语法树
-
-        errors = []
-        errors.extend(lex.error)
-        errors.extend(self.LR.errors)
-        errors = sorted(errors, key=lambda x: (x[0], x[1]))
-        s = ''
-        s += '常量表:\n'
-        for i in self.LR.ConstantTable:
-            s += i + ": "
-            for j in self.LR.ConstantTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '变量表:\n'
-        for i in self.LR.VariableTable:
-            s += i + ": "
-            for j in self.LR.VariableTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '数组表:\n'
-        for i in self.LR.ArrayTable:
-            s += i + ": "
-            for j in self.LR.ArrayTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '函数表:\n'
-        for i in self.LR.FunctionTable:
-            s += i + ": "
-            s += str(vars(self.LR.FunctionTable[i])) + '\n'
-        s += '\nerror %d\n' % len(errors)
-        for i in errors:  # 语法和语义错误
-            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-        for i in self.LR.warning:
-            s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-        self.textEdit_2.setText(s)
+    # def SyntaxAndSemanticAnalyzer(self):  # LR语法分析和语义分析
+    #     lex = AnalyzerLex()
+    #     text = self.textEdit.toPlainText()
+    #     lex.input(text)
+    #     tokens = []
+    #     while True:
+    #         tok = lex.token()
+    #         if not tok:
+    #             break
+    #         tokens.append([tok.type, tok.value, tok.lineno,
+    #                       lex.find_column(tok.lexer.lexdata, tok)])
+    #     tokens.append(['keyword', '#'])
+    #     # print(tokens)
+    #     self.LR.ControlProgram(tokens)
+    #     # self.display1.append(self.LR.PrintParseTree())
+    #     self.LR.PrintParseTree()  # 画语法树图
+    #     # 设置图片路径
+    #     image_format = QtGui.QTextImageFormat()
+    #     image_format.setName('./Syntax_Tree/tree.gv.png')
+    #
+    #     # 在QTextEdit中插入图片
+    #     self.textEdit_3.setText('')
+    #     cursor = self.textEdit_3.textCursor()
+    #     cursor.insertImage(image_format)
+    #     self.textEdit_3.show()  # 语法树
+    #
+    #     errors = []
+    #     errors.extend(lex.error)
+    #     errors.extend(self.LR.errors)
+    #     errors = sorted(errors, key=lambda x: (x[0], x[1]))
+    #     s = ''
+    #     s += '常量表:\n'
+    #     for i in self.LR.ConstantTable:
+    #         s += i + ": "
+    #         for j in self.LR.ConstantTable[i]:
+    #             s += str(vars(j)) + '\n'
+    #
+    #     s += '变量表:\n'
+    #     for i in self.LR.VariableTable:
+    #         s += i + ": "
+    #         for j in self.LR.VariableTable[i]:
+    #             s += str(vars(j)) + '\n'
+    #
+    #     s += '数组表:\n'
+    #     for i in self.LR.ArrayTable:
+    #         s += i + ": "
+    #         for j in self.LR.ArrayTable[i]:
+    #             s += str(vars(j)) + '\n'
+    #
+    #     s += '函数表:\n'
+    #     for i in self.LR.FunctionTable:
+    #         s += i + ": "
+    #         s += str(vars(self.LR.FunctionTable[i])) + '\n'
+    #     s += '\nerror %d\n' % len(errors)
+    #     for i in errors:  # 语法和语义错误
+    #         s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+    #     for i in self.LR.warning:
+    #         s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+    #     self.textEdit_2.setText(s)
 
         #将文本框中的四元式转换
     def format_conversion(self,s):

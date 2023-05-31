@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from REG_interface import Ui_MainWindow
@@ -32,6 +32,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.mfa = []
         self.final_states = []
         self.input_symbols = []
+        self.text = ""
 
     def open_file(self):
         path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/10REG正则表达式转换', '文本文件 (*.txt)')
@@ -54,97 +55,117 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
 
     def reg_to_nfa(self):
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
-        if "\n" in reg:    # 多个正规式
-            text = reg.split("\n")
-            # 方法1 自己把每行的正规式套上一个（）合并成一个正规式
-            reg = ""
-            for index, value in enumerate(text):
-                print(value)
-                if index < len(text) - 1:
-                    reg += "(" + value + ")|"
-                else:
-                    reg += "(" + value + ")"
+        if reg == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            self.text = reg
+            if "\n" in reg:    # 多个正规式
+                text = reg.split("\n")
+                # 方法1 自己把每行的正规式套上一个（）合并成一个正规式
+                reg = ""
+                for index, value in enumerate(text):
+                    if index < len(text) - 1:
+                        reg += "(" + value + ")|"
+                    else:
+                        reg += "(" + value + ")"
 
-        self.my_object = REG.NfaDfaMfa(reg)
-        self.nfa = self.my_object.reg_to_nfa()
-        self.plainTextEdit_3.clear()
-        f = open("NFA.txt")
-        text = f.read()
-        f.close()
-        text1 = "NFA:\n" + text
-        self.plainTextEdit_3.appendPlainText(text1)
-        self.textEdit.clear()
-        self.textEdit.append("NFA:\n")
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Reg_Graph/NFA.gv.png')
-        # 在TextEdit中插入图片
-        cursor = self.textEdit.textCursor()
-        cursor.insertImage(image_format)
-        # 显示
-        self.textEdit.show()
+            self.my_object = REG.NfaDfaMfa(reg)
+            self.nfa = self.my_object.reg_to_nfa()
+            self.plainTextEdit_3.clear()
+            f = open("NFA.txt")
+            text = f.read()
+            f.close()
+            text1 = "NFA:\n" + text
+            self.plainTextEdit_3.appendPlainText(text1)
+            self.textEdit.clear()
+            self.textEdit.append("NFA:\n")
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Reg_Graph/NFA.gv.png')
+            # 在TextEdit中插入图片
+            cursor = self.textEdit.textCursor()
+            cursor.insertImage(image_format)
+            # 显示
+            self.textEdit.show()
 
     def nfa_to_dfa(self):
         nfa = self.plainTextEdit.toPlainText()
-        if "起始状态" in nfa:
-            final_nfa = []
-            nfa = nfa.split("\n")
-            for index, value in enumerate(nfa):
-                if index < 1:   # 跳过 起始状态 接收状态 结束状态这一行
-                    continue
-                else:
-                    arc = []
-                    for value1 in value:
-                        if value1 != '\t':
-                            if value1.isdigit():
-                                arc.append(int(value1))
-                            else:
-                                arc.append(value1)
-                    if len(arc) > 0:
-                        final_nfa.append(arc)
-            my_object = REG.NfaDfaMfa("")
-            dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
-
-        self.dfa, self.final_states, self.input_symbols = self.my_object.nfa_to_dfa(self.nfa)
-        f = open("DFA.txt")
-        text = f.read()
-        f.close()
-        text1 = "DFA:\n" + text
-        self.plainTextEdit_3.appendPlainText(text1)
-        self.textEdit.clear()
-        self.textEdit.append("DFA:\n")
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Reg_Graph/DFA.gv.png')
-        # 在QTextEdit中插入图片
-        cursor = self.textEdit.textCursor()
-        cursor.insertImage(image_format)
-        # 显示
-        self.textEdit.show()
+        if nfa == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            if "状态" in nfa:
+                final_nfa = []
+                nfa = nfa.split("\n")
+                for index, value in enumerate(nfa):
+                    if index == 0:   # 跳过 起始状态 接收状态 结束状态这一行
+                        continue
+                        # if value != "起始状态 接收符号 结束状态":
+                        #     self.plainTextEdit_2.appendPlainText("请以 起始状态 接收符号 结束状态的形式输入nfa")
+                        #     break
+                    else:
+                        arc = []
+                        for value1 in value:
+                            if value1 not in ['\t', ' ']:
+                                if value1.isdigit():
+                                    arc.append(int(value1))
+                                else:
+                                    arc.append(value1)
+                        if len(arc) > 0:
+                            final_nfa.append(arc)
+                self.my_object = REG.NfaDfaMfa("")
+                self.nfa = final_nfa
+                # dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
+            if len(self.nfa) == 0:
+                QMessageBox.warning(self, '警告', '请先点击正规式转为nfa')
+            else:
+                self.dfa, self.final_states, self.input_symbols = self.my_object.nfa_to_dfa(self.nfa)
+                f = open("DFA.txt")
+                text = f.read()
+                f.close()
+                text1 = "DFA:\n" + text
+                self.plainTextEdit_3.appendPlainText(text1)
+                self.textEdit.clear()
+                self.textEdit.append("DFA:\n")
+                # 设置图片路径
+                image_format = QtGui.QTextImageFormat()
+                image_format.setName('./Reg_Graph/DFA.gv.png')
+                # 在QTextEdit中插入图片
+                cursor = self.textEdit.textCursor()
+                cursor.insertImage(image_format)
+                # 显示
+                self.textEdit.show()
 
     def dfa_to_mfa(self):
-        self.mfa, self.final_states = self.my_object.dfa_to_mfa(self.dfa, self.final_states, self.input_symbols)
-        f = open("MFA.txt")
-        text = f.read()
-        f.close()
-        text1 = "MFA:\n" + text
-        self.plainTextEdit_3.appendPlainText(text1)
-        self.textEdit.clear()
-        self.textEdit.append("MFA:\n")
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Reg_Graph/MFA.gv.png')
-        # 在QTextEdit中插入图片
-        cursor = self.textEdit.textCursor()
-        cursor.insertImage(image_format)
-        # 显示
-        self.textEdit.show()
+        dfa = self.plainTextEdit.toPlainText()
+        if dfa == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            self.mfa, self.final_states = self.my_object.dfa_to_mfa(self.dfa, self.final_states, self.input_symbols)
+            f = open("MFA.txt")
+            text = f.read()
+            f.close()
+            text1 = "MFA:\n" + text
+            self.plainTextEdit_3.appendPlainText(text1)
+            self.textEdit.clear()
+            self.textEdit.append("MFA:\n")
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Reg_Graph/MFA.gv.png')
+            # 在QTextEdit中插入图片
+            cursor = self.textEdit.textCursor()
+            cursor.insertImage(image_format)
+            # 显示
+            self.textEdit.show()
 
     # 全部展示
     def show_all(self):
-        self.reg_to_nfa()
-        self.nfa_to_dfa()
-        self.dfa_to_mfa()
+        code = self.plainTextEdit.toPlainText()
+        if code == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            self.reg_to_nfa()
+            self.nfa_to_dfa()
+            self.dfa_to_mfa()
 
     def open_nfa(self):
         self.textEdit.clear()
@@ -182,18 +203,24 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
 
     def Lexical_Analysis(self):
         code = self.plainTextEdit_2.toPlainText()  # 获取用户输入代码
-        result = REG.Lexical_Analysis(code, self.mfa, self.final_states)
-        self.plainTextEdit_3.clear()
-        print(result)
-        text1 = "符合输入正规式的单词:\n"
-        text2 = "不符合输入正规式的单词:\n"
-        for value in result:
-            if value[len(value)-4: len(value)] == "识别成功":
-                text1 += value[0: len(value)-4] + "\n"
-            elif value[len(value)-4: len(value)] == "识别错误":
-                text2 += value[0: len(value)-4] + "\n"
-        self.plainTextEdit_3.appendPlainText(text1)
-        self.plainTextEdit_3.appendPlainText(text2)
+        if code == '':
+            QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        else:
+            if len(self.mfa) == 0:
+                QMessageBox.warning(self, '警告', '请先输入正规式进行一键三连')
+            else:
+                result = REG.Lexical_Analysis(code, self.mfa, self.final_states)
+                self.plainTextEdit_3.clear()
+                print(result)
+                text1 = "符合输入正规式的单词:\n"
+                text2 = "不符合输入正规式的单词:\n"
+                for value in result:
+                    if value[len(value)-4: len(value)] == "识别成功":
+                        text1 += value[0: len(value)-4] + "\n"
+                    elif value[len(value)-4: len(value)] == "识别错误":
+                        text2 += value[0: len(value)-4] + "\n"
+                self.plainTextEdit_3.appendPlainText(text1)
+                self.plainTextEdit_3.appendPlainText(text2)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)  # 创建应用程序对象
