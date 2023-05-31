@@ -15,25 +15,38 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
 
-        # 颜色搭配：https://www.xiaohongshu.com/explore/6237ce1c000000000102a35f
+        # 颜色搭配：https://www.xiaohongshu.com/explore/6237ce1c000000000102a35f #F2F3D7
+        #https://k.sina.com.cn/article_3588040610_pd5dd27a202700c2hy.html
         # http://www.360doc.com/content/09/0731/11/59625_4571056.shtml
-        MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#006699").name())
+
+        MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#D59730").name())
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setObjectName("textEdit")
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F2F3D7").name())
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textEdit.setFont(font)
+
         self.textEdit_3 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_3.setObjectName("textEdit_3")
-        self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#F2F3D7").name())
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textEdit_3.setFont(font)
+
         self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_2.setObjectName("textEdit_2")
-        self.textEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.textEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#F2F3D7").name())
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textEdit_2.setFont(font)
 
         self.treeView = QtWidgets.QTreeView(self.centralwidget)
 
         self.treeView.setObjectName("treeView")
-        self.treeView.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.treeView.setStyleSheet('QWidget{background-color:%s}' % QColor("#F2F3D7").name())
         self.tree = QTreeWidget(self.centralwidget)
-        self.tree.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.tree.setStyleSheet('QWidget{background-color:%s}' % QColor("#F2F3D7").name())
 
         self.splitter2 = QSplitter(Qt.Vertical)
         # self.splitter2.addWidget(self.splitter1)
@@ -50,7 +63,8 @@ class Ui_MainWindow(object):
         self.splitter1.addWidget(self.textEdit)
         # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
-
+        sizes = [100,200, 300]
+        self.splitter1.setSizes(sizes)
         self.gridLayout.addWidget(self.splitter1, 0, 1, 0, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
