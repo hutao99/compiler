@@ -503,14 +503,16 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def Manual_lexical_analysis(self):
         self.recursive_or_lr_flag = 1
         text = self.textEdit.toPlainText()
+        if text == '':
+            QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
         a = LexicalAnalysis(text)
         self.wordlist, self.errorlist, self.lbword = a.print_out()
         self.textEdit_3.setText(self.wordlist)
         self.textEdit_2.setText(self.errorlist)
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
-
         if self.recursive_or_lr_flag == 1:
+            print('lbword',self.lbword)
             file_object = open('文法.txt')
             rda = recDesc_analysis(file_object)
             self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
