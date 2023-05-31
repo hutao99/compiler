@@ -501,6 +501,7 @@ class LexicalAnalysis():
                 st = "Error: 大括号不匹配\n"
                 self.errorlist += st
 
+
         self.idx += 1
         self.save_word(start, ch)
 
