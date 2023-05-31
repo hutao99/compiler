@@ -63,6 +63,7 @@ class Ui_MainWindow(object):
         self.splitter1.addWidget(self.textEdit)
         # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
+
         sizes = [100,200, 300]
         self.splitter1.setSizes(sizes)
         self.gridLayout.addWidget(self.splitter1, 0, 1, 0, 1)

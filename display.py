@@ -356,8 +356,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size + 3)
 
         # 将选中的文本应用新的格式
@@ -379,8 +377,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size - 2)
 
         # 将选中的文本应用新的格式
