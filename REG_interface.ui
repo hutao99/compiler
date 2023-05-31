@@ -131,9 +131,17 @@
     </property>
     <addaction name="action_9"/>
    </widget>
+   <widget class="QMenu" name="menu_NFA_DFA">
+    <property name="title">
+     <string>单独转换</string>
+    </property>
+    <addaction name="action_NFA_DFA"/>
+    <addaction name="action_DFA_MFA_2"/>
+   </widget>
    <addaction name="menu_F"/>
    <addaction name="menu_E"/>
    <addaction name="menu"/>
+   <addaction name="menu_NFA_DFA"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -225,6 +233,21 @@
   <action name="action_10">
    <property name="text">
     <string>打开待识别符号串文件</string>
+   </property>
+  </action>
+  <action name="action_DFA_MFA">
+   <property name="text">
+    <string>输入DFA转MFA</string>
+   </property>
+  </action>
+  <action name="action_NFA_DFA">
+   <property name="text">
+    <string>输入NFA转DFA</string>
+   </property>
+  </action>
+  <action name="action_DFA_MFA_2">
+   <property name="text">
+    <string>输入DFA转MFA</string>
    </property>
   </action>
  </widget>
