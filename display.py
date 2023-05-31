@@ -91,7 +91,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.recursive_or_lr_flag = 0  # 为1表示使用递归下降 为2表示使用lr
         self.actionLL1.triggered.connect(self.LL1_analyze)
         self.actionstate_transition.triggered.connect(self.Manual_lexical_analysis)  # 递归下降手动词法分析
-        self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 递归下降语法分析
+        self.actionfrom_up_to_down.triggered.connect(self.Manual_grammar_analysis)  # 语法分析
         self.action_basic_block.triggered.connect(self.Basic_Block)  # 基本块划分
         self.actionDAG.triggered.connect(self.DAG_optimization)  # DAG优化
         self.action_middle_code.triggered.connect(self.middle_analysis)  # 中间代码
@@ -125,7 +125,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.LR.parsing_table1 = lr1.parsing_table
         self.LR.reduction1 = lr1.reduction
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
-        self.actionfrom_down_to_up.triggered.connect(self.SyntaxAndSemanticAnalyzer)  # 语法分析
         # LR1自定义语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
 
@@ -267,31 +266,30 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 self.textEdit.setText(str)
 
     def save_text(self):
-        choice = QMessageBox.question(self, "Question", "Do you want to save it?",
-                                      QMessageBox.Yes | QMessageBox.No)
-
-        if choice == QMessageBox.Yes:
-            with open('save text.txt', 'w') as f:
+        # 弹出文件对话框，让用户选择要保存的文件路径和文件名
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)",
+                                                   options=options)
+        if file_name:
+            # 如果用户选择了文件路径和文件名，则执行保存操作
+            with open(file_name, 'w') as f:
                 f.write(self.textEdit.toPlainText())
-            self.close()
-        elif choice == QMessageBox.No:
-            self.close()
 
     def onFileSaveAs(self):
-        path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '文本文件 (*.txt)')
-        if not path:
-            return
-        self._saveToPath(path)
 
-    def _saveToPath(self, path):
-        text = self.textEdit.toPlainText()
-        try:
-            with open(path, 'w') as f:
-                f.write(text)
-        except Exception as e:
-            print(str(e))
-        else:
-            self.path = path
+        # 弹出文件对话框，让用户选择要保存的文件路径和文件名
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save As", "", "Text Files (*.txt);;All Files (*)",
+                                                   options=options)
+        if file_name:
+            # 如果用户选择了文件路径和文件名，则执行保存操作
+            with open(file_name, 'w') as f:
+                f.write(self.text_edit.toPlainText())
+            # 更新当前文件名
+            self.file_name = file_name
+
 
     def closeEvent(self, event):
         # 保存设置
@@ -313,7 +311,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def onEditDelete(self):
         tc = self.textEdit.textCursor()
-        # tc.select(QtGui.QTextCursor.BlockUnderCursor) 这样删除一行
         tc.removeSelectedText()
 
     def file_name(self, Qmodelidx):
@@ -323,7 +320,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def increase_font(self):
         # 创建一个QFont对象，并设置初始字体大小为12
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
 
         # 获取当前字体大小
@@ -342,7 +339,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def on_increase_font_size_clicked(self):
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前选中的文本
         cursor = self.textEdit.textCursor()
@@ -351,13 +348,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-        font__size = 10
+        font__size = 13
         # 获取当前字体大小，并增加2个点
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size + 3)
 
         # 将选中的文本应用新的格式
@@ -365,7 +360,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def on_decrease_font_size_clicked(self):
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前选中的文本
         cursor = self.textEdit.textCursor()
@@ -374,13 +369,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-        font__size = 10
-        # 获取当前字体大小，并增加2个点
+        font__size = 13
+        # 获取当前字体大小，并减小2个点
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size - 2)
 
         # 将选中的文本应用新的格式
@@ -388,7 +381,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def decrease_font(self):
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前字体大小
         font_size = self.textEdit.fontPointSize()
@@ -509,36 +502,101 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def Manual_lexical_analysis(self):
         self.recursive_or_lr_flag = 1
         text = self.textEdit.toPlainText()
+        if text == '':
+            QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
         a = LexicalAnalysis(text)
         self.wordlist, self.errorlist, self.lbword = a.print_out()
         self.textEdit_3.setText(self.wordlist)
         self.textEdit_2.setText(self.errorlist)
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
-        self.recursive_or_lr_flag = 1
-        file_object = open('文法.txt')
-        rda = recDesc_analysis(file_object)
-        self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
-            self.lbword)
-        self.textEdit_3.setText(self.text1 + '\n' + self.text2)
-        text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-        self.textEdit_2.setText(text1)
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Syntax_Tree/tree.gv.png')
+        if self.recursive_or_lr_flag == 1:
+            print('lbword',self.lbword)
+            file_object = open('文法.txt')
+            rda = recDesc_analysis(file_object)
+            self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
+                self.lbword)
+            text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+            all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+            self.textEdit_2.setText(all_text)
+            # 设置图片路径
+            self.textEdit_3.clear()
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Syntax_Tree/tree.gv.png')
 
-        # 在QTextEdit中插入图片
-        cursor = self.textEdit_3.textCursor()
-        cursor.insertImage(image_format)
+            # 在QTextEdit中插入图片
+            cursor = self.textEdit_3.textCursor()
+            cursor.insertImage(image_format)
 
-        self.textEdit_3.show()
+            self.textEdit_3.show()
+        else:
+            lex = AnalyzerLex()
+            text = self.textEdit.toPlainText()
+            lex.input(text)
+            tokens = []
+            while True:
+                tok = lex.token()
+                if not tok:
+                    break
+                tokens.append([tok.type, tok.value, tok.lineno,
+                               lex.find_column(tok.lexer.lexdata, tok)])
+            tokens.append(['keyword', '#'])
+            # print(tokens)
+            self.LR.ControlProgram(tokens)
+            # self.display1.append(self.LR.PrintParseTree())
+            self.LR.PrintParseTree()  # 画语法树图
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./Syntax_Tree/tree.gv.png')
+
+            # 在QTextEdit中插入图片
+            self.textEdit_3.setText('')
+            cursor = self.textEdit_3.textCursor()
+            cursor.insertImage(image_format)
+            self.textEdit_3.show()  # 语法树
+
+            errors = []
+            errors.extend(lex.error)
+            errors.extend(self.LR.errors)
+            errors = sorted(errors, key=lambda x: (x[0], x[1]))
+            s = ''
+            s += '常量表:\n'
+            for i in self.LR.ConstantTable:
+                s += i + ": "
+                for j in self.LR.ConstantTable[i]:
+                    s += str(vars(j)) + '\n'
+
+            s += '变量表:\n'
+            for i in self.LR.VariableTable:
+                s += i + ": "
+                for j in self.LR.VariableTable[i]:
+                    s += str(vars(j)) + '\n'
+
+            s += '数组表:\n'
+            for i in self.LR.ArrayTable:
+                s += i + ": "
+                for j in self.LR.ArrayTable[i]:
+                    s += str(vars(j)) + '\n'
+
+            s += '函数表:\n'
+            for i in self.LR.FunctionTable:
+                s += i + ": "
+                s += str(vars(self.LR.FunctionTable[i])) + '\n'
+            s += '\nerror %d\n' % len(errors)
+            for i in errors:  # 语法和语义错误
+                s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+            for i in self.LR.warning:
+                s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+            self.textEdit_2.setText(s)
 
     # 中间代码
     def middle_analysis(self):
-        if self.recursive_or_lr_flag == 1: # 递归下井中间代码
+        if self.recursive_or_lr_flag == 1: # 递归下降中间代码
             text = ''
+            idx = 0
             for quad in self.siyuanshi:
-                text += ','.join([str(s) for s in quad]) + '\n'
+                text += str(idx)+':'+str(quad[1:]) + '\n'
+                idx+=1
             print(text)
             self.textEdit_3.setText(text)        
         else:  # LR中间代码
@@ -572,13 +630,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 基本块划分
     def Basic_Block(self):
-        text = self.textEdit_3.toPlainText() # 获取四元式序列
-        # 格式转换
-        tokens = [token.split(",") for token in text.split("\n")]
-        codes = []
-        for i in tokens:
-            if len(i) == 5:
-                codes.append(i[1:])
+        s = self.textEdit_3.toPlainText() # 获取四元式序列
+        codes = self.format_conversion(s)
         self.basic_blocks=Partition_Basic_Block(codes)
         print('basic_blocks',self.basic_blocks)
         # 设置图片路径
@@ -601,7 +654,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         for i in optimize_quaternion:
             text+=str(idx)+':'+str(i)+'\n'
             idx+=1
-        self.textEdit_3.setText(text)
+        self.textEdit_2.setText(text)
         print('optimize_quaternion', optimize_quaternion)
 
     # 目标代码
@@ -652,67 +705,84 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
         self.textEdit_2.setText(s)
 
-    def SyntaxAndSemanticAnalyzer(self):  # LR语法分析和语义分析
-        lex = AnalyzerLex()
-        text = self.textEdit.toPlainText()
-        lex.input(text)
-        tokens = []
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            tokens.append([tok.type, tok.value, tok.lineno,
-                          lex.find_column(tok.lexer.lexdata, tok)])
-        tokens.append(['keyword', '#'])
-        # print(tokens)
-        self.LR.ControlProgram(tokens)
-        # self.display1.append(self.LR.PrintParseTree())
-        self.LR.PrintParseTree()  # 画语法树图
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./Syntax_Tree/tree.gv.png')
+    # def SyntaxAndSemanticAnalyzer(self):  # LR语法分析和语义分析
+    #     lex = AnalyzerLex()
+    #     text = self.textEdit.toPlainText()
+    #     lex.input(text)
+    #     tokens = []
+    #     while True:
+    #         tok = lex.token()
+    #         if not tok:
+    #             break
+    #         tokens.append([tok.type, tok.value, tok.lineno,
+    #                       lex.find_column(tok.lexer.lexdata, tok)])
+    #     tokens.append(['keyword', '#'])
+    #     # print(tokens)
+    #     self.LR.ControlProgram(tokens)
+    #     # self.display1.append(self.LR.PrintParseTree())
+    #     self.LR.PrintParseTree()  # 画语法树图
+    #     # 设置图片路径
+    #     image_format = QtGui.QTextImageFormat()
+    #     image_format.setName('./Syntax_Tree/tree.gv.png')
+    #
+    #     # 在QTextEdit中插入图片
+    #     self.textEdit_3.setText('')
+    #     cursor = self.textEdit_3.textCursor()
+    #     cursor.insertImage(image_format)
+    #     self.textEdit_3.show()  # 语法树
+    #
+    #     errors = []
+    #     errors.extend(lex.error)
+    #     errors.extend(self.LR.errors)
+    #     errors = sorted(errors, key=lambda x: (x[0], x[1]))
+    #     s = ''
+    #     s += '常量表:\n'
+    #     for i in self.LR.ConstantTable:
+    #         s += i + ": "
+    #         for j in self.LR.ConstantTable[i]:
+    #             s += str(vars(j)) + '\n'
+    #
+    #     s += '变量表:\n'
+    #     for i in self.LR.VariableTable:
+    #         s += i + ": "
+    #         for j in self.LR.VariableTable[i]:
+    #             s += str(vars(j)) + '\n'
+    #
+    #     s += '数组表:\n'
+    #     for i in self.LR.ArrayTable:
+    #         s += i + ": "
+    #         for j in self.LR.ArrayTable[i]:
+    #             s += str(vars(j)) + '\n'
+    #
+    #     s += '函数表:\n'
+    #     for i in self.LR.FunctionTable:
+    #         s += i + ": "
+    #         s += str(vars(self.LR.FunctionTable[i])) + '\n'
+    #     s += '\nerror %d\n' % len(errors)
+    #     for i in errors:  # 语法和语义错误
+    #         s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+    #     for i in self.LR.warning:
+    #         s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+    #     self.textEdit_2.setText(s)
 
-        # 在QTextEdit中插入图片
-        self.textEdit_3.setText('')
-        cursor = self.textEdit_3.textCursor()
-        cursor.insertImage(image_format)
-        self.textEdit_3.show()  # 语法树
-
-        errors = []
-        errors.extend(lex.error)
-        errors.extend(self.LR.errors)
-        errors = sorted(errors, key=lambda x: (x[0], x[1]))
-        s = ''
-        s += '常量表:\n'
-        for i in self.LR.ConstantTable:
-            s += i + ": "
-            for j in self.LR.ConstantTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '变量表:\n'
-        for i in self.LR.VariableTable:
-            s += i + ": "
-            for j in self.LR.VariableTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '数组表:\n'
-        for i in self.LR.ArrayTable:
-            s += i + ": "
-            for j in self.LR.ArrayTable[i]:
-                s += str(vars(j)) + '\n'
-
-        s += '函数表:\n'
-        for i in self.LR.FunctionTable:
-            s += i + ": "
-            s += str(vars(self.LR.FunctionTable[i])) + '\n'
-        s += '\nerror %d\n' % len(errors)
-        for i in errors:  # 语法和语义错误
-            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-        for i in self.LR.warning:
-            s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-        self.textEdit_2.setText(s)
-
-
+        #将文本框中的四元式转换
+    def format_conversion(self,s):
+        print('s',s)
+        # 去掉末尾的换行符
+        s = s.strip()
+        # 按照换行符分割成多个行字符串
+        lines = s.split('\n')
+        # 初始化结果列表
+        result = []
+        # 对于每个行字符串，手动将第一个元素转化为一个列表，并去掉第一个元素
+        for line in lines:
+            if line:
+                l = line.split(':')
+                lst = eval(l[1])
+                lst = [elem if elem != '' else '_' for elem in lst]
+                result.append(lst)
+        print('result',result)
+        return result
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = DetailUI()

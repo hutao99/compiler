@@ -189,6 +189,7 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
         test = LL()
         # 对LL1输入文法的格式进行处理，考虑到两个非终结符之间没有空格的情况
         text = self.textEdit_2.toPlainText()
+        grammar=self.textEdit_2.toPlainText()
         lines = text.splitlines(True)
         res = ""
         for line in lines:
@@ -261,17 +262,15 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
 
     def open_text(self):
         # 定义打开文件夹目录的函数
-        try:
-            # fname = QFileDialog.getOpenFileName(None, 'Open file')
-            fname = QFileDialog.getOpenFileName(self, 'Open file')
-            if fname[0]:
-                print(fname[0])
-                with open(fname[0], encoding=self.check_charset(fname[0])) as f:
-                    str = f.read()
-                    print(str)
-                    self.textEdit_2.setText(str)
-        except Exception as e:
-            print("Error: ", e)
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/11LL(1)测试用例',
+                                              '文本文件 (*.txt)')
+        if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+            with open(path, 'r', encoding="utf-8") as f:
+                text = f.read()
+            f.close()
+            self.textEdit_2.clear()
+            self.textEdit_2.setText(text)
+
 
 
 # app = QApplication(sys.argv)

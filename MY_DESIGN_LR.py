@@ -30,17 +30,14 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
 
     def open_text(self):
         # 定义打开文件夹目录的函数
-        try:
-            # fname = QFileDialog.getOpenFileName(None, 'Open file')
-            fname = QFileDialog.getOpenFileName(self, 'Open file')
-            if fname[0]:
-                print(fname[0])
-                with open(fname[0], encoding=self.check_charset(fname[0])) as f:
-                    str = f.read()
-                    print(str)
-                    self.textEdit.setText(str)
-        except Exception as e:
-            print("Error: ", e)
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/13LR分析测试用例',
+                                              '文本文件 (*.txt)')
+        if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+            with open(path, 'r', encoding="utf-8") as f:
+                text = f.read()
+            f.close()
+            self.textEdit.clear()
+            self.textEdit.setText(text)
 
     def LR_image(self):  # 画图
         text = self.textEdit.toPlainText()

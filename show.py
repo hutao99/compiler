@@ -10,30 +10,45 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(843, 643)
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
 
-        # 颜色搭配：https://www.xiaohongshu.com/explore/6237ce1c000000000102a35f
+        # 颜色搭配：https://www.xiaohongshu.com/explore/6237ce1c000000000102a35f #F2F3D7
+        #https://k.sina.com.cn/article_3588040610_pd5dd27a202700c2hy.html
         # http://www.360doc.com/content/09/0731/11/59625_4571056.shtml
-        MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#006699").name())
+
+
+        MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setObjectName("textEdit")
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textEdit.setFont(font)
+
         self.textEdit_3 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_3.setObjectName("textEdit_3")
-        self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textEdit_3.setFont(font)
+
         self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_2.setObjectName("textEdit_2")
-        self.textEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.textEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textEdit_2.setFont(font)
 
         self.treeView = QtWidgets.QTreeView(self.centralwidget)
 
         self.treeView.setObjectName("treeView")
-        self.treeView.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.treeView.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         self.tree = QTreeWidget(self.centralwidget)
-        self.tree.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5F5").name())
+        self.tree.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.splitter2 = QSplitter(Qt.Vertical)
         # self.splitter2.addWidget(self.splitter1)
@@ -51,6 +66,8 @@ class Ui_MainWindow(object):
         # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
 
+        sizes = [100,200, 300]
+        self.splitter1.setSizes(sizes)
         self.gridLayout.addWidget(self.splitter1, 0, 1, 0, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -141,8 +158,6 @@ class Ui_MainWindow(object):
         self.actionPLY.setObjectName("actionPLY")
         self.actionfrom_up_to_down = QtWidgets.QAction(MainWindow)
         self.actionfrom_up_to_down.setObjectName("actionfrom_up_to_down")
-        self.actionfrom_down_to_up = QtWidgets.QAction(MainWindow)
-        self.actionfrom_down_to_up.setObjectName("actionfrom_down_to_up")
         self.action_middle_code = QtWidgets.QAction(MainWindow)
         self.action_middle_code.setObjectName("action_middle_code")
         self.action_basic_block=QtWidgets.QAction(MainWindow)
@@ -242,7 +257,6 @@ class Ui_MainWindow(object):
         self.menu_cifa.addAction(self.actionPLY)
         self.menu_cifa.addAction(self.actionNFA_DFA)
         self.menu_yufa.addAction(self.actionfrom_up_to_down)
-        self.menu_yufa.addAction(self.actionfrom_down_to_up)
         self.menu_yufa.addAction(self.actionLL1)
         self.menu_yufa.addAction(self.actionsuanfu_first)
         self.menu_yufa.addAction(self.actionLR1)
@@ -331,8 +345,7 @@ class Ui_MainWindow(object):
         self.actiondelete.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.actionstate_transition.setText(_translate("MainWindow", "手动词法分析(递归下降)"))
         self.actionPLY.setText(_translate("MainWindow", "自动词法分析(LR)"))
-        self.actionfrom_up_to_down.setText(_translate("MainWindow", "递归下降语法分析"))
-        self.actionfrom_down_to_up.setText(_translate("MainWindow", "LR1语法分析"))
+        self.actionfrom_up_to_down.setText(_translate("MainWindow", "语法分析"))
         self.action_middle_code.setText(_translate("MainWindow", "中间代码"))
         self.action_basic_block.setText(_translate("MainWindow", "基本块划分"))
         self.actionup_start.setText(_translate("MainWindow", "自上而下"))
@@ -352,7 +365,7 @@ class Ui_MainWindow(object):
         self.actionpurple_font.setText(_translate("MainWindow", "紫色字体"))
         self.actionorange_font.setText(_translate("MainWindow", "橙色字体"))
         self.actionblue_font.setText(_translate("MainWindow", "蓝色字体"))
-        self.actionNFA_DFA.setText(_translate("MainWindow", "NFA_DFA"))
+        self.actionNFA_DFA.setText(_translate("MainWindow", "REG正则表达式转换"))
         self.actionLL1.setText(_translate("MainWindow", "LL1预测分析"))
         self.actionLR1.setText(_translate("MainWindow", "LR1自定义语法分析"))
         self.actionsuanfu_first.setText(_translate("MainWindow", "算符优先分析"))
