@@ -313,7 +313,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def onEditDelete(self):
         tc = self.textEdit.textCursor()
-        # tc.select(QtGui.QTextCursor.BlockUnderCursor) 这样删除一行
         tc.removeSelectedText()
 
     def file_name(self, Qmodelidx):
@@ -323,7 +322,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def increase_font(self):
         # 创建一个QFont对象，并设置初始字体大小为12
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
 
         # 获取当前字体大小
@@ -342,7 +341,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def on_increase_font_size_clicked(self):
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前选中的文本
         cursor = self.textEdit.textCursor()
@@ -351,13 +350,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-        font__size = 10
+        font__size = 13
         # 获取当前字体大小，并增加2个点
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size + 3)
 
         # 将选中的文本应用新的格式
@@ -365,7 +362,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def on_decrease_font_size_clicked(self):
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前选中的文本
         cursor = self.textEdit.textCursor()
@@ -374,13 +371,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-        font__size = 10
-        # 获取当前字体大小，并增加2个点
+        font__size = 13
+        # 获取当前字体大小，并减小2个点
         char_format = cursor.charFormat()
         # char_format = cursor.selectionCharFormat()
         font_size = char_format.fontPointSize()
-        print('909090000')
-        print(font_size)
         char_format.setFontPointSize(font__size - 2)
 
         # 将选中的文本应用新的格式
@@ -388,7 +383,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def decrease_font(self):
         font = QFont()
-        font.setPointSize(12)
+        font.setPointSize(13)
         self.textEdit.setFont(font)
         # 获取当前字体大小
         font_size = self.textEdit.fontPointSize()
