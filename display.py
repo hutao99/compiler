@@ -313,7 +313,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def onEditDelete(self):
         tc = self.textEdit.textCursor()
-        # tc.select(QtGui.QTextCursor.BlockUnderCursor) 这样删除一行
         tc.removeSelectedText()
 
     def file_name(self, Qmodelidx):
