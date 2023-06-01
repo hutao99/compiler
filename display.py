@@ -1,6 +1,7 @@
 
 import os
 import sys
+import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
@@ -131,7 +132,14 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         对一些变量进行初始化
         '''
         self.siyuanshi = None
-
+        '''
+        添加帮助文档
+        '''
+        self.actionHELP_CHM.triggered.connect(self.searchHelp)
+        '''
+        知识产权：归属于重庆理工大学2020
+        '''
+        self.action.triggered.connect(self.my_right)
 
     def recent_folders(self):
         try:
@@ -252,6 +260,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         print(dict_)
         print(type(dict_))
 
+    def searchHelp(self):
+        webbrowser.open('编译器.chm')
+
+    def my_right(self):
+        QMessageBox.warning(self, '警告', '版权归属于CQUT2020')
     def check_charset(self, file_path):
         import chardet
         with open(file_path, "rb") as f:

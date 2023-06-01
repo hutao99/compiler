@@ -349,7 +349,7 @@ class Ui_MainWindow(object):
         self.action_middle_code.setText(_translate("MainWindow", "中间代码"))
         self.action_basic_block.setText(_translate("MainWindow", "基本块划分"))
         self.actionup_start.setText(_translate("MainWindow", "自上而下"))
-        self.actionHELP_CHM.setText(_translate("MainWindow", "HELP_CHM"))
+        self.actionHELP_CHM.setText(_translate("MainWindow", "Help"))
         self.actionitalic.setText(_translate("MainWindow", "斜体"))
         self.actionitalic.setShortcut(_translate("MainWindow", "Ctrl+I"))
         self.actionbold.setText(_translate("MainWindow", "加粗"))
