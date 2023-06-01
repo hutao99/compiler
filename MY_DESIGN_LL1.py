@@ -260,7 +260,6 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
             charset = chardet.detect(data)['encoding']
         return charset
 
-
     def open_text(self):
         # 定义打开文件夹目录的函数
         path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/11LL(1)测试用例',
