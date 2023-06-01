@@ -105,7 +105,7 @@ class MyDesiger_LL(Ui_MainWindow_LL, QMainWindow):
                         item1 = QtWidgets.QTableWidgetItem("POP,PUSH(" + str + ")")
                         self.tableStack.setItem(layer_stack - 1, 3, item1)
 
-                    # 如果 符号栈顶的动作是 S -> ε 则符号栈 则直接出栈
+                    # 如果 符号栈顶的动作是 S -> $ 则符号栈 则直接出栈
                     else:
                         STACK.remove(STACK[-1])
                         # 在表中显示动作
