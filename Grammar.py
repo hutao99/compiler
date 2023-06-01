@@ -405,7 +405,7 @@ class recDesc_analysis:
                                     self.goal_list[self.p ][0], self.goal_list[self.p ][1]))
                         if ch != 'p1' and self.expression_shengming and item in ['+', '-', '*', '/', '%', '(', ')', '>',
                                                                                  '<',
-                                                                                 '>=', '<=', '==', '&&', 'or', '!']:
+                                                                                 '>=', '<=', '==','!=', '&&', 'or', '!']:
                             self.str1.gettop().push(item)
                         # 对作用域进行标记
                         self.node_number += 1

@@ -46,7 +46,7 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
             self.LR.Action_and_GoTo_Table()
             self.LR.draw_graphic()
             s = ''
-            for i in range(1, len(self.LR.reduction)):
+            for i in range(0, len(self.LR.reduction)):
                 s += 'r' + str(i) + '->' + self.LR.reduction[i] + '\n'
 
             self.textEdit_2.setText(s)

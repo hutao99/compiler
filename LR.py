@@ -584,6 +584,7 @@ class CLRParser:
                                                                                                          0].symbol_info]
 
                         elif father.children[0].name == '表达式':
+                            val.value = father.children[0].value
                             if father.children[2].symbol_info[1] in self.FunctionTable:
                                 self.errors.append(
                                     [father.children[2].symbol_info[2], father.children[2].symbol_info[3],
@@ -651,7 +652,9 @@ class CLRParser:
                                          "'%s'变量名字已声明" % father.children[2].children[-1].symbol_info[1]])
                                 else:
                                     self.ArrayTable[father.children[2].children[-1].symbol_info[1]].append(arr)
-
+                    elif father.name == '布尔表达式' or father.name == '布尔项' or father.name == '布尔因子':
+                        if len(father.children) == 1:
+                            father.value = father.children[0].value
                     elif father.name == '函数声明参数':
                         if len(father.leaves) == 1:
                             father.type = father.children[0].type
@@ -695,7 +698,7 @@ class CLRParser:
                         elif father.children[0].name == 'float':
                             father.type = 'float'
                         father.value = father.children[0].symbol_info[1]
-                    elif father.name == '加减表达式':
+                    elif father.name == '加减表达式' or father.name == '算术表达式' or father.name == '表达式':
                         if len(father.children) == 1:
                             father.value = father.children[0].value
                     elif father.name == '字符型常量':
@@ -955,12 +958,8 @@ class CLRParser:
         scope = [['0', 0]]
         # 中间代码下标
         index_code = 0
-        # 判断是不是赋值表达式
-        flag_assignment = False
         # 计数
         count = 0
-        # 出口
-        exit_code = -2
         # 记录if语句需要回填的栈
         stack_if = []
         # 记录for语句的循环入口
@@ -1362,6 +1361,8 @@ class CLRParser:
                         para.clear()
                         fun_flag = True
                     elif father.name == '函数定义':
+                        if self.FunctionTable[fun_name].type == 'void':
+                            self.code.append(['ret', '', '', ''])
                         fun_flag = False
                     elif father.name == '函数定义参数':
                         # self.code.append(['pop', father.children[-2].symbol_info[1], '', ''])

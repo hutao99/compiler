@@ -6,13 +6,13 @@ import copy
 class Suanfufirst:
     def __init__(self):
         #终结符
-        self.terSymbol = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','=','+','-','*','@','/','(',')','^','#','%','>','<','>=','<=','==','or','&&','&','!']
+        self.terSymbol = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','=','+','-','*','@','/','(',')','^','#','%','>','<','>=','<=','==','!=','or','&&','&','!']
         #非终结符
         self.non_ter = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
         self.firstVT = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
         self.lastVT = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
-        self.grammer = ['A -> A or B | B','B -> B && C | C','C -> C > D | C < D | C >= D | C <= D | C == D | D',
+        self.grammer = ['A -> A or B | B','B -> B && C | C','C -> C > D | C < D | C >= D | C <= D | C == D | C != D | D',
                         'D -> ! E | E','E -> E + T | E - T | T', 'T -> T * F | T / F | T % F | F','F -> @ P | P','P -> ( A ) | a']
         # self.grammer = ['E->E+T|E-T|T\n', 'T->T*F|T/F|T%F|F\n', 'F->(E)|a\n']
         # self.grammer = ['G->A=E\n', 'A->a\n', 'E->E+T|E-T|T\n', 'T->T*F|T/F|F\n', 'F->(E)|a\n']
@@ -395,11 +395,11 @@ class Suanfufirst:
             return self.master(count,placeid,ana_str, self.num,self.gra,digit_str)
 #
 # ss = Suanfufirst()
-# ana_str = "@ a + ( @ a )"
+# ana_str = "a != a "
 # digit_str = ['0','1','1','4','5','2','b','c','8','9','2','b','c','8','9']
 # ana_str = ana_str.split()
 # print('ana_str',ana_str)
-# #
+# # #
 # print(ss.solve(0,0,ana_str,digit_str))# count t 字符串列表 数字列表
 # print(ana_str)
 
