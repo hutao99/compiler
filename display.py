@@ -515,10 +515,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         text = self.textEdit.toPlainText()
         if text == '':
             QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
-        a = LexicalAnalysis(text)
-        self.wordlist, self.errorlist, self.lbword = a.print_out()
-        self.textEdit_3.setText(self.wordlist)
-        self.textEdit_2.setText(self.errorlist)
+        try:
+            a = LexicalAnalysis(text)
+            self.wordlist, self.errorlist, self.lbword = a.print_out()
+            self.textEdit_3.setText(self.wordlist)
+            self.textEdit_2.setText(self.errorlist)
+        except:
+            QMessageBox.warning(self, '警告', '系统无法处理！')
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         if self.recursive_or_lr_flag == 0:
@@ -528,23 +531,26 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 if self.lbword == [] or self.lbword == None:
                     QMessageBox.warning(self, '警告', '请先进行词法分析！')
                 else:
-                    file_object = open('文法.txt')
-                    rda = recDesc_analysis(file_object)
-                    self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
-                        self.lbword)
-                    text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-                    all_text = self.text1 + '\n' + self.text2 + '\n' + text1
-                    self.textEdit_2.setText(all_text)
-                    # 设置图片路径
-                    self.textEdit_3.clear()
-                    image_format = QtGui.QTextImageFormat()
-                    image_format.setName('./Syntax_Tree/tree.gv.png')
+                    try:
+                        file_object = open('文法.txt')
+                        rda = recDesc_analysis(file_object)
+                        self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
+                            self.lbword)
+                        text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+                        all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+                        self.textEdit_2.setText(all_text)
+                        # 设置图片路径
+                        self.textEdit_3.clear()
+                        image_format = QtGui.QTextImageFormat()
+                        image_format.setName('./Syntax_Tree/tree.gv.png')
 
-                    # 在QTextEdit中插入图片
-                    cursor = self.textEdit_3.textCursor()
-                    cursor.insertImage(image_format)
+                        # 在QTextEdit中插入图片
+                        cursor = self.textEdit_3.textCursor()
+                        cursor.insertImage(image_format)
 
-                    self.textEdit_3.show()
+                        self.textEdit_3.show()
+                    except:
+                        QMessageBox.warning(self, '警告', '系统无法处理！')
             else:
                 # LR语法分析
                 text = self.textEdit.toPlainText()
@@ -659,33 +665,39 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         if  s == '':
             QMessageBox.warning(self, '警告', '请先生成四元式！')
         else:
-            codes = self.format_conversion(s)
-            self.basic_blocks=Partition_Basic_Block(codes)
-            print('basic_blocks',self.basic_blocks)
-            # 设置图片路径
-            image_format = QtGui.QTextImageFormat()
-            image_format.setName('./Basic_Block/basic_block.gv.png')
+            try:
+                codes = self.format_conversion(s)
+                self.basic_blocks=Partition_Basic_Block(codes)
+                print('basic_blocks',self.basic_blocks)
+                # 设置图片路径
+                image_format = QtGui.QTextImageFormat()
+                image_format.setName('./Basic_Block/basic_block.gv.png')
 
 
-            # 在QTextEdit中插入图片
-            self.textEdit_2.clear()
-            cursor = self.textEdit_2.textCursor()
-            cursor.insertImage(image_format)
+                # 在QTextEdit中插入图片
+                self.textEdit_2.clear()
+                cursor = self.textEdit_2.textCursor()
+                cursor.insertImage(image_format)
 
-            self.textEdit_2.show()
+                self.textEdit_2.show()
+            except:
+                QMessageBox.warning(self, '警告', '系统错误！')
 
     # DAG优化
     def DAG_optimization(self):
         if len(self.basic_blocks) == 0:
             QMessageBox.warning(self, '警告', '请先生成四元式！')
-        optimize_quaternion = all_basic_optimize(self.basic_blocks)
-        text = ''
-        idx = 0
-        for i in optimize_quaternion:
-            text+=str(idx)+':'+str(i)+'\n'
-            idx+=1
-        self.textEdit_2.setText(text)
-        print('optimize_quaternion', optimize_quaternion)
+        try:
+            optimize_quaternion = all_basic_optimize(self.basic_blocks)
+            text = ''
+            idx = 0
+            for i in optimize_quaternion:
+                text+=str(idx)+':'+str(i)+'\n'
+                idx+=1
+            self.textEdit_2.setText(text)
+            print('optimize_quaternion', optimize_quaternion)
+        except:
+            QMessageBox.warning(self, '警告', '系统错误！')
 
     # 目标代码
     def Object_analysis(self):
