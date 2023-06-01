@@ -28,20 +28,23 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             code = [tuple(x.strip() for x in _[1:-1].split(',')) for _ in s.split("\n")]
         else:
             code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
-        DAG = create_DAG(code)
-        codes = optimize(DAG)
-        info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])
-        self.textEdit_3.setText(info)
-        DAG_draw(DAG)
-        # 设置图片路径
-        image_format = QtGui.QTextImageFormat()
-        image_format.setName('./DAG/visible.gv.png')
-        # 在QTextEdit中插入图片
-        self.textEdit_2.clear()
-        cursor = self.textEdit_2.textCursor()
-        cursor.insertImage(image_format)
+        try:
+            DAG = create_DAG(code)
+            codes = optimize(DAG)
+            info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])
+            self.textEdit_3.setText(info)
+            DAG_draw(DAG)
+            # 设置图片路径
+            image_format = QtGui.QTextImageFormat()
+            image_format.setName('./DAG/visible.gv.png')
+            # 在QTextEdit中插入图片
+            self.textEdit_2.clear()
+            cursor = self.textEdit_2.textCursor()
+            cursor.insertImage(image_format)
 
-        self.textEdit_2.show()
+            self.textEdit_2.show()
+        except:
+            QMessageBox.warning(self, '警告', '系统无法处理！')
 
     def check_charset(self, file_path):
         import chardet

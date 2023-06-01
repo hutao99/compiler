@@ -244,8 +244,10 @@ def target_code(four_table):
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + 'MOV DX,0\n\t' + array_address1(fun_name,three1) +'MOV BX,' + three + '\n\t' + 'DIV BX\n\t' + array_address1(fun_name,four1) +'MOV ' + four + ',DX\n'
         elif one == '<':
             s += '_%d:\t' % (
-                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t'+'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + 'JB _LT_' + str(
-                i) + '\n\t' +array_address1(fun_name,four1) + 'MOV DX,0\n' + '_LT_' + str(i) + ':\tMOV ' + four + ',DX\n'
+                i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
+                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JA _GT_' + str(
+                i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_GT_' + str(
+                i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j<':  # 1
             s += '_%d:\t' % (
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) + 'jl _%s\n' % four
@@ -258,8 +260,11 @@ def target_code(four_table):
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jge _%s\n' % four
         elif one == '>':
             s += '_%d:\t' % (
-                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + 'JA _GT_' + str(
-                i) + '\n\t' + array_address1(fun_name,four1) +'MOV DX,0\n' + '_GT_' + str(i) + ':\tMOV ' + four + ',DX\n'
+                i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
+                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JB _LT_' + str(
+                i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_LT_' + str(
+                i) + ':\tMOV ' + four + ',DX\n'
+
         elif one == 'j>':  # 3
             s += '_%d:\t' % (
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jg _%s\n' % four
