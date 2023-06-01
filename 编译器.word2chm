@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Word2Chm>
+  <WordFile>E:\QQ文件\编译器.html</WordFile>
+  <ChmFile>E:\QQ文件\编译器.chm</ChmFile>
+  <ChmTitle>编译器</ChmTitle>
+  <Copyright></Copyright>
+  <Options RelatedTopicTitle="相关主题" CoverPageTitle="封面" HelpIdTemplate="无" PageFileNameRule="Default" Engine="Auto"/>
+</Word2Chm>
