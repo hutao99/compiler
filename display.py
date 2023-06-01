@@ -18,7 +18,7 @@ from Laxer1 import LexicalAnalysis
 # import webbrowser
 #webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
-from ObjectCode_cr import solve
+from ObjectCode1 import solve
 import ObjectCode1
 # LR
 import LR
@@ -697,7 +697,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     QMessageBox.warning(self, '警告', '请先生成中间代码!')
                 else:
                     try:
-                        text = solve(self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi)
+                        siyuanshi = []
+                        for i in self.siyuanshi:
+                            siyuanshi.append(i[1:])
+                        text = solve(self.function_param_list, self.function_jubu_list, siyuanshi,{},[])
                         self.textEdit_2.setText(text)
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
