@@ -131,9 +131,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         对一些变量进行初始化
         '''
         self.siyuanshi = None
-        self.basic_blocks = None
-        self.split_flag = 0 #是否划分四元式
-        self.yh_flag = 0 #是否进行优化
+
 
     def recent_folders(self):
         try:
@@ -522,12 +520,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.wordlist, self.errorlist, self.lbword = a.print_out()
             self.textEdit_3.setText(self.wordlist)
             self.textEdit_2.setText(self.errorlist)
-
-            # 初始化
-            self.split_flag = 0
-            self.yh_flag = 0
-            self.siyuanshi = None
-            self.basic_blocks = None
         except:
             QMessageBox.warning(self, '警告', '系统无法处理！')
     # 递归下降语法分析
@@ -671,7 +663,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     # 基本块划分
     def Basic_Block(self):
         s = self.textEdit_3.toPlainText() # 获取四元式序列
-        print(333333333333333)
         if  s == '':
             QMessageBox.warning(self, '警告', '请先生成四元式！')
         else:
@@ -688,25 +679,24 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 self.textEdit_2.clear()
                 cursor = self.textEdit_2.textCursor()
                 cursor.insertImage(image_format)
+
                 self.textEdit_2.show()
-                self.split_flag = 1
             except:
                 QMessageBox.warning(self, '警告', '系统错误！')
 
     # DAG优化
     def DAG_optimization(self):
-        if self.split_flag != 1:
-            self.Basic_Block()  # 先生成四元式
+        if len(self.basic_blocks) == 0:
+            QMessageBox.warning(self, '警告', '请先生成四元式！')
         try:
-            self.optimize_quaternion = all_basic_optimize(self.basic_blocks)
+            optimize_quaternion = all_basic_optimize(self.basic_blocks)
             text = ''
             idx = 0
-            for i in self.optimize_quaternion:
+            for i in optimize_quaternion:
                 text+=str(idx)+':'+str(i)+'\n'
                 idx+=1
             self.textEdit_2.setText(text)
-            print('optimize_quaternion', self.optimize_quaternion)
-            self.yh_flag = 1
+            print('optimize_quaternion', optimize_quaternion)
         except:
             QMessageBox.warning(self, '警告', '系统错误！')
 
@@ -721,18 +711,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 else:
                     try:
                         siyuanshi = []
-                        if not self.yh_flag:
-                            for i in self.siyuanshi:
-                                siyuanshi.append(i[1:])
-                        else:
-                            text = ''
-                            idx = 0
-                            for i in self.optimize_quaternion:
-                                text += str(idx) + ':' + str(i) + '\n'
-                                idx += 1
-                            self.textEdit_3.setText(text)
-                            for i in self.optimize_quaternion:
-                                siyuanshi.append(i)
+                        for i in self.siyuanshi:
+                            siyuanshi.append(i[1:])
                         text = solve(self.function_param_list, self.function_jubu_list, siyuanshi,{},[])
                         self.textEdit_2.setText(text)
                     except:

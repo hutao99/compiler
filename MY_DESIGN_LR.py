@@ -46,7 +46,7 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
             self.LR.Action_and_GoTo_Table()
             self.LR.draw_graphic()
             s = ''
-            for i in range(1, len(self.LR.reduction)):
+            for i in range(0, len(self.LR.reduction)):
                 s += 'r' + str(i) + '->' + self.LR.reduction[i] + '\n'
 
             self.textEdit_2.setText(s)
@@ -82,22 +82,21 @@ class MyDesiger_LR(Ui_MainWindow_LR, QMainWindow):
     def LR_Analyse(self):
         self.tableStack1.clear()
         text = self.textEdit_3.toPlainText()
-        if len(text) != 0:
+        if len(self.LR.parsing_table) != 0:
             lex = AnalyzerLex()
             t = [[], [], [], []]
-            if len(text) != 0:
-                lex.input(text)
-                tokens = []
-                while True:
-                    tok = lex.token()
-                    if not tok:
-                        break
-                    tokens.append([tok.type, tok.value, tok.lineno,lex.find_column(tok.lexer.lexdata, tok)])
-                tokens.append(['keyword', '#'])
-                t[0], t[1], t[2], t[3], result = self.LR.ControlProgram(tokens)
-                self.tableStack1.setColumnCount(4)  # 设置列数
-                self.tableStack1.setRowCount(len(t[0])+1)  # 设置行数
-                self.tableStack1.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
+            lex.input(text)
+            tokens = []
+            while True:
+                tok = lex.token()
+                if not tok:
+                    break
+                tokens.append([tok.type, tok.value, tok.lineno,lex.find_column(tok.lexer.lexdata, tok)])
+            tokens.append(['keyword', '#'])
+            t[0], t[1], t[2], t[3], result = self.LR.ControlProgram(tokens)
+            self.tableStack1.setColumnCount(4)  # 设置列数
+            self.tableStack1.setRowCount(len(t[0])+1)  # 设置行数
+            self.tableStack1.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
             for i in range(len(t[0])):
                 for j in range(4):
                     if len(t[j]) == i:

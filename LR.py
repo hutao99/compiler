@@ -1361,6 +1361,8 @@ class CLRParser:
                         para.clear()
                         fun_flag = True
                     elif father.name == '函数定义':
+                        if self.FunctionTable[fun_name].type == 'void':
+                            self.code.append(['ret', '', '', ''])
                         fun_flag = False
                     elif father.name == '函数定义参数':
                         # self.code.append(['pop', father.children[-2].symbol_info[1], '', ''])
