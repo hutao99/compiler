@@ -393,13 +393,12 @@ class Suanfufirst:
             print("分析：",ana_str,digit_str)
             print()
             return self.master(count,placeid,ana_str, self.num,self.gra,digit_str)
-#
+
 # ss = Suanfufirst()
-# ana_str = " a = a  "
+# ana_str = " -a  "
 # digit_str = ['a','1','1','4','5','2','b','c','8','9','2','b','c','8','9']
 # ana_str = ana_str.split()
 # print('ana_str',ana_str)
-# # #
 # print(ss.solve(0,0,ana_str,digit_str))# count t 字符串列表 数字列表
 # print(ana_str)
 

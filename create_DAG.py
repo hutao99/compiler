@@ -80,7 +80,7 @@ def is_in_DAG(DAG, elem, son = None, left = None, right = None):# elem +-*/
     return False
 
 def index_of_DAG(DAG, x):
-    if x not in ['+', '-', '/', '*']:
+    if x not in ['+', '-', '/', '*','&&','||','!','@','>','<','>=','<=','!=','==']:
         for i, e in enumerate(DAG):
             if x in e['node_label'] or x == e['label']:
                 return i
@@ -197,8 +197,8 @@ def optimize(DAG_node):
     for e in DAG_node:
         if 'son' in e:
             son = DAG_node[e['son'][0]]
-            la = (e['label'], son['label'], '', e['node_label'] ) if not son['node_label'] \
-                                                                       or isleaf(son) else (e['label'], son['node_label'], '', e['node_label'] )
+            la = (e['label'], son['label'], '_', e['node_label'] ) if not son['node_label'] \
+                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'] )
             code.append(la)
         elif 'left' in e and 'right' in e:
             left = DAG_node[e['left']]
@@ -206,6 +206,8 @@ def optimize(DAG_node):
             fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label']
             fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label']
             code.append((e['label'], fun1, fun2, e['node_label']))
+        elif len(e['node_label']) == 1 and e['node_label'][0] in Active_variable:
+            code.append(('=', e['label'], '_', e['node_label'][0]))
     return code
 
 #切分基本块
@@ -289,7 +291,7 @@ def all_basic_optimize(basic_blocks):
         dag_block = []
         count = 0
         for c in code: # 遍历每一个四元式
-            if c[0][0] in ['+', '-', '*', '/', '%', '=']:
+            if c[0] in ['+', '-', '*', '/', '%', '=','&&','||','!','@','>','<','>=','<=','!=','==']:
                 dag_block.append(c)
             else:
                 if len(dag_block) == 1: # 优化四元式只有一条
@@ -346,25 +348,28 @@ def test1():#基本块内优化
 
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes=[[0, 'main', '_', '_', '_'], [1, '=', '9', '_', 'x'], [2, '=', '3', '_', 'y'], [3, '*', 'y', 'y', 'T0'], [4, '-', 'x', 'T0', 'T1'], [5, '%', 'x', '3', 'T2'], [6, '-', 'T1', 'T2', 'T3'], [7, '=', 'T3', '_', 'z'], [8, 'para', 'x', '_', '_'], [9, 'call', 'write', '_', 'T4'], [10, 'para', 'y', '_', '_'], [11, 'call', 'write', '_', 'T5'], [12, 'para', 'z', '_', '_'], [13, 'call', 'write', '_', 'T6'], [14, 'sys', '_', '_', '_']]
+    codes=[['main', '_', '_', '_'], ['=', '2', '_', 'x'], ['=', '3', '_', 'y'], ['&&', 'x', 'y', 'T0'], ['=', 'T0', '_',
+                                                                                                         'a'], ['&&',
+                                                                                                                'x',
+                                                                                                                '0',
+                                                                                                                'T1'], [
+               '=', 'T1', '_', 'b'], ['||', 'x', 'y', 'T2'], ['=', 'T2', '_', 'c'], ['||', 'x', '0', 'T3'], ['=', 'T3',
+                                                                                                             '_',
+                                                                                                             'd'], [
+               'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['para', 'b', '_', '_'], ['call', 'write', '_',
+                                                                                               'T5'], ['para', 'c', '_',
+                                                                                                       '_'], ['call',
+                                                                                                              'write',
+                                                                                                              '_',
+                                                                                                              'T6'], [
+               'para', 'd', '_', '_'], ['call', 'write', '_', 'T7'], ['sys', '_', '_', '_']]
 
-    cc = []
-    for i in codes:
-        cc.append(i[1:])
-    print('cc:', cc)
-    codes=cc
-    # codes = []
-    # for i in a:
-    #     codes.append(i[1:])
-    # codes=[['=', '1', '_', 'a'], ['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['call',
-    #                                                                                                           'read',
-    #                                                                                                           '_',
-    #                                                                                                           'T1'], [
-    #           '=', 'T1', '_', 'M'], ['>=', 'M', 'N', 'T2'], ['jnz', 'T2', '_', '9'], ['jz', 'T2', '_', '11'], ['=', 'M',
-    #                                                                                                            '_',
-    #                                                                                                            'result'], [
-    #           'j', '_', '_', '12'], ['=', 'N', '_', 'result'], ['+', 'result', '100', 'T3'], ['=', 'T3', '_', 'a'], [
-    #           'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['sys', '_', '_', '_']]
+    # cc = []
+    # for i in codes:
+    #     cc.append(i[1:])
+    # print('cc:', cc)
+    # codes=cc
+
     basic_blocks=Partition_Basic_Block(codes)
     optimize_quaternion = all_basic_optimize(basic_blocks)
     print('optimize_quaternion',optimize_quaternion)

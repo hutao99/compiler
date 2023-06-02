@@ -1,19 +1,30 @@
 // Basic_Block
 digraph "./Basic_Block/basic_block" {
-	0 [label="0:['main', '_', '_', '_']
-1:['=', '9', '_', 'x']
-2:['=', '3', '_', 'y']
-3:['*', 'y', 'y', 'T0']
-4:['-', 'x', 'T0', 'T1']
-5:['%', 'x', '3', 'T2']
-6:['-', 'T1', 'T2', 'T3']
-7:['=', 'T3', '_', 'z']
-8:['para', 'x', '_', '_']
-9:['call', 'write', '_', 'T4']
-10:['para', 'y', '_', '_']
-11:['call', 'write', '_', 'T5']
-12:['para', 'z', '_', '_']
-13:['call', 'write', '_', 'T6']
-14:['sys', '_', '_', '_']
+	0 [label="0:['=', '1', '_', 'a']
+1:['main', '_', '_', '_']
+2:['call', 'read', '_', 'T0']
+3:['=', 'T0', '_', 'N']
+4:['call', 'read', '_', 'T1']
+5:['=', 'T1', '_', 'M']
+6:['>=', 'M', 'N', 'T2']
+7:['jnz', 'T2', '_', 9]
 " fontname=SimHei shape=rectangle]
+	1 [label="8:['jz', 'T2', '_', 11]
+" fontname=SimHei shape=rectangle]
+	2 [label="9:['=', 'M', '_', 'result']
+10:['j', '_', '_', 12]
+" fontname=SimHei shape=rectangle]
+	3 [label="11:['=', 'N', '_', 'result']
+" fontname=SimHei shape=rectangle]
+	4 [label="12:['+', 'result', '100', 'T3']
+13:['=', 'T3', '_', 'a']
+14:['para', 'a', '_', '_']
+15:['call', 'write', '_', 'T4']
+16:['sys', '_', '_', '_']
+" fontname=SimHei shape=rectangle]
+	0 -> 2
+	0 -> 1
+	1 -> 3
+	2 -> 4
+	3 -> 4
 }
