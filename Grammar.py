@@ -668,8 +668,8 @@ class recDesc_analysis:
         print(self.warnings_str)
         print(self.quaternions)
         for i in self.quaternions:
-            if i[0] == '@':
-                i[0] = '_'
+            if i[1] == '@':
+                i[1] = '-'
         print(self.function_param_list)
         print(self.function_jubu_list)
         """打印符号表"""
