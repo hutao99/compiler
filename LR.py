@@ -1335,6 +1335,8 @@ class CLRParser:
                                 for i in bool_false:
                                     self.code[i][3] = index_code
                                 if self.code[-1][0] == 'j':
+                                    for i in bool_false[:-1]:
+                                        self.code[i][3] = index_code-1
                                     self.code.pop()
                                     self.code[-1][3] = stack_for[-1][0]
                                     index_code -= 1
