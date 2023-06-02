@@ -1,4 +1,4 @@
-程序:程序(1) 函数块 | 程序(2) 函数块 | 表达式
+程序:程序(1) 函数块 | 程序(2) 函数块
 程序(1):声明语句列表 主函数 复合语句
 程序(2):主函数 复合语句
 主函数:main ( )
@@ -68,11 +68,11 @@ do(1):do {
 while(1):while (
 while(2):while(1) 表达式 )
 
-循环语句:声明语句 | 循环执行语句 | 循环复合语句 | 执行语句
-循环复合语句:{ 循环语句列表 }
+循环语句:声明语句 | 循环执行语句 | { 循环语句列表 }
 循环语句列表:循环语句 | 循环语句 循环语句列表
-循环执行语句:带if的循环语句 | for语句 | while语句 | do-while语句 | return语句 | break语句 | continue语句
-带if的循环语句:if ( 表达式 ) 循环语句 | if ( 表达式 ) 循环语句 else 循环语句
+循环执行语句:带if的循环语句 | for语句 | while语句 | do-while语句 | return语句 | break语句 | continue语句 | 数据处理语句
+带if的循环语句:if无else 循环语句 | 带if的循环语句有else 循环语句
+带if的循环语句有else:带if的循环语句 else
 return语句:return ; | return 表达式 ;
 break语句:break ;
 continue语句:continue ;
