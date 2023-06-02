@@ -916,8 +916,8 @@ class CLRParser:
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
-            #print(stack_symbol)
-            #print(stack_state)
+            print(stack_symbol)
+            print(stack_state)
             #input()
         # print(self.var_num)
         print(self.function_array_list)
@@ -1138,6 +1138,8 @@ class CLRParser:
                             index_code += 2
 
                     elif father.name == '关系表达式':
+                        print('tttttttttttttttttttttttt')
+                        print(sign_list[index])
                         if sign_list[index] != 'or':
                             self.code.append(
                                 ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
@@ -1146,12 +1148,14 @@ class CLRParser:
                             bool_false.append(index_code + 1)
                             index_code += 2
                         else:
+                            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaa')
                             self.code.append(
                                 ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
                                  0])  # 跳转真出口
                             # self.code.append(['j', '', '', exit_code])
                             bool_true.append(index_code)
                             index_code += 1
+                            print(bool_true)
                     elif father.name == '变量声明':
                         if fun_flag:
                             if len(father.children) >= 3 and father.children[-3].name == 'identifier':
@@ -1205,6 +1209,12 @@ class CLRParser:
                                     self.code.append(
                                         ['=', father.children[0].value, '', father.children[2].symbol_info[1]])
                                     index_code += 1
+                    elif father.name == '常量声明':
+                        if fun_flag:
+                            self.function_jubu_list[fun_name].append(father.children[2].symbol_info[1])
+                        self.code.append(['=', father.children[0].value, '', father.children[2].symbol_info[1]])
+                        index_code += 1
+
                     elif father.name == 'if无else':
                         print(stack_symbol[-1])
                         if stack_symbol[-1] != 'if有else':
@@ -1310,6 +1320,8 @@ class CLRParser:
                             bool_false.clear()
                             bool_true.clear()
                         else:
+                            print(bool_true)
+                            print(stack_for)
                             if father.children[1].value is not None:  # 表达式不是布尔表达式
                                 self.code.append(['jnz', father.children[1].value, '', 0])
                                 bool_true.append(index_code)
@@ -1324,10 +1336,12 @@ class CLRParser:
                                     self.code[i][3] = index_code
                                 if self.code[-1][0] == 'j':
                                     self.code.pop()
+                                    self.code[-1][3] = stack_for[-1][0]
                                     index_code -= 1
                                 elif self.code[-1][0] == 'jz':
                                     self.code[-1][0] = 'jnz'
                                     self.code[-1][3] = stack_for[-1][0]
+                            stack_for.pop()
                             bool_false.clear()
                             bool_true.clear()
                     elif father.name == '实参':
