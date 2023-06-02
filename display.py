@@ -1,7 +1,6 @@
 
 import os
 import sys
-import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
@@ -132,14 +131,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         对一些变量进行初始化
         '''
         self.siyuanshi = None
-        '''
-        添加帮助文档
-        '''
-        self.actionHELP_CHM.triggered.connect(self.searchHelp)
-        '''
-        知识产权：归属于重庆理工大学2020
-        '''
-        self.action.triggered.connect(self.my_right)
+
 
     def recent_folders(self):
         try:
@@ -260,11 +252,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         print(dict_)
         print(type(dict_))
 
-    def searchHelp(self):
-        webbrowser.open('编译器.chm')
-
-    def my_right(self):
-        QMessageBox.warning(self, '警告', '版权归属于CQUT2020')
     def check_charset(self, file_path):
         import chardet
         with open(file_path, "rb") as f:
@@ -586,45 +573,46 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     image_format = QtGui.QTextImageFormat()
                     image_format.setName('./Syntax_Tree/tree.gv.png')
 
-                    # 在QTextEdit中插入图片
-                    self.textEdit_3.setText('')
-                    cursor = self.textEdit_3.textCursor()
-                    cursor.insertImage(image_format)
-                    self.textEdit_3.show()  # 语法树
 
-                    errors = []
-                    errors.extend(lex.error)
-                    errors.extend(self.LR.errors)
-                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                    s = ''
-                    s += '常量表:\n'
-                    for i in self.LR.ConstantTable:
-                        s += i + ": "
-                        for j in self.LR.ConstantTable[i]:
-                            s += str(vars(j)) + '\n'
+                # 在QTextEdit中插入图片
+                self.textEdit_3.setText('')
+                cursor = self.textEdit_3.textCursor()
+                cursor.insertImage(image_format)
+                self.textEdit_3.show()  # 语法树
 
-                    s += '变量表:\n'
-                    for i in self.LR.VariableTable:
-                        s += i + ": "
-                        for j in self.LR.VariableTable[i]:
-                            s += str(vars(j)) + '\n'
+                errors = []
+                errors.extend(lex.error)
+                errors.extend(self.LR.errors)
+                errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                s = ''
+                s += '常量表:\n'
+                for i in self.LR.ConstantTable:
+                    s += i + ": "
+                    for j in self.LR.ConstantTable[i]:
+                        s += str(vars(j)) + '\n'
 
-                    s += '数组表:\n'
-                    for i in self.LR.ArrayTable:
-                        s += i + ": "
-                        for j in self.LR.ArrayTable[i]:
-                            s += str(vars(j)) + '\n'
+                s += '变量表:\n'
+                for i in self.LR.VariableTable:
+                    s += i + ": "
+                    for j in self.LR.VariableTable[i]:
+                        s += str(vars(j)) + '\n'
 
-                    s += '函数表:\n'
-                    for i in self.LR.FunctionTable:
-                        s += i + ": "
-                        s += str(vars(self.LR.FunctionTable[i])) + '\n'
-                    s += '\nerror %d\n' % len(errors)
-                    for i in errors:  # 语法和语义错误
-                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-                    for i in self.LR.warning:
-                        s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-                    self.textEdit_2.setText(s)
+                s += '数组表:\n'
+                for i in self.LR.ArrayTable:
+                    s += i + ": "
+                    for j in self.LR.ArrayTable[i]:
+                        s += str(vars(j)) + '\n'
+
+                s += '函数表:\n'
+                for i in self.LR.FunctionTable:
+                    s += i + ": "
+                    s += str(vars(self.LR.FunctionTable[i])) + '\n'
+                s += '\nerror %d\n' % len(errors)
+                for i in errors:  # 语法和语义错误
+                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+                for i in self.LR.warning:
+                    s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+                self.textEdit_2.setText(s)
 
     # 中间代码
     def middle_analysis(self):
@@ -740,12 +728,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         if MiddleCode[i][j] == '':
                             MiddleCode[i][j] = '_'
                 if len(MiddleCode) != 0:
-                    try:
-                        self.textEdit_2.setText(
-                            ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                              global_array_list))
-                    except:
-                        QMessageBox.warning(self, '警告', '系统无法处理！')
+                    self.textEdit_2.setText(
+                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                          global_array_list))
 
 
     def REG_transform(self):
