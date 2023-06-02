@@ -1230,7 +1230,7 @@ class CLRParser:
                         stack_if.append(bool_false.copy())
                         bool_true.clear()
                         bool_false.clear()
-                    elif father.name == 'if有else':
+                    elif father.name == 'if有else' or father.name == '带if的循环语句有else':
                         stack_if_total[-1].append(index_code)
                         self.code.append(['j', '', '', index_code])
                         index_code += 1
@@ -1238,7 +1238,7 @@ class CLRParser:
                         for i in q:
                             self.code[i][3] = index_code
                         flag_if = False
-                    elif father.name == 'if语句' and name != 'else':  # if语句结束
+                    elif father.name == 'if语句' and name != 'else' or father.name == '带if的循环语句' and name != 'else':  # if语句结束
                         if len(stack_if_total) != 0:
                             q = stack_if_total.pop()
                             # print(q)
