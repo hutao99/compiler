@@ -417,7 +417,7 @@ def solve(function_param_list1, function_jubu_list1, siyuanshi1, function_array_
     # [print(i, k) for i, k in enumerate(test.quaternion_list)]
     # function_param_list=test.function_param_table
 
-
-# a = [ ['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['call', 'read', '_', 'T1'], ['=', 'T1', '_', 'M'], ['>=', 'M', 'N', 'T2'], ['jnz', 'T2', '_', 9], ['jz', 'T2', '_', 11], ['=', 'M', '_', 'result'], ['j', '_', '_', 12], ['=', 'N', '_', 'result'], ['+', 'result', '100', 'T3'], ['=', 'T3', '_', 'a'], ['para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['sys', '_', '_', '_']]
-
-# print(a)
+# function_param_list1={'factor': ['m']}
+# function_jubu_list1={'factor': ['fa']}
+# siyuanshi1=[['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'n'], ['para', 'n', '_', '_'], ['call', 'factor', '_', 'T1'], ['para', 'T1', '_', '_'], ['call', 'write', '_', 'T2'], ['sys', '_', '_', '_'], ['factor', '_', '_', '_'], ['<=', 'm', '1', 'T3'], ['jnz', 'T3', '_', 12], ['jz', 'T3', '_', 14], ['=', '1', '_', 'fa'], ['j', '_', '_', 19], ['-', 'm', '1', 'T4'], ['para', 'T4', '_', '_'], ['call', 'factor', '_', 'T5'], ['*', 'm', 'T5', 'fa'], ['ret', 'fa', '_', '_']]
+# solve(function_param_list1, function_jubu_list1, siyuanshi1, {}, [])
