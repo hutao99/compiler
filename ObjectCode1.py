@@ -254,9 +254,8 @@ def target_code(four_table):
         elif one == '>=':
             s += '_%d:\t' % (
                 i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
-                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JNA _LE_' + str(
-                i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_LE_' + str(
-                i) + ':\tMOV ' + four + ',DX\n'
+                fun_name, three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name, four1) + 'JNB _GE_' + str(
+                i) + '\n\t' + 'MOV DX,0\n' + '_GE_' + str(i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j>=':  # 2
             s += '_%d:\t' % (
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jge _%s\n' % four
@@ -273,8 +272,9 @@ def target_code(four_table):
         elif one == '<=':  # (j<=,A,B,P)
             s += '_%d:\t' % (
                 i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
-                fun_name, three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name, four1) + 'JNB _GE_' + str(
-                i) + '\n\t' + 'MOV DX,0\n' + '_GE_' + str(i) + ':\tMOV ' + four + ',DX\n'
+                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JNA _LE_' + str(
+                i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_LE_' + str(
+                i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j<=':  # (j<=,A,B,P) 4
             s += '_%d:\t' % (
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jle _%s\n' % four
