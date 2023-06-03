@@ -118,7 +118,10 @@ def array_address1(fun_name1, name):
                 p = function[fun_name][1][t]
             else:
                 p = function[fun_name][0][t]
-            return 'lea si, [bp - %d]\n\tmov di, %s\n\tshl di, 1\n\tsub si, di\n\t'%(int(function_array[fun_name1][name[:name.index('[')]]), p)
+            if name[:name.index('[')] in function_array[fun_name1]:
+                return 'lea si, [bp - %d]\n\tmov di, %s\n\tshl di, 1\n\tsub si, di\n\t'%(int(function_array[fun_name1][name[:name.index('[')]]), p)
+            else:
+                return 'lea si, [_%s]\n\tmov di, %s\n\tshl di, 1\n\tadd si, di\n\t' % (name[:name.index('[')], p)
     else:
         if '[' in name:
             match = re.findall(regex, name)
@@ -171,17 +174,17 @@ def target_code(four_table):
             '''
             先查看数据是否在当前函数栈中 在查看是否在全局作用域中
             '''
-            if fun_name != '**' and '[' in two:
+            if fun_name != '**' and '[' in two and two[:two.index('[')] in function_array:  # 在函数内且是数组，数组为函数局部变量
                 two = 'ss:[si]'
-            elif fun_name == '**' and '[' in two:
+            elif '[' in two:  # 全局数组
                 two = '[si]'
-            if fun_name != '**' and '[' in three:
+            if fun_name != '**' and '[' in three and three[:three.index('[')] in function_array:
                 three = 'ss:[si]'
-            elif fun_name == '**' and '[' in three:
+            elif '[' in three:
                 three = '[si]'
-            if fun_name != '**' and '[' in four:
+            if fun_name != '**' and '[' in four and four[:four.index('[')] in function_array:
                 four = 'ss:[si]'
-            elif fun_name == '**' and '[' in four:
+            elif '[' in four:
                 four = '[si]'
             if fun_name != '**' and two in function[fun_name][0]:  # 当前为函数 使用的值在该函数栈里面 形参
                 print(function[fun_name][0])
