@@ -1200,9 +1200,9 @@ class CLRParser:
                                     self.code[i][3] = index_code + 2
                                 bool_true.clear()
                                 bool_false.clear()
-                                self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
+                                self.code.append([father.children[1].name, '1', '', father.children[2].symbol_info[1]])
                                 self.code.append(['j', '', '', index_code + 3])
-                                self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
+                                self.code.append([father.children[1].name, '0', '', father.children[2].symbol_info[1]])
                                 index_code += 3
                             else:
                                 if father.children[0].name == '表达式':
