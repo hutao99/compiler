@@ -633,7 +633,10 @@ class NfaDfaMfa:
                     # 同时终结状态集中大于 Min的状态编号也要减一
                     for index2, value2 in enumerate(final_states):
                         if value2 > Min:
-                            final_states[index2] -= 1
+                            if final_states[index2] - 1 in final_states:
+                                final_states.pop(index2)
+                            else:
+                                final_states[index2] -= 1
                 Max -= 1    # 同时最大值减一
             else:
                 Min += 1
