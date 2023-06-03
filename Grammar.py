@@ -665,11 +665,15 @@ class recDesc_analysis:
         self.check_print()
         if self.main_flag == 0:
             self.warnings_str += "Warning: 程序中无main函数！！！\n"
+        siyuanshi = []
+        for i in self.quaternions:
+            siyuanshi.append(i[1:])
+        self.quaternions = siyuanshi
+        for i in self.quaternions:
+            if i[0] == '@':
+                i[0] = '-'
         print(self.warnings_str)
         print(self.quaternions)
-        for i in self.quaternions:
-            if i[1] == '@':
-                i[1] = '-'
         print(self.function_param_list)
         print(self.function_jubu_list)
         """打印符号表"""
