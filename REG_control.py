@@ -28,7 +28,10 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         # 单独转换
         self.action_NFA_DFA.triggered.connect(self.nfa_to_dfa2)
         self.action_DFA_MFA_2.triggered.connect(self.dfa_to_mfa2)
-
+        # 导出文件
+        self.action_NFA_2.triggered.connect(self.save_nfa)
+        self.action_DFA.triggered.connect(self.save_dfa)
+        self.action_MFA.triggered.connect(self.save_mfa)
         self.my_object = None
         self.nfa = []
         self.dfa = []
@@ -316,6 +319,27 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                 except:
                     QMessageBox.warning(self, '警告', '系统无法处理')
 
+    def save_nfa(self):
+        filename = 'NFA.txt'
+        self.file_save_as(filename)
+
+    def save_dfa(self):
+        filename = 'DFA.txt'
+        self.file_save_as(filename)
+
+    def save_mfa(self):
+        filename = 'MFA.txt'
+        self.file_save_as(filename)
+    def file_save_as(self, filename):
+        path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '所有文件 (*.txt)')
+        if not path:
+            return
+        self.savePath(path, filename)
+
+    def savePath(self, path, filename):
+        text = str(open(filename).read())  # 从文件中读入数据并强转为字符串类型
+        with open(path, 'w') as f:
+            f.write(text)
 
 
 if __name__ == '__main__':

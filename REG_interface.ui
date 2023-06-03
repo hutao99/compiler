@@ -111,7 +111,7 @@
    </property>
    <widget class="QMenu" name="menu_F">
     <property name="title">
-     <string>打开文件</string>
+     <string>导入文件</string>
     </property>
     <addaction name="action_7"/>
     <addaction name="action_10"/>
@@ -138,10 +138,20 @@
     <addaction name="action_NFA_DFA"/>
     <addaction name="action_DFA_MFA_2"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>导出文件</string>
+    </property>
+    <addaction name="action_NFA_2"/>
+    <addaction name="action_DFA"/>
+    <addaction name="action_MFA"/>
+    <addaction name="action_11"/>
+   </widget>
    <addaction name="menu_F"/>
    <addaction name="menu_E"/>
    <addaction name="menu"/>
    <addaction name="menu_NFA_DFA"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -207,7 +217,7 @@
   </action>
   <action name="action_7">
    <property name="text">
-    <string>打开正规式文件</string>
+    <string>导入正规式文件</string>
    </property>
   </action>
   <action name="actionNFA_DFA_2">
@@ -232,7 +242,7 @@
   </action>
   <action name="action_10">
    <property name="text">
-    <string>打开待识别符号串文件</string>
+    <string>导入待识别符号串文件</string>
    </property>
   </action>
   <action name="action_DFA_MFA">
@@ -248,6 +258,26 @@
   <action name="action_DFA_MFA_2">
    <property name="text">
     <string>输入DFA转MFA</string>
+   </property>
+  </action>
+  <action name="action_NFA_2">
+   <property name="text">
+    <string>导出NFA</string>
+   </property>
+  </action>
+  <action name="action_DFA">
+   <property name="text">
+    <string>导出DFA</string>
+   </property>
+  </action>
+  <action name="action_MFA">
+   <property name="text">
+    <string>导出MFA</string>
+   </property>
+  </action>
+  <action name="action_11">
+   <property name="text">
+    <string>导出全部文件</string>
    </property>
   </action>
  </widget>
