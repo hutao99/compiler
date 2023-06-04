@@ -1,11 +1,34 @@
 import re
 
+import Analyzer
 
-class LL:
+
+class ASTNode:
+    def __init__(self, Type, content=None):
+        self.type = Type
+        self.text = content
+        self.child_node = list()
+
+    def __str__(self):
+        child_nodes = list()
+        for child in self.child_node:
+            child_nodes.append(child.__str__())
+        out = "<{type}, {text}>".format(type=self.type, text=self.text)
+        for child in child_nodes:
+            if child:
+                for item in child.split("\n"):
+                    out = out + "\n     " + item
+
+        return out
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class Predictive_Analysis:
     def __init__(self):
         self.first = dict()
         self.last = dict()
-        # 非终结符和产生式
         self.Formula = dict()
         self.begin = ''
         self.predict_table = dict()
@@ -16,7 +39,7 @@ class LL:
         self.flag = 0
 
     def input(self, data):
-        # 处理文法
+        # 种别码
         carve = list(filter(None, data.split('\n')))
         index = carve[0].find(':')
         begin = carve[0][0:index]
@@ -31,7 +54,7 @@ class LL:
         self.First_()
         self.Last_()
         self.get_predict_table_(data)
-        print("\n预测表如下\n")
+        print("\n预测分析表\n")
         for i in self.predict_table_:
             print(i, self.predict_table_[i])
         self.get_predict_table(data)
@@ -49,7 +72,7 @@ class LL:
                         grammar_list[line.split(':')[0]] = []
                         grammar_list[line.split(':')[0]].append(i.strip(' '))
                     else:
-                        grammar_list[line.split(':')[0]].append(i.strip(' '))  # 用于消除左递归的字典填充
+                        grammar_list[line.split(':')[0]].append(i.strip(' '))
         self.grammars = grammar_list
         for i in self.grammars:
             print(i, self.grammars[i])
@@ -66,7 +89,6 @@ class LL:
               '\n\n--------- 文法的终结符为 ----------\n', self.vt)
 
     def First_(self):
-        # 第一次先求出能一次找到的First集合
         for i in self.Formula:
             production = self.Formula[i]
             for j in production.split('|'):
@@ -81,7 +103,6 @@ class LL:
                 for j in production.split('|'):
                     word = [k for k in j.split(' ') if k != '']
                     for n in word:
-                        # 是非终结符
                         if n in self.Formula:
                             for m in self.first[n]:
                                 if m not in self.first[i]:
@@ -128,7 +149,7 @@ class LL:
 
                                         # 把没有的符号加入last中
                                         elif n not in self.last[word[k]] and n != '$':
-                                            # 说明集合变化了，需要再循环一次
+                                            ## 说明集合变化了，需要再循环一次
                                             flag = True
                                             self.last[word[k]].append(n)
                                         # 最后一个字符为非终结符且其中含有空字符
@@ -155,13 +176,13 @@ class LL:
                     out = self.first[next_value]
                     for i in out:
                         if i != '$':
-                            self.predict_table[item][i] = next_t  # 参考书上113页第2条
+                            self.predict_table[item][i] = next_t
                 else:
-                    self.predict_table[item][next_value] = next_t  # 参考书上113页第2条
+                    self.predict_table[item][next_value] = next_t
         for k in self.grammars:
             for next_grammar in self.grammars[k]:
                 next_k = next_grammar.split()[0]
-                # 参考书上113页第3条
+
                 if next_k in self.grammars and "$" in self.first[next_k] or next_k == "$":
                     for fk in self.last[k]:
                         self.predict_table[k][fk] = next_grammar
@@ -175,73 +196,41 @@ class LL:
                     out = self.first[next_value]
                     for i in out:
                         if i != '$':
-                            self.predict_table_[item][i] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
+                            self.predict_table_[item][i] = item + '->' + next_t
                 else:
-                    self.predict_table_[item][next_value] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
+                    self.predict_table_[item][next_value] = item + '->' + next_t
         for k in self.grammars:
             for next_grammar in self.grammars[k]:
                 next_k = next_grammar.split()[0]
-                # 参考书上113页第3条
                 if next_k in self.grammars and "$" in self.first[next_k] or next_k == "$":
                     for fk in self.last[k]:
                         self.predict_table_[k][fk] = k + '->' + next_grammar.replace(" ", "")
 
-    # 书上112页
-    def analysis(self, analyze_str):
-        stack = []
-        index = 0
-        stack.append('#')
-        stack.append(self.begin)
-        while len(stack) != 0:
-            cur = stack.pop()
-            if cur == "#" and len(stack) == 0:
-                print("分析完成")
-                return
-            elif cur in self.vt:
-                a = analyze_str[index]
-                if a == cur:
-                    index += 1
-                    if index >= len(analyze_str):
-                        index -= 1
-                else:
-                    print("分析错误")
-                    self.flag = 1
-                    break
+if __name__ == "__main__":
+    test = Predictive_Analysis()
+    path = "全部测试程序\\11LL(1)测试用例\LL1_1.TXT"
+    grammar = str(open(path).read())
+    grammar = grammar.replace('->', ':')
+    test.input(grammar)
+    con='i+i*i'
+    # con+='#'
+    # con = ""
+    # Filepath = "D:\pythonProject\pythonProject\新版编译器测试用例\\test12.txt"
+    # for line in open(Filepath, 'r', encoding='UTF-8-sig'):
+    #     con += line
+    lex = Analyzer.AnalyzerLex()
+    lex.input(con)
+    expression = []
 
-            else:
-                a = analyze_str[index]
-                if a in self.predict_table[cur]:
-                    if self.predict_table[cur][a] == "$":
-                        continue
-                    next_epr = self.predict_table[cur][a].split()
-                    node_list = []
-                    """
-                      产生式右部符号入栈,反序入栈
-                      子节点入栈
-                    """
-                    for epr in next_epr:
-                        node_list.append(epr)
-
-                    node_list.reverse()
-                    for nl in node_list:
-                        stack.append(nl)
-                else:
-                    print("分析错误")
-                    self.flag = 1
-                    return
-test = LL()
-path = "全部测试程序\\11LL(1)测试用例\LL1_1.TXT"
-ans = "i+i#"
-grammar = str(open(path).read())
-grammar = grammar.replace(' - > ', ':')
-print(grammar)
-test.input(grammar)
-print("\nfirst集合如下\n")
-for i in test.first:
-    print(i, test.first[i])
-print("\nfollow集合如下\n")
-for j in test.last:
-    print(j, test.last[j])
-print(test.first)
-print(test.last)
-test.analysis(ans)
+    while True:
+        tok = lex.token()
+        if not tok:
+            break
+        s1 = ['operator', 'keyword', 'Boundary']
+        s2 = ['integer', 'character', 'string', 'identifier', 'float']
+        if tok.type in s1:
+            expression.append([tok.value, tok.value])
+        elif tok.type in s2:
+            expression.append([tok.type, tok.value])
+    expression.append(['#', '#'])
+    print(expression)
