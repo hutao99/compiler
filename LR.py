@@ -1200,9 +1200,9 @@ class CLRParser:
                                     self.code[i][3] = index_code + 2
                                 bool_true.clear()
                                 bool_false.clear()
-                                self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
+                                self.code.append([father.children[1].name, '1', '', father.children[2].symbol_info[1]])
                                 self.code.append(['j', '', '', index_code + 3])
-                                self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
+                                self.code.append([father.children[1].name, '0', '', father.children[2].symbol_info[1]])
                                 index_code += 3
                             else:
                                 if father.children[0].name == '表达式':
@@ -1217,7 +1217,7 @@ class CLRParser:
 
                     elif father.name == 'if无else':
                         print(stack_symbol[-1])
-                        if stack_symbol[-1] != 'if有else':
+                        if stack_symbol[-1] != 'if有else' and stack_symbol[-1] != '带if的循环语句有else':
                             stack_if_total.append([])
                         # exit_true = index_code
                         if father.children[1].value is not None:
@@ -1232,6 +1232,8 @@ class CLRParser:
                         bool_false.clear()
                     elif father.name == 'if有else' or father.name == '带if的循环语句有else':
                         stack_if_total[-1].append(index_code)
+                        print('mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm')
+                        print(stack_if_total)
                         self.code.append(['j', '', '', index_code])
                         index_code += 1
                         q = stack_if.pop()

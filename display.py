@@ -530,6 +530,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.basic_blocks = None
         except:
             QMessageBox.warning(self, '警告', '系统无法处理！')
+
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         if self.recursive_or_lr_flag == 0:
@@ -581,46 +582,45 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     image_format = QtGui.QTextImageFormat()
                     image_format.setName('./Syntax_Tree/tree.gv.png')
 
+                    # 在QTextEdit中插入图片
+                    self.textEdit_3.setText('')
+                    cursor = self.textEdit_3.textCursor()
+                    cursor.insertImage(image_format)
+                    self.textEdit_3.show()  # 语法树
 
-                # 在QTextEdit中插入图片
-                self.textEdit_3.setText('')
-                cursor = self.textEdit_3.textCursor()
-                cursor.insertImage(image_format)
-                self.textEdit_3.show()  # 语法树
+                    errors = []
+                    errors.extend(lex.error)
+                    errors.extend(self.LR.errors)
+                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                    s = ''
+                    s += '常量表:\n'
+                    for i in self.LR.ConstantTable:
+                        s += i + ": "
+                        for j in self.LR.ConstantTable[i]:
+                            s += str(vars(j)) + '\n'
 
-                errors = []
-                errors.extend(lex.error)
-                errors.extend(self.LR.errors)
-                errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                s = ''
-                s += '常量表:\n'
-                for i in self.LR.ConstantTable:
-                    s += i + ": "
-                    for j in self.LR.ConstantTable[i]:
-                        s += str(vars(j)) + '\n'
+                    s += '变量表:\n'
+                    for i in self.LR.VariableTable:
+                        s += i + ": "
+                        for j in self.LR.VariableTable[i]:
+                            s += str(vars(j)) + '\n'
 
-                s += '变量表:\n'
-                for i in self.LR.VariableTable:
-                    s += i + ": "
-                    for j in self.LR.VariableTable[i]:
-                        s += str(vars(j)) + '\n'
+                    s += '数组表:\n'
+                    for i in self.LR.ArrayTable:
+                        s += i + ": "
+                        for j in self.LR.ArrayTable[i]:
+                            s += str(vars(j)) + '\n'
 
-                s += '数组表:\n'
-                for i in self.LR.ArrayTable:
-                    s += i + ": "
-                    for j in self.LR.ArrayTable[i]:
-                        s += str(vars(j)) + '\n'
-
-                s += '函数表:\n'
-                for i in self.LR.FunctionTable:
-                    s += i + ": "
-                    s += str(vars(self.LR.FunctionTable[i])) + '\n'
-                s += '\nerror %d\n' % len(errors)
-                for i in errors:  # 语法和语义错误
-                    s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-                for i in self.LR.warning:
-                    s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-                self.textEdit_2.setText(s)
+                    s += '函数表:\n'
+                    for i in self.LR.FunctionTable:
+                        s += i + ": "
+                        s += str(vars(self.LR.FunctionTable[i])) + '\n'
+                    s += '\nerror %d\n' % len(errors)
+                    for i in errors:  # 语法和语义错误
+                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+                    for i in self.LR.warning:
+                        s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+                    self.textEdit_2.setText(s)
 
     # 中间代码
     def middle_analysis(self):
@@ -634,7 +634,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     text = ''
                     idx = 0
                     for quad in self.siyuanshi:
-                        text += str(idx)+':'+str(quad[1:]) + '\n'
+                        text += str(idx)+':'+str(quad) + '\n'
                         idx+=1
                     print(text)
                     self.textEdit_3.setText(text)
@@ -720,10 +720,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     QMessageBox.warning(self, '警告', '请先生成中间代码!')
                 else:
                     try:
-                        siyuanshi = []
                         if not self.yh_flag:
-                            for i in self.siyuanshi:
-                                siyuanshi.append(i[1:])
+                            text = solve(self.function_param_list, self.function_jubu_list, self.siyuanshi, {},[])
                         else:
                             text = ''
                             idx = 0
@@ -731,26 +729,40 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                                 text += str(idx) + ':' + str(i) + '\n'
                                 idx += 1
                             self.textEdit_3.setText(text)
-                            for i in self.optimize_quaternion:
-                                siyuanshi.append(i)
-                        text = solve(self.function_param_list, self.function_jubu_list, siyuanshi,{},[])
+                            text = solve(self.function_param_list, self.function_jubu_list, self.optimize_quaternion,{},[])
                         self.textEdit_2.setText(text)
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:  # LR目标代码
-                MiddleCode = self.LR.code
-                function_param_list = self.LR.function_param_list
-                function_jubu_list = self.LR.function_jubu_list
-                function_array_list = self.LR.function_array_list
-                global_array_list = self.LR.global_array_list
-                for i in range(len(MiddleCode)):
-                    for j in range(4):
-                        if MiddleCode[i][j] == '':
-                            MiddleCode[i][j] = '_'
-                if len(MiddleCode) != 0:
-                    self.textEdit_2.setText(
-                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                          global_array_list))
+                try:
+                    function_param_list = self.LR.function_param_list
+                    function_jubu_list = self.LR.function_jubu_list
+                    function_array_list = self.LR.function_array_list
+                    global_array_list = self.LR.global_array_list
+                    if not self.yh_flag:
+                        MiddleCode = self.LR.code
+                        for i in range(len(MiddleCode)):
+                            for j in range(4):
+                                if MiddleCode[i][j] == '':
+                                    MiddleCode[i][j] = '_'
+                        print('MiddleCode',MiddleCode)
+                        if len(MiddleCode) != 0:
+                            self.textEdit_2.setText(
+                                ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                                  global_array_list))
+                    else:
+                        text = ''
+                        idx = 0
+                        for i in self.optimize_quaternion:
+                            text += str(idx) + ':' + str(i) + '\n'
+                            idx += 1
+                        print('self.optimize_quaternion',self.optimize_quaternion)
+                        self.textEdit_3.setText(text)
+                        self.textEdit_2.setText(
+                            ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion, function_array_list,
+                                              global_array_list))
+                except:
+                    QMessageBox.warning(self, '警告', '系统无法处理！')
 
 
     def REG_transform(self):
