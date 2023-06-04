@@ -347,7 +347,6 @@ class LL1GrammarSolver(QMainWindow):
         except Exception as e:
             print("Error: ", e)
 
-
     def onClick_create_first_follow(self):
         test = Predictive_Analysis()
         grammar = self.textEdit.toPlainText()
