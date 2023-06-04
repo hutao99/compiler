@@ -4,5 +4,5 @@ T→F H
 H→T|$
 F→P M
 M→* M|$
-P→( E )|a|b|∧
+P→( E )|identifier|∧
 

@@ -1,4 +1,3 @@
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
@@ -46,7 +45,21 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.setText("导入LL1文法")
+        self.pushButton.setText("导入LL1简单文法")
+
+        # 导入LL1文法的按钮
+        self.pushButton_ = QtWidgets.QPushButton()
+        self.pushButton_.setEnabled(True)
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(15)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.pushButton_.setFont(font)
+        self.pushButton_.setObjectName("pushButton")
+        self.pushButton_.setText("导入LL1复杂文法")
 
         # 求解FIRST集合的按钮
         # 求解FOLLOW集合的按钮
@@ -96,6 +109,7 @@ class LL1GrammarSolver(QMainWindow):
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
         buttonSplitter.addWidget(self.pushButton)
+        buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
@@ -115,8 +129,10 @@ class LL1GrammarSolver(QMainWindow):
         self.tab1.setLayout(layout1)
         size = self.pushButton_2.minimumSizeHint()
         self.pushButton.setFixedHeight(size.height())
+        self.pushButton_.setFixedHeight(size.height())
 
         self.pushButton.clicked.connect(self.open_text)
+        self.pushButton_.clicked.connect(self.open_text)
         self.pushButton_2.clicked.connect(self.onClick_create_first_follow)
 
         layout2 = QtWidgets.QGridLayout()
@@ -153,7 +169,6 @@ class LL1GrammarSolver(QMainWindow):
         size = self.pushButton_2.minimumSizeHint()
         self.pushButton_3.setFixedHeight(size.height())
         self.pushButton_3.clicked.connect(self.analyze_table)
-
 
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
@@ -204,7 +219,7 @@ class LL1GrammarSolver(QMainWindow):
         self.tableStack.setColumnCount(3)
 
         # 设置tablewidget 栈分析表的表头
-        self.tableStack.setHorizontalHeaderLabels(["符号栈", "产生式","匹配字符"])
+        self.tableStack.setHorizontalHeaderLabels(["符号栈", "产生式", "匹配字符"])
         '''
         使用 QSizePolicy 控件来实现 QTableWidget 表格的大小随着界面的变化而自动调整
         如果表格中的数据量很大，自动调整表格大小可能会影响程序的性能
@@ -217,7 +232,6 @@ class LL1GrammarSolver(QMainWindow):
 
         # 连接信号和槽
         self.tableStack.itemChanged.connect(self.onItemChanged)
-
 
         self.splitter1_ = QSplitter(Qt.Vertical)
         self.splitter1_.addWidget(self.pushButton_5)
@@ -317,8 +331,15 @@ class LL1GrammarSolver(QMainWindow):
         test.input(grammar)
         VN = test.vn
         VT = test.vt
-        FIRST = test.first
+        FIRST = test.first_dict
         FOLLOW = test.last
+        print('----------------------------')
+        print("\nfirst集合如下\n")
+        for i in test.first:
+            print(i, test.first[i])
+        print("\nfollow集合如下\n")
+        for j in test.last:
+            print(j, test.last[j])
 
         # 设置FIRST集合的列数
         self.table_FIRST.setColumnCount(len(VT) + 1)
@@ -620,7 +641,6 @@ class LL1GrammarSolver(QMainWindow):
                             else:
                                 f.write('\t')
                         f.write('\n')
-
 
 
 if __name__ == '__main__':

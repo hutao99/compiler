@@ -1,5 +1,5 @@
 D→T L
-T→i|r
-L→c R
-R→, c R|$
+T→identifier
+L→identifier R
+R→, identifier R|$
 

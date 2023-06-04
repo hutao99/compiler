@@ -1,4 +1,4 @@
-A->a T
-T->A B l |$
-B->d F
-F->b F |$
+A->identifier T
+T->A B identifier |$
+B->identifier F
+F->identifier F |$
