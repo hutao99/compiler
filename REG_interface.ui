@@ -146,6 +146,9 @@
     <addaction name="action_DFA"/>
     <addaction name="action_MFA"/>
     <addaction name="action_11"/>
+    <addaction name="action_DFA_2"/>
+    <addaction name="action_MFA_2"/>
+    <addaction name="action_12"/>
    </widget>
    <addaction name="menu_F"/>
    <addaction name="menu_E"/>
@@ -277,7 +280,22 @@
   </action>
   <action name="action_11">
    <property name="text">
-    <string>导出全部文件</string>
+    <string>导出NFA状态转换图</string>
+   </property>
+  </action>
+  <action name="action_DFA_2">
+   <property name="text">
+    <string>导出DFA状态转换图</string>
+   </property>
+  </action>
+  <action name="action_MFA_2">
+   <property name="text">
+    <string>导出MFA状态转换图</string>
+   </property>
+  </action>
+  <action name="action_12">
+   <property name="text">
+    <string>导出全部</string>
    </property>
   </action>
  </widget>
