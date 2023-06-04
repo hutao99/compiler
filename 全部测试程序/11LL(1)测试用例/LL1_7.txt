@@ -1,6 +1,0 @@
-//非LL(1)文法
-R->Sa|a
-Q->b|Sab|ab
-S->cA|bcA|abcA
-T->aR|aQ|aS
-A->abcA|$

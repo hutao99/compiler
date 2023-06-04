@@ -1,9 +1,9 @@
-P->b T d
+P->identifier T identifier
 T->S F
 F->; S F|$
 S->N |C
-N->a
+N->identifier
 C->I D
-D->e S|$
+D->identifier S|$
 I->Z N
-Z->i c t
+Z->identifier identifier identifier

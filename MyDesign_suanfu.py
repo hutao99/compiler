@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QApplication
 from suanfu_fist_ui import Ui_MainWindow_LL
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 
-from TABLE import LL
+from TABLE import Predictive_Analysis
 
 STACK = ['#']  # 输入栈
 
