@@ -530,6 +530,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.basic_blocks = None
         except:
             QMessageBox.warning(self, '警告', '系统无法处理！')
+
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         if self.recursive_or_lr_flag == 0:
@@ -633,7 +634,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     text = ''
                     idx = 0
                     for quad in self.siyuanshi:
-                        text += str(idx)+':'+str(quad[1:]) + '\n'
+                        text += str(idx)+':'+str(quad) + '\n'
                         idx+=1
                     print(text)
                     self.textEdit_3.setText(text)
@@ -719,10 +720,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     QMessageBox.warning(self, '警告', '请先生成中间代码!')
                 else:
                     try:
-                        siyuanshi = []
                         if not self.yh_flag:
-                            for i in self.siyuanshi:
-                                siyuanshi.append(i[1:])
+                            text = solve(self.function_param_list, self.function_jubu_list, self.siyuanshi, {},[])
                         else:
                             text = ''
                             idx = 0
@@ -730,26 +729,40 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                                 text += str(idx) + ':' + str(i) + '\n'
                                 idx += 1
                             self.textEdit_3.setText(text)
-                            for i in self.optimize_quaternion:
-                                siyuanshi.append(i)
-                        text = solve(self.function_param_list, self.function_jubu_list, siyuanshi,{},[])
+                            text = solve(self.function_param_list, self.function_jubu_list, self.optimize_quaternion,{},[])
                         self.textEdit_2.setText(text)
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:  # LR目标代码
-                MiddleCode = self.LR.code
-                function_param_list = self.LR.function_param_list
-                function_jubu_list = self.LR.function_jubu_list
-                function_array_list = self.LR.function_array_list
-                global_array_list = self.LR.global_array_list
-                for i in range(len(MiddleCode)):
-                    for j in range(4):
-                        if MiddleCode[i][j] == '':
-                            MiddleCode[i][j] = '_'
-                if len(MiddleCode) != 0:
-                    self.textEdit_2.setText(
-                        ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
-                                          global_array_list))
+                try:
+                    function_param_list = self.LR.function_param_list
+                    function_jubu_list = self.LR.function_jubu_list
+                    function_array_list = self.LR.function_array_list
+                    global_array_list = self.LR.global_array_list
+                    if not self.yh_flag:
+                        MiddleCode = self.LR.code
+                        for i in range(len(MiddleCode)):
+                            for j in range(4):
+                                if MiddleCode[i][j] == '':
+                                    MiddleCode[i][j] = '_'
+                        print('MiddleCode',MiddleCode)
+                        if len(MiddleCode) != 0:
+                            self.textEdit_2.setText(
+                                ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                                  global_array_list))
+                    else:
+                        text = ''
+                        idx = 0
+                        for i in self.optimize_quaternion:
+                            text += str(idx) + ':' + str(i) + '\n'
+                            idx += 1
+                        print('self.optimize_quaternion',self.optimize_quaternion)
+                        self.textEdit_3.setText(text)
+                        self.textEdit_2.setText(
+                            ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion, function_array_list,
+                                              global_array_list))
+                except:
+                    QMessageBox.warning(self, '警告', '系统无法处理！')
 
 
     def REG_transform(self):

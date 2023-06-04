@@ -15,13 +15,6 @@ codes = optimize(DAG)
 print('optcodes:',codes)
 
 '''
-'''
-传入常量符号表
-将四元式进行改动 
-['*',maxn,1,m]
-[=,1,,m]
-汇编不需要传 因为便利每个四元式 但凡使用到的 都会被抓走
-'''
 #DAG优化 单目运算 双目运算 赋值运算
 def DAG_draw(codes):
     filename = './DAG/visible'
@@ -224,7 +217,6 @@ def Partition_Basic_Block(codes):
     for i in codes:
         new_codes.append(list(i))
     codes = new_codes
-
     filename = './Basic_Block/basic_block'
     dot = Digraph(filename, 'Basic_Block', None, None, 'png', None, "UTF-8")
     # 划分基本块

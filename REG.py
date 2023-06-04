@@ -533,9 +533,9 @@ class NfaDfaMfa:
                 not_final_state.append(arc[2])
         mfa.append(not_final_state)
         mfa.append(final_states)
-        print("=================")
-        print(mfa)
-        print("=================")
+        # print("=================")
+        # print(mfa)
+        # print("=================")
         flag = True
         while flag:
             for index, states in enumerate(mfa):  # 得到等价状态集

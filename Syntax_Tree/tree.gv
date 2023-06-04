@@ -3,814 +3,336 @@ digraph "./Syntax_Tree/tree" {
 	0 [label="程序" fontname=SimHei]
 	1 [label="声明语句" fontname=SimHei]
 	0 -> 1
-	2 [label=const fontname=SimHei]
+	2 [label="ε" fontname=SimHei]
 	1 -> 2
-	3 [label="常量类型" fontname=SimHei]
-	1 -> 3
-	4 [label=int fontname=SimHei]
-	3 -> 4
-	5 [label="常量声明表" fontname=SimHei]
-	1 -> 5
-	6 [label="标识符" fontname=SimHei]
-	5 -> 6
-	7 [label=max]
+	3 [label=main fontname=SimHei]
+	0 -> 3
+	4 [label="(" fontname=SimHei]
+	0 -> 4
+	5 [label=")" fontname=SimHei]
+	0 -> 5
+	6 [label="复合语句" fontname=SimHei]
+	0 -> 6
+	7 [label="{" fontname=SimHei]
 	6 -> 7
-	8 [label="=" fontname=SimHei]
-	5 -> 8
-	9 [label="常量" fontname=SimHei]
-	5 -> 9
-	10 [label=1000]
+	8 [label="语句表" fontname=SimHei]
+	6 -> 8
+	9 [label="语句" fontname=SimHei]
+	8 -> 9
+	10 [label="声明语句" fontname=SimHei]
 	9 -> 10
-	11 [label=m2 fontname=SimHei]
-	5 -> 11
-	12 [label=";" fontname=SimHei]
+	11 [label="变量类型" fontname=SimHei]
+	10 -> 11
+	12 [label=int fontname=SimHei]
 	11 -> 12
-	13 [label="声明语句" fontname=SimHei]
-	1 -> 13
-	14 [label="ε" fontname=SimHei]
+	13 [label="标识符" fontname=SimHei]
+	10 -> 13
+	14 [label=m]
 	13 -> 14
-	15 [label=main fontname=SimHei]
-	0 -> 15
-	16 [label="(" fontname=SimHei]
-	0 -> 16
-	17 [label=")" fontname=SimHei]
-	0 -> 17
-	18 [label="复合语句" fontname=SimHei]
-	0 -> 18
-	19 [label="{" fontname=SimHei]
+	15 [label=p3 fontname=SimHei]
+	10 -> 15
+	16 [label=n4 fontname=SimHei]
+	15 -> 16
+	17 [label="ε" fontname=SimHei]
+	16 -> 17
+	18 [label=m3 fontname=SimHei]
+	15 -> 18
+	19 [label="," fontname=SimHei]
 	18 -> 19
-	20 [label="语句表" fontname=SimHei]
+	20 [label="变量声明表" fontname=SimHei]
 	18 -> 20
-	21 [label="语句" fontname=SimHei]
+	21 [label="单变量声明" fontname=SimHei]
 	20 -> 21
-	22 [label="声明语句" fontname=SimHei]
+	22 [label="标识符" fontname=SimHei]
 	21 -> 22
-	23 [label="变量类型" fontname=SimHei]
+	23 [label=a]
 	22 -> 23
-	24 [label=int fontname=SimHei]
-	23 -> 24
-	25 [label="标识符" fontname=SimHei]
-	22 -> 25
-	26 [label=m]
-	25 -> 26
-	27 [label=p3 fontname=SimHei]
-	22 -> 27
-	28 [label=n4 fontname=SimHei]
-	27 -> 28
-	29 [label="ε" fontname=SimHei]
+	24 [label=n4 fontname=SimHei]
+	21 -> 24
+	25 [label="ε" fontname=SimHei]
+	24 -> 25
+	26 [label=m3 fontname=SimHei]
+	20 -> 26
+	27 [label="," fontname=SimHei]
+	26 -> 27
+	28 [label="变量声明表" fontname=SimHei]
+	26 -> 28
+	29 [label="单变量声明" fontname=SimHei]
 	28 -> 29
-	30 [label=m3 fontname=SimHei]
-	27 -> 30
-	31 [label="," fontname=SimHei]
+	30 [label="标识符" fontname=SimHei]
+	29 -> 30
+	31 [label=b]
 	30 -> 31
-	32 [label="变量声明表" fontname=SimHei]
-	30 -> 32
-	33 [label="单变量声明" fontname=SimHei]
+	32 [label=n4 fontname=SimHei]
+	29 -> 32
+	33 [label="ε" fontname=SimHei]
 	32 -> 33
-	34 [label="标识符" fontname=SimHei]
-	33 -> 34
-	35 [label=a]
+	34 [label=m3 fontname=SimHei]
+	28 -> 34
+	35 [label="," fontname=SimHei]
 	34 -> 35
-	36 [label=n4 fontname=SimHei]
-	33 -> 36
-	37 [label="ε" fontname=SimHei]
+	36 [label="变量声明表" fontname=SimHei]
+	34 -> 36
+	37 [label="单变量声明" fontname=SimHei]
 	36 -> 37
-	38 [label=m3 fontname=SimHei]
-	32 -> 38
-	39 [label="," fontname=SimHei]
+	38 [label="标识符" fontname=SimHei]
+	37 -> 38
+	39 [label=c]
 	38 -> 39
-	40 [label="变量声明表" fontname=SimHei]
-	38 -> 40
-	41 [label="单变量声明" fontname=SimHei]
+	40 [label=n4 fontname=SimHei]
+	37 -> 40
+	41 [label="ε" fontname=SimHei]
 	40 -> 41
-	42 [label="标识符" fontname=SimHei]
-	41 -> 42
-	43 [label=b]
+	42 [label=m3 fontname=SimHei]
+	36 -> 42
+	43 [label=";" fontname=SimHei]
 	42 -> 43
-	44 [label=n4 fontname=SimHei]
-	41 -> 44
+	44 [label="声明语句" fontname=SimHei]
+	10 -> 44
 	45 [label="ε" fontname=SimHei]
 	44 -> 45
-	46 [label=m3 fontname=SimHei]
-	40 -> 46
-	47 [label="," fontname=SimHei]
+	46 [label=n6 fontname=SimHei]
+	8 -> 46
+	47 [label="语句表" fontname=SimHei]
 	46 -> 47
-	48 [label="变量声明表" fontname=SimHei]
-	46 -> 48
-	49 [label="单变量声明" fontname=SimHei]
+	48 [label="语句" fontname=SimHei]
+	47 -> 48
+	49 [label="执行语句" fontname=SimHei]
 	48 -> 49
-	50 [label="标识符" fontname=SimHei]
+	50 [label="控制语句" fontname=SimHei]
 	49 -> 50
-	51 [label=c]
+	51 [label="for语句" fontname=SimHei]
 	50 -> 51
-	52 [label=n4 fontname=SimHei]
-	49 -> 52
-	53 [label="ε" fontname=SimHei]
-	52 -> 53
-	54 [label=m3 fontname=SimHei]
-	48 -> 54
-	55 [label=";" fontname=SimHei]
+	52 [label=for fontname=SimHei]
+	51 -> 52
+	53 [label="(" fontname=SimHei]
+	51 -> 53
+	54 [label="表达式" fontname=SimHei]
+	51 -> 54
+	55 [label="标识符" fontname=SimHei]
 	54 -> 55
-	56 [label="声明语句" fontname=SimHei]
-	22 -> 56
-	57 [label="ε" fontname=SimHei]
-	56 -> 57
-	58 [label=n6 fontname=SimHei]
-	20 -> 58
-	59 [label="语句表" fontname=SimHei]
-	58 -> 59
-	60 [label="语句" fontname=SimHei]
+	56 [label=a]
+	55 -> 56
+	57 [label=p2 fontname=SimHei]
+	54 -> 57
+	58 [label="=" fontname=SimHei]
+	57 -> 58
+	59 [label="表达式" fontname=SimHei]
+	57 -> 59
+	60 [label="常量" fontname=SimHei]
 	59 -> 60
-	61 [label="执行语句" fontname=SimHei]
+	61 [label="数值型常量" fontname=SimHei]
 	60 -> 61
-	62 [label="控制语句" fontname=SimHei]
+	62 [label=1]
 	61 -> 62
-	63 [label="for语句" fontname=SimHei]
-	62 -> 63
-	64 [label=for fontname=SimHei]
+	63 [label=m7 fontname=SimHei]
+	59 -> 63
+	64 [label="ε" fontname=SimHei]
 	63 -> 64
-	65 [label="(" fontname=SimHei]
-	63 -> 65
-	66 [label="表达式" fontname=SimHei]
-	63 -> 66
-	67 [label="标识符" fontname=SimHei]
-	66 -> 67
-	68 [label=m]
+	65 [label=n3 fontname=SimHei]
+	59 -> 65
+	66 [label="ε" fontname=SimHei]
+	65 -> 66
+	67 [label=q1 fontname=SimHei]
+	59 -> 67
+	68 [label="ε" fontname=SimHei]
 	67 -> 68
-	69 [label=p2 fontname=SimHei]
-	66 -> 69
-	70 [label="=" fontname=SimHei]
+	69 [label=q2 fontname=SimHei]
+	59 -> 69
+	70 [label="ε" fontname=SimHei]
 	69 -> 70
-	71 [label="表达式" fontname=SimHei]
-	69 -> 71
-	72 [label="常量" fontname=SimHei]
-	71 -> 72
-	73 [label="数值型常量" fontname=SimHei]
+	71 [label=";" fontname=SimHei]
+	51 -> 71
+	72 [label="表达式" fontname=SimHei]
+	51 -> 72
+	73 [label="标识符" fontname=SimHei]
 	72 -> 73
-	74 [label=100]
+	74 [label=a]
 	73 -> 74
-	75 [label=m7 fontname=SimHei]
-	71 -> 75
-	76 [label="ε" fontname=SimHei]
+	75 [label=p2 fontname=SimHei]
+	72 -> 75
+	76 [label=p1 fontname=SimHei]
 	75 -> 76
-	77 [label=n3 fontname=SimHei]
-	71 -> 77
-	78 [label="ε" fontname=SimHei]
-	77 -> 78
-	79 [label=q1 fontname=SimHei]
-	71 -> 79
-	80 [label="ε" fontname=SimHei]
-	79 -> 80
-	81 [label=q2 fontname=SimHei]
-	71 -> 81
-	82 [label="ε" fontname=SimHei]
-	81 -> 82
-	83 [label=";" fontname=SimHei]
-	63 -> 83
-	84 [label="表达式" fontname=SimHei]
-	63 -> 84
-	85 [label="标识符" fontname=SimHei]
-	84 -> 85
-	86 [label=m]
+	77 [label="ε" fontname=SimHei]
+	76 -> 77
+	78 [label=m7 fontname=SimHei]
+	75 -> 78
+	79 [label="ε" fontname=SimHei]
+	78 -> 79
+	80 [label=n3 fontname=SimHei]
+	75 -> 80
+	81 [label="ε" fontname=SimHei]
+	80 -> 81
+	82 [label=q1 fontname=SimHei]
+	75 -> 82
+	83 [label="关系运算符" fontname=SimHei]
+	82 -> 83
+	84 [label="<" fontname=SimHei]
+	83 -> 84
+	85 [label=m4 fontname=SimHei]
+	83 -> 85
+	86 [label="ε" fontname=SimHei]
 	85 -> 86
-	87 [label=p2 fontname=SimHei]
-	84 -> 87
-	88 [label=p1 fontname=SimHei]
+	87 [label="算术表达式" fontname=SimHei]
+	82 -> 87
+	88 [label="项" fontname=SimHei]
 	87 -> 88
-	89 [label="ε" fontname=SimHei]
+	89 [label="因子" fontname=SimHei]
 	88 -> 89
-	90 [label=m7 fontname=SimHei]
-	87 -> 90
-	91 [label="ε" fontname=SimHei]
+	90 [label=n7 fontname=SimHei]
+	89 -> 90
+	91 [label="常量" fontname=SimHei]
 	90 -> 91
-	92 [label=n3 fontname=SimHei]
-	87 -> 92
-	93 [label="ε" fontname=SimHei]
+	92 [label="数值型常量" fontname=SimHei]
+	91 -> 92
+	93 [label=3]
 	92 -> 93
-	94 [label=q1 fontname=SimHei]
-	87 -> 94
-	95 [label="关系运算符" fontname=SimHei]
+	94 [label=m7 fontname=SimHei]
+	88 -> 94
+	95 [label="ε" fontname=SimHei]
 	94 -> 95
-	96 [label="<" fontname=SimHei]
-	95 -> 96
-	97 [label=m4 fontname=SimHei]
-	95 -> 97
-	98 [label="ε" fontname=SimHei]
-	97 -> 98
-	99 [label="算术表达式" fontname=SimHei]
-	94 -> 99
-	100 [label="项" fontname=SimHei]
-	99 -> 100
-	101 [label="因子" fontname=SimHei]
-	100 -> 101
-	102 [label=n7 fontname=SimHei]
+	96 [label=n3 fontname=SimHei]
+	87 -> 96
+	97 [label="ε" fontname=SimHei]
+	96 -> 97
+	98 [label=q2 fontname=SimHei]
+	75 -> 98
+	99 [label="ε" fontname=SimHei]
+	98 -> 99
+	100 [label=";" fontname=SimHei]
+	51 -> 100
+	101 [label="表达式" fontname=SimHei]
+	51 -> 101
+	102 [label="标识符" fontname=SimHei]
 	101 -> 102
-	103 [label="标识符" fontname=SimHei]
+	103 [label=a]
 	102 -> 103
-	104 [label=max]
-	103 -> 104
-	105 [label=p1 fontname=SimHei]
-	102 -> 105
-	106 [label="ε" fontname=SimHei]
-	105 -> 106
-	107 [label=m7 fontname=SimHei]
-	100 -> 107
-	108 [label="/" fontname=SimHei]
+	104 [label=p2 fontname=SimHei]
+	101 -> 104
+	105 [label="=" fontname=SimHei]
+	104 -> 105
+	106 [label="表达式" fontname=SimHei]
+	104 -> 106
+	107 [label="标识符" fontname=SimHei]
+	106 -> 107
+	108 [label=a]
 	107 -> 108
-	109 [label="因子" fontname=SimHei]
-	107 -> 109
-	110 [label=n7 fontname=SimHei]
+	109 [label=p2 fontname=SimHei]
+	106 -> 109
+	110 [label=p1 fontname=SimHei]
 	109 -> 110
-	111 [label="常量" fontname=SimHei]
+	111 [label="ε" fontname=SimHei]
 	110 -> 111
-	112 [label="数值型常量" fontname=SimHei]
-	111 -> 112
-	113 [label=2]
+	112 [label=m7 fontname=SimHei]
+	109 -> 112
+	113 [label="ε" fontname=SimHei]
 	112 -> 113
-	114 [label=m7 fontname=SimHei]
-	107 -> 114
-	115 [label="ε" fontname=SimHei]
+	114 [label=n3 fontname=SimHei]
+	109 -> 114
+	115 [label="+" fontname=SimHei]
 	114 -> 115
-	116 [label=n3 fontname=SimHei]
-	99 -> 116
-	117 [label="ε" fontname=SimHei]
+	116 [label="项" fontname=SimHei]
+	114 -> 116
+	117 [label="因子" fontname=SimHei]
 	116 -> 117
-	118 [label=q2 fontname=SimHei]
-	87 -> 118
-	119 [label="ε" fontname=SimHei]
+	118 [label=n7 fontname=SimHei]
+	117 -> 118
+	119 [label="常量" fontname=SimHei]
 	118 -> 119
-	120 [label=";" fontname=SimHei]
-	63 -> 120
-	121 [label="表达式" fontname=SimHei]
-	63 -> 121
-	122 [label="标识符" fontname=SimHei]
-	121 -> 122
-	123 [label=m]
+	120 [label="数值型常量" fontname=SimHei]
+	119 -> 120
+	121 [label=1]
+	120 -> 121
+	122 [label=m7 fontname=SimHei]
+	116 -> 122
+	123 [label="ε" fontname=SimHei]
 	122 -> 123
-	124 [label=p2 fontname=SimHei]
-	121 -> 124
-	125 [label="=" fontname=SimHei]
+	124 [label=n3 fontname=SimHei]
+	114 -> 124
+	125 [label="ε" fontname=SimHei]
 	124 -> 125
-	126 [label="表达式" fontname=SimHei]
-	124 -> 126
-	127 [label="标识符" fontname=SimHei]
+	126 [label=q1 fontname=SimHei]
+	109 -> 126
+	127 [label="ε" fontname=SimHei]
 	126 -> 127
-	128 [label=m]
-	127 -> 128
-	129 [label=p2 fontname=SimHei]
-	126 -> 129
-	130 [label=p1 fontname=SimHei]
-	129 -> 130
-	131 [label="ε" fontname=SimHei]
-	130 -> 131
-	132 [label=m7 fontname=SimHei]
-	129 -> 132
-	133 [label="ε" fontname=SimHei]
-	132 -> 133
-	134 [label=n3 fontname=SimHei]
-	129 -> 134
-	135 [label="+" fontname=SimHei]
+	128 [label=q2 fontname=SimHei]
+	109 -> 128
+	129 [label="ε" fontname=SimHei]
+	128 -> 129
+	130 [label=")" fontname=SimHei]
+	51 -> 130
+	131 [label="复合语句" fontname=SimHei]
+	51 -> 131
+	132 [label="{" fontname=SimHei]
+	131 -> 132
+	133 [label="语句表" fontname=SimHei]
+	131 -> 133
+	134 [label="语句" fontname=SimHei]
+	133 -> 134
+	135 [label="执行语句" fontname=SimHei]
 	134 -> 135
-	136 [label="项" fontname=SimHei]
-	134 -> 136
-	137 [label="因子" fontname=SimHei]
+	136 [label="控制语句" fontname=SimHei]
+	135 -> 136
+	137 [label="break语句" fontname=SimHei]
 	136 -> 137
-	138 [label=n7 fontname=SimHei]
+	138 [label=break fontname=SimHei]
 	137 -> 138
-	139 [label="常量" fontname=SimHei]
-	138 -> 139
-	140 [label="数值型常量" fontname=SimHei]
-	139 -> 140
-	141 [label=1]
+	139 [label=";" fontname=SimHei]
+	137 -> 139
+	140 [label=n6 fontname=SimHei]
+	133 -> 140
+	141 [label="ε" fontname=SimHei]
 	140 -> 141
-	142 [label=m7 fontname=SimHei]
-	136 -> 142
-	143 [label="ε" fontname=SimHei]
-	142 -> 143
-	144 [label=n3 fontname=SimHei]
-	134 -> 144
-	145 [label="ε" fontname=SimHei]
+	142 [label="}" fontname=SimHei]
+	131 -> 142
+	143 [label=n6 fontname=SimHei]
+	47 -> 143
+	144 [label="语句表" fontname=SimHei]
+	143 -> 144
+	145 [label="语句" fontname=SimHei]
 	144 -> 145
-	146 [label=q1 fontname=SimHei]
-	129 -> 146
-	147 [label="ε" fontname=SimHei]
+	146 [label="执行语句" fontname=SimHei]
+	145 -> 146
+	147 [label="控制语句" fontname=SimHei]
 	146 -> 147
-	148 [label=q2 fontname=SimHei]
-	129 -> 148
-	149 [label="ε" fontname=SimHei]
+	148 [label="return语句" fontname=SimHei]
+	147 -> 148
+	149 [label=return fontname=SimHei]
 	148 -> 149
-	150 [label=")" fontname=SimHei]
-	63 -> 150
-	151 [label="复合语句" fontname=SimHei]
-	63 -> 151
-	152 [label="{" fontname=SimHei]
+	150 [label=n1 fontname=SimHei]
+	148 -> 150
+	151 [label="表达式" fontname=SimHei]
+	150 -> 151
+	152 [label="常量" fontname=SimHei]
 	151 -> 152
-	153 [label="语句表" fontname=SimHei]
-	151 -> 153
-	154 [label="语句" fontname=SimHei]
+	153 [label="数值型常量" fontname=SimHei]
+	152 -> 153
+	154 [label=0]
 	153 -> 154
-	155 [label="执行语句" fontname=SimHei]
-	154 -> 155
-	156 [label="数据处理语句" fontname=SimHei]
+	155 [label=m7 fontname=SimHei]
+	151 -> 155
+	156 [label="ε" fontname=SimHei]
 	155 -> 156
-	157 [label="标识符" fontname=SimHei]
-	156 -> 157
-	158 [label=a]
+	157 [label=n3 fontname=SimHei]
+	151 -> 157
+	158 [label="ε" fontname=SimHei]
 	157 -> 158
-	159 [label=p4 fontname=SimHei]
-	156 -> 159
-	160 [label="=" fontname=SimHei]
+	159 [label=q1 fontname=SimHei]
+	151 -> 159
+	160 [label="ε" fontname=SimHei]
 	159 -> 160
-	161 [label="表达式" fontname=SimHei]
-	159 -> 161
-	162 [label="标识符" fontname=SimHei]
+	161 [label=q2 fontname=SimHei]
+	151 -> 161
+	162 [label="ε" fontname=SimHei]
 	161 -> 162
-	163 [label=m]
-	162 -> 163
-	164 [label=p2 fontname=SimHei]
-	161 -> 164
-	165 [label=p1 fontname=SimHei]
+	163 [label=";" fontname=SimHei]
+	150 -> 163
+	164 [label=n6 fontname=SimHei]
+	144 -> 164
+	165 [label="ε" fontname=SimHei]
 	164 -> 165
-	166 [label="ε" fontname=SimHei]
-	165 -> 166
-	167 [label=m7 fontname=SimHei]
-	164 -> 167
-	168 [label="/" fontname=SimHei]
-	167 -> 168
-	169 [label="因子" fontname=SimHei]
-	167 -> 169
-	170 [label=n7 fontname=SimHei]
-	169 -> 170
-	171 [label="常量" fontname=SimHei]
-	170 -> 171
-	172 [label="数值型常量" fontname=SimHei]
-	171 -> 172
-	173 [label=100]
-	172 -> 173
-	174 [label=m7 fontname=SimHei]
-	167 -> 174
-	175 [label="ε" fontname=SimHei]
-	174 -> 175
-	176 [label=n3 fontname=SimHei]
-	164 -> 176
-	177 [label="ε" fontname=SimHei]
-	176 -> 177
-	178 [label=q1 fontname=SimHei]
-	164 -> 178
-	179 [label="ε" fontname=SimHei]
-	178 -> 179
-	180 [label=q2 fontname=SimHei]
-	164 -> 180
-	181 [label="ε" fontname=SimHei]
-	180 -> 181
-	182 [label=";" fontname=SimHei]
-	159 -> 182
-	183 [label=n6 fontname=SimHei]
-	153 -> 183
-	184 [label="语句表" fontname=SimHei]
-	183 -> 184
-	185 [label="语句" fontname=SimHei]
-	184 -> 185
-	186 [label="执行语句" fontname=SimHei]
-	185 -> 186
-	187 [label="数据处理语句" fontname=SimHei]
-	186 -> 187
-	188 [label="标识符" fontname=SimHei]
-	187 -> 188
-	189 [label=b]
-	188 -> 189
-	190 [label=p4 fontname=SimHei]
-	187 -> 190
-	191 [label="=" fontname=SimHei]
-	190 -> 191
-	192 [label="表达式" fontname=SimHei]
-	190 -> 192
-	193 [label="标识符" fontname=SimHei]
-	192 -> 193
-	194 [label=m]
-	193 -> 194
-	195 [label=p2 fontname=SimHei]
-	192 -> 195
-	196 [label=p1 fontname=SimHei]
-	195 -> 196
-	197 [label="ε" fontname=SimHei]
-	196 -> 197
-	198 [label=m7 fontname=SimHei]
-	195 -> 198
-	199 [label="/" fontname=SimHei]
-	198 -> 199
-	200 [label="因子" fontname=SimHei]
-	198 -> 200
-	201 [label=n7 fontname=SimHei]
-	200 -> 201
-	202 [label="常量" fontname=SimHei]
-	201 -> 202
-	203 [label="数值型常量" fontname=SimHei]
-	202 -> 203
-	204 [label=10]
-	203 -> 204
-	205 [label=m7 fontname=SimHei]
-	198 -> 205
-	206 [label="%" fontname=SimHei]
-	205 -> 206
-	207 [label="因子" fontname=SimHei]
-	205 -> 207
-	208 [label=n7 fontname=SimHei]
-	207 -> 208
-	209 [label="常量" fontname=SimHei]
-	208 -> 209
-	210 [label="数值型常量" fontname=SimHei]
-	209 -> 210
-	211 [label=10]
-	210 -> 211
-	212 [label=m7 fontname=SimHei]
-	205 -> 212
-	213 [label="ε" fontname=SimHei]
-	212 -> 213
-	214 [label=n3 fontname=SimHei]
-	195 -> 214
-	215 [label="ε" fontname=SimHei]
-	214 -> 215
-	216 [label=q1 fontname=SimHei]
-	195 -> 216
-	217 [label="ε" fontname=SimHei]
-	216 -> 217
-	218 [label=q2 fontname=SimHei]
-	195 -> 218
-	219 [label="ε" fontname=SimHei]
-	218 -> 219
-	220 [label=";" fontname=SimHei]
-	190 -> 220
-	221 [label=n6 fontname=SimHei]
-	184 -> 221
-	222 [label="语句表" fontname=SimHei]
-	221 -> 222
-	223 [label="语句" fontname=SimHei]
-	222 -> 223
-	224 [label="执行语句" fontname=SimHei]
-	223 -> 224
-	225 [label="数据处理语句" fontname=SimHei]
-	224 -> 225
-	226 [label="标识符" fontname=SimHei]
-	225 -> 226
-	227 [label=c]
-	226 -> 227
-	228 [label=p4 fontname=SimHei]
-	225 -> 228
-	229 [label="=" fontname=SimHei]
-	228 -> 229
-	230 [label="表达式" fontname=SimHei]
-	228 -> 230
-	231 [label="标识符" fontname=SimHei]
-	230 -> 231
-	232 [label=m]
-	231 -> 232
-	233 [label=p2 fontname=SimHei]
-	230 -> 233
-	234 [label=p1 fontname=SimHei]
-	233 -> 234
-	235 [label="ε" fontname=SimHei]
-	234 -> 235
-	236 [label=m7 fontname=SimHei]
-	233 -> 236
-	237 [label="%" fontname=SimHei]
-	236 -> 237
-	238 [label="因子" fontname=SimHei]
-	236 -> 238
-	239 [label=n7 fontname=SimHei]
-	238 -> 239
-	240 [label="常量" fontname=SimHei]
-	239 -> 240
-	241 [label="数值型常量" fontname=SimHei]
-	240 -> 241
-	242 [label=10]
-	241 -> 242
-	243 [label=m7 fontname=SimHei]
-	236 -> 243
-	244 [label="ε" fontname=SimHei]
-	243 -> 244
-	245 [label=n3 fontname=SimHei]
-	233 -> 245
-	246 [label="ε" fontname=SimHei]
-	245 -> 246
-	247 [label=q1 fontname=SimHei]
-	233 -> 247
-	248 [label="ε" fontname=SimHei]
-	247 -> 248
-	249 [label=q2 fontname=SimHei]
-	233 -> 249
-	250 [label="ε" fontname=SimHei]
-	249 -> 250
-	251 [label=";" fontname=SimHei]
-	228 -> 251
-	252 [label=n6 fontname=SimHei]
-	222 -> 252
-	253 [label="语句表" fontname=SimHei]
-	252 -> 253
-	254 [label="语句" fontname=SimHei]
-	253 -> 254
-	255 [label="执行语句" fontname=SimHei]
-	254 -> 255
-	256 [label="控制语句" fontname=SimHei]
-	255 -> 256
-	257 [label="if语句" fontname=SimHei]
-	256 -> 257
-	258 [label=if fontname=SimHei]
-	257 -> 258
-	259 [label="(" fontname=SimHei]
-	257 -> 259
-	260 [label="表达式" fontname=SimHei]
-	257 -> 260
-	261 [label="标识符" fontname=SimHei]
-	260 -> 261
-	262 [label=m]
-	261 -> 262
-	263 [label=p2 fontname=SimHei]
-	260 -> 263
-	264 [label=p1 fontname=SimHei]
-	263 -> 264
-	265 [label="ε" fontname=SimHei]
-	264 -> 265
-	266 [label=m7 fontname=SimHei]
-	263 -> 266
-	267 [label="ε" fontname=SimHei]
-	266 -> 267
-	268 [label=n3 fontname=SimHei]
-	263 -> 268
-	269 [label="ε" fontname=SimHei]
-	268 -> 269
-	270 [label=q1 fontname=SimHei]
-	263 -> 270
-	271 [label="关系运算符" fontname=SimHei]
-	270 -> 271
-	272 [label="==" fontname=SimHei]
-	271 -> 272
-	273 [label="算术表达式" fontname=SimHei]
-	270 -> 273
-	274 [label="项" fontname=SimHei]
-	273 -> 274
-	275 [label="因子" fontname=SimHei]
-	274 -> 275
-	276 [label=n7 fontname=SimHei]
-	275 -> 276
-	277 [label="标识符" fontname=SimHei]
-	276 -> 277
-	278 [label=a]
-	277 -> 278
-	279 [label=p1 fontname=SimHei]
-	276 -> 279
-	280 [label="ε" fontname=SimHei]
-	279 -> 280
-	281 [label=m7 fontname=SimHei]
-	274 -> 281
-	282 [label="*" fontname=SimHei]
-	281 -> 282
-	283 [label="因子" fontname=SimHei]
-	281 -> 283
-	284 [label=n7 fontname=SimHei]
-	283 -> 284
-	285 [label="标识符" fontname=SimHei]
-	284 -> 285
-	286 [label=a]
-	285 -> 286
-	287 [label=p1 fontname=SimHei]
-	284 -> 287
-	288 [label="ε" fontname=SimHei]
-	287 -> 288
-	289 [label=m7 fontname=SimHei]
-	281 -> 289
-	290 [label="*" fontname=SimHei]
-	289 -> 290
-	291 [label="因子" fontname=SimHei]
-	289 -> 291
-	292 [label=n7 fontname=SimHei]
-	291 -> 292
-	293 [label="标识符" fontname=SimHei]
-	292 -> 293
-	294 [label=a]
-	293 -> 294
-	295 [label=p1 fontname=SimHei]
-	292 -> 295
-	296 [label="ε" fontname=SimHei]
-	295 -> 296
-	297 [label=m7 fontname=SimHei]
-	289 -> 297
-	298 [label="ε" fontname=SimHei]
-	297 -> 298
-	299 [label=n3 fontname=SimHei]
-	273 -> 299
-	300 [label="+" fontname=SimHei]
-	299 -> 300
-	301 [label="项" fontname=SimHei]
-	299 -> 301
-	302 [label="因子" fontname=SimHei]
-	301 -> 302
-	303 [label=n7 fontname=SimHei]
-	302 -> 303
-	304 [label="标识符" fontname=SimHei]
-	303 -> 304
-	305 [label=b]
-	304 -> 305
-	306 [label=p1 fontname=SimHei]
-	303 -> 306
-	307 [label="ε" fontname=SimHei]
-	306 -> 307
-	308 [label=m7 fontname=SimHei]
-	301 -> 308
-	309 [label="*" fontname=SimHei]
-	308 -> 309
-	310 [label="因子" fontname=SimHei]
-	308 -> 310
-	311 [label=n7 fontname=SimHei]
-	310 -> 311
-	312 [label="标识符" fontname=SimHei]
-	311 -> 312
-	313 [label=b]
-	312 -> 313
-	314 [label=p1 fontname=SimHei]
-	311 -> 314
-	315 [label="ε" fontname=SimHei]
-	314 -> 315
-	316 [label=m7 fontname=SimHei]
-	308 -> 316
-	317 [label="*" fontname=SimHei]
-	316 -> 317
-	318 [label="因子" fontname=SimHei]
-	316 -> 318
-	319 [label=n7 fontname=SimHei]
-	318 -> 319
-	320 [label="标识符" fontname=SimHei]
-	319 -> 320
-	321 [label=b]
-	320 -> 321
-	322 [label=p1 fontname=SimHei]
-	319 -> 322
-	323 [label="ε" fontname=SimHei]
-	322 -> 323
-	324 [label=m7 fontname=SimHei]
-	316 -> 324
-	325 [label="ε" fontname=SimHei]
-	324 -> 325
-	326 [label=n3 fontname=SimHei]
-	299 -> 326
-	327 [label="+" fontname=SimHei]
-	326 -> 327
-	328 [label="项" fontname=SimHei]
-	326 -> 328
-	329 [label="因子" fontname=SimHei]
-	328 -> 329
-	330 [label=n7 fontname=SimHei]
-	329 -> 330
-	331 [label="标识符" fontname=SimHei]
-	330 -> 331
-	332 [label=c]
-	331 -> 332
-	333 [label=p1 fontname=SimHei]
-	330 -> 333
-	334 [label="ε" fontname=SimHei]
-	333 -> 334
-	335 [label=m7 fontname=SimHei]
-	328 -> 335
-	336 [label="*" fontname=SimHei]
-	335 -> 336
-	337 [label="因子" fontname=SimHei]
-	335 -> 337
-	338 [label=n7 fontname=SimHei]
-	337 -> 338
-	339 [label="标识符" fontname=SimHei]
-	338 -> 339
-	340 [label=c]
-	339 -> 340
-	341 [label=p1 fontname=SimHei]
-	338 -> 341
-	342 [label="ε" fontname=SimHei]
-	341 -> 342
-	343 [label=m7 fontname=SimHei]
-	335 -> 343
-	344 [label="*" fontname=SimHei]
-	343 -> 344
-	345 [label="因子" fontname=SimHei]
-	343 -> 345
-	346 [label=n7 fontname=SimHei]
-	345 -> 346
-	347 [label="标识符" fontname=SimHei]
-	346 -> 347
-	348 [label=c]
-	347 -> 348
-	349 [label=p1 fontname=SimHei]
-	346 -> 349
-	350 [label="ε" fontname=SimHei]
-	349 -> 350
-	351 [label=m7 fontname=SimHei]
-	343 -> 351
-	352 [label="ε" fontname=SimHei]
-	351 -> 352
-	353 [label=n3 fontname=SimHei]
-	326 -> 353
-	354 [label="ε" fontname=SimHei]
-	353 -> 354
-	355 [label=q2 fontname=SimHei]
-	263 -> 355
-	356 [label="ε" fontname=SimHei]
-	355 -> 356
-	357 [label=")" fontname=SimHei]
-	257 -> 357
-	358 [label="复合语句" fontname=SimHei]
-	257 -> 358
-	359 [label="语句" fontname=SimHei]
-	358 -> 359
-	360 [label="执行语句" fontname=SimHei]
-	359 -> 360
-	361 [label="数据处理语句" fontname=SimHei]
-	360 -> 361
-	362 [label="标识符" fontname=SimHei]
-	361 -> 362
-	363 [label=write]
-	362 -> 363
-	364 [label=p4 fontname=SimHei]
-	361 -> 364
-	365 [label="(" fontname=SimHei]
-	364 -> 365
-	366 [label="实参列表" fontname=SimHei]
-	364 -> 366
-	367 [label="实参" fontname=SimHei]
-	366 -> 367
-	368 [label="表达式" fontname=SimHei]
-	367 -> 368
-	369 [label="标识符" fontname=SimHei]
-	368 -> 369
-	370 [label=m]
-	369 -> 370
-	371 [label=p2 fontname=SimHei]
-	368 -> 371
-	372 [label="ε" fontname=SimHei]
-	371 -> 372
-	373 [label=m8 fontname=SimHei]
-	367 -> 373
-	374 [label="ε" fontname=SimHei]
-	373 -> 374
-	375 [label=")" fontname=SimHei]
-	364 -> 375
-	376 [label=";" fontname=SimHei]
-	364 -> 376
-	377 [label=m9 fontname=SimHei]
-	257 -> 377
-	378 [label="ε" fontname=SimHei]
-	377 -> 378
-	379 [label=n6 fontname=SimHei]
-	253 -> 379
-	380 [label="ε" fontname=SimHei]
-	379 -> 380
-	381 [label="}" fontname=SimHei]
-	151 -> 381
-	382 [label=n6 fontname=SimHei]
-	59 -> 382
-	383 [label="语句表" fontname=SimHei]
-	382 -> 383
-	384 [label="语句" fontname=SimHei]
-	383 -> 384
-	385 [label="执行语句" fontname=SimHei]
-	384 -> 385
-	386 [label="控制语句" fontname=SimHei]
-	385 -> 386
-	387 [label="return语句" fontname=SimHei]
-	386 -> 387
-	388 [label=return fontname=SimHei]
-	387 -> 388
-	389 [label=n1 fontname=SimHei]
-	387 -> 389
-	390 [label="表达式" fontname=SimHei]
-	389 -> 390
-	391 [label="常量" fontname=SimHei]
-	390 -> 391
-	392 [label="数值型常量" fontname=SimHei]
-	391 -> 392
-	393 [label=0]
-	392 -> 393
-	394 [label=m7 fontname=SimHei]
-	390 -> 394
-	395 [label="ε" fontname=SimHei]
-	394 -> 395
-	396 [label=n3 fontname=SimHei]
-	390 -> 396
-	397 [label="ε" fontname=SimHei]
-	396 -> 397
-	398 [label=q1 fontname=SimHei]
-	390 -> 398
-	399 [label="ε" fontname=SimHei]
-	398 -> 399
-	400 [label=q2 fontname=SimHei]
-	390 -> 400
-	401 [label="ε" fontname=SimHei]
-	400 -> 401
-	402 [label=";" fontname=SimHei]
-	389 -> 402
-	403 [label=n6 fontname=SimHei]
-	383 -> 403
-	404 [label="ε" fontname=SimHei]
-	403 -> 404
-	405 [label="}" fontname=SimHei]
-	18 -> 405
-	406 [label="函数块" fontname=SimHei]
-	0 -> 406
+	166 [label="}" fontname=SimHei]
+	6 -> 166
+	167 [label="函数块" fontname=SimHei]
+	0 -> 167
 }

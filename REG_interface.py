@@ -16,13 +16,11 @@ from PyQt5.QtWidgets import QSplitter
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(879, 583)
+        MainWindow.resize(1033, 837)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-
-
 
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QtCore.QRect(80, 100, 104, 64))
@@ -59,7 +57,6 @@ class Ui_MainWindow(object):
         self.splitter.addWidget(self.textEdit)
         self.splitter.addWidget(self.splitter2)
         self.gridLayout.addWidget(self.splitter, 0, 1, 0, 1)
-
 
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -129,6 +126,12 @@ class Ui_MainWindow(object):
         self.action_MFA.setObjectName("action_MFA")
         self.action_11 = QtWidgets.QAction(MainWindow)
         self.action_11.setObjectName("action_11")
+        self.action_DFA_2 = QtWidgets.QAction(MainWindow)
+        self.action_DFA_2.setObjectName("action_DFA_2")
+        self.action_MFA_2 = QtWidgets.QAction(MainWindow)
+        self.action_MFA_2.setObjectName("action_MFA_2")
+        self.action_12 = QtWidgets.QAction(MainWindow)
+        self.action_12.setObjectName("action_12")
         self.menu_F.addAction(self.action_7)
         self.menu_F.addAction(self.action_10)
         self.menu_E.addAction(self.action_6)
@@ -142,6 +145,9 @@ class Ui_MainWindow(object):
         self.menu_2.addAction(self.action_DFA)
         self.menu_2.addAction(self.action_MFA)
         self.menu_2.addAction(self.action_11)
+        self.menu_2.addAction(self.action_DFA_2)
+        self.menu_2.addAction(self.action_MFA_2)
+        self.menu_2.addAction(self.action_12)
         self.menubar.addAction(self.menu_F.menuAction())
         self.menubar.addAction(self.menu_E.menuAction())
         self.menubar.addAction(self.menu.menuAction())
@@ -175,7 +181,7 @@ class Ui_MainWindow(object):
         self.actionNFA_DFA.setText(_translate("MainWindow", "NFA转DFA"))
         self.actionDFA_MFA.setText(_translate("MainWindow", "DFA转MFA"))
         self.action_6.setText(_translate("MainWindow", "正规式转NFA"))
-        self.action_7.setText(_translate("MainWindow", "导入正规式文件"))
+        self.action_7.setText(_translate("MainWindow", "导入其他文件"))
         self.actionNFA_DFA_2.setText(_translate("MainWindow", "NFA转DFA"))
         self.actionDFA_MFA_2.setText(_translate("MainWindow", "DFA转MFA"))
         self.action_8.setText(_translate("MainWindow", "一键三连"))
@@ -187,4 +193,7 @@ class Ui_MainWindow(object):
         self.action_NFA_2.setText(_translate("MainWindow", "导出NFA"))
         self.action_DFA.setText(_translate("MainWindow", "导出DFA"))
         self.action_MFA.setText(_translate("MainWindow", "导出MFA"))
-        self.action_11.setText(_translate("MainWindow", "导出全部文件"))
+        self.action_11.setText(_translate("MainWindow", "导出NFA状态转换图"))
+        self.action_DFA_2.setText(_translate("MainWindow", "导出DFA状态转换图"))
+        self.action_MFA_2.setText(_translate("MainWindow", "导出MFA状态转换图"))
+        self.action_12.setText(_translate("MainWindow", "导出全部"))
