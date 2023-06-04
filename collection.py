@@ -11,12 +11,12 @@ class FirstAndFollow:
         carve = list(filter(None, data.split('\n')))
         index = carve[0].find(':')
         begin = carve[0][0:index]
-        self.begin = begin
+        self.begin = begin.replace(" ", "")
         for i in carve:
             index = i.find(':')
-            self.Formula[i[0:index]] = i[index+1:]
-            self.first[i[0:index]] = []
-            self.last[i[0:index]] = []
+            self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
+            self.first[i[0:index].replace(" ", "")] = []
+            self.last[i[0:index].replace(" ", "")] = []
         self.last[begin].append('#')
         self.First_()
         self.Last_()

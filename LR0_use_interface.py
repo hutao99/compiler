@@ -1,23 +1,14 @@
 from collection import FirstAndFollow
-import difflib
-from anytree import Node as AnyTreeNode, RenderTree
 from graphviz import Digraph
 from Analyzer import AnalyzerLex
-# 此LR只用于自定义语法分析，不带有语义分析、错误修复以及中间代码生成
-
-
-class Node(AnyTreeNode):
-    def __init__(self, value, symbol_info=None, **kwargs):
-        super().__init__(value, **kwargs)
-        self.symbol_info = symbol_info
-        self.type = None
-        self.value = None
-        self.parameters = 0
+# 此LR0只用于自定义语法分析，不带有语义分析、错误修复以及中间代码生成
 
 
 class CLRParser:
     def __init__(self):
         self.first = None
+        # follow 集合
+        self.follow = None
         # 产生式
         self.Formula = None
         # 文法开始符号
@@ -28,10 +19,6 @@ class CLRParser:
         self.parsing_table = dict()
         # 语法树根节点
         self.node = None
-        # 分析表_中间代码
-        self.parsing_table1 = None
-        # 规约式_中间代码
-        self.reduction1 = None
         # 终结状态
         self.Final_State = set()
 
@@ -47,10 +34,18 @@ class CLRParser:
         p = FirstAndFollow()
         p.input(data)
         self.first = p.first
+        self.follow = p.last
         self.Formula = p.Formula
         self.begin = p.begin
 
     def Action_and_GoTo_Table(self):
+        # 统计所有终结符
+        terminal = set()
+        for i in self.first:
+            terminal.update(self.first[i])
+        for i in self.follow:
+            terminal.update(self.follow[i])
+        terminal = list(terminal)
         self.Formula[self.begin+"'"] = self.begin
         state = []
         # I0包含的产生式
@@ -62,10 +57,10 @@ class CLRParser:
         status_include_num = []
         # 构建初始状态I0
         id0 = []
-        stack = [[self.begin, ['.', self.begin], ['#']]]
+        stack = [[self.begin, ['.', self.begin]]]
         # 加入开始产生式
-        state_family.append([self.begin+"'", ['.', self.begin], ['#']])
-        prod_state[self.begin+"'"+'→'+"".join(['.', self.begin])+' '+'#'] = label
+        state_family.append([self.begin+"'", ['.', self.begin]])
+        prod_state[self.begin+"'"+'→'+"".join(['.', self.begin])] = label
         id0.append(label)
         label += 1
         # 用于规约式编号的字典
@@ -74,40 +69,13 @@ class CLRParser:
             h = stack.pop(0)
             prod = self.Formula[h[0]]
             inx = h[1].index('.')
-            # 求出展望符(向前搜索符)
-            lookahead_symbol = []
-            # 没有到末尾
-            if inx+2 < len(h[1]):
-                # 是非终结符
-                if h[1][inx+2] in self.Formula:
-                    group = set()
-                    stack1 = [[h[1][inx+2], inx+2]]
-                    # 将后续first集加入展望符
-                    while len(stack1) > 0:
-                        tt = stack1.pop()
-                        group.update([x for x in self.first[tt[0]] if x != 'ε'])
-                        if 'ε' in self.first[tt[0]]:
-                            if tt[1]+1 == len(h[1]):
-                                group.update(h[2])
-                            elif h[tt[1]+1] in self.Formula:
-                                stack1.append([h[tt[1]+1], tt[1]+1])
-                            else:
-                                group.add(h[tt[1]+1])
-                    lookahead_symbol = list(group)
-                # 不是
-                else:
-                    lookahead_symbol = [h[1][inx+2]]
-            # 到末尾直接继承
-            else:
-                lookahead_symbol = h[2]
-            lookahead_symbol.sort()
             # .后面为非终结符，将非终结符的的产生式加入当前状态，同时去除相同状态内的相同元素
             for g in prod.split('|'):
                 word = [k for k in g.split(' ') if k != '']
                 if word == ['ε']:
                     word = []
                 word.insert(0, '.')
-                st = h[0]+'→'+''.join(word)+' '+'|'.join(lookahead_symbol)
+                st = h[0]+'→'+''.join(word)
                 if st not in prod_state:
                     prod_state[st] = label
                     label += 1
@@ -115,9 +83,9 @@ class CLRParser:
                 if prod_state[st] in id0:
                     continue
                 id0.append(prod_state[st])
-                state_family.append([h[0], word, lookahead_symbol])
+                state_family.append([h[0], word])
                 if len(word) > 1 and word[1] in self.Formula:
-                    stack.append([word[1], word, lookahead_symbol])
+                    stack.append([word[1], word])
         id0.sort()
         # 记录I0状态包含的产生式状态编号
         status_include_num.append(id0)
@@ -145,7 +113,7 @@ class CLRParser:
                     if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
                         reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
                         number += 1
-                    for q in i[2]:
+                    for q in terminal:
                         reduction_table.append([father, q, reduction[i[0] + ':' + ' '.join(i[1][:-1])]])
                     continue
                 if i[1][idx+1] in behind:
@@ -167,10 +135,8 @@ class CLRParser:
                     u[idx] = u[idx+1]
                     u[idx+1] = t
                     itemset.append(u)
-                    # 加入向前搜索符
-                    itemset.append(status[j][2])
                     new_status.append(itemset)
-                    st = status[j][0]+'→'+''.join(u)+' '+'|'.join(status[j][2])
+                    st = status[j][0]+'→'+''.join(u)
                     if st not in prod_state:
                         prod_state[st] = label
                         label += 1
@@ -178,49 +144,28 @@ class CLRParser:
                     # 如果现在'.'后为非终结符，则需加入这个非终结符的状态,如果加入的这个'.'后也是非终结符则还需再加，直到不是非终结符
                     stack = []
                     if idx+2 < len(u) and u[idx+2] in self.Formula:  # 是非终结符
-                        stack = [[u[idx+2], u, status[j][2]]]
+                        stack = [[u[idx+2], u]]
                     else:
                         continue
                     while len(stack) > 0:  # 将所有终结符处理完毕
                         h = stack.pop(0)
                         prod = self.Formula[h[0]]
                         inx = h[1].index('.')
-                        lookahead_symbol = []
-                        if inx + 2 < len(h[1]):
-                            if h[1][inx + 2] in self.Formula:
-                                group = set()
-                                stack1 = [[h[1][inx + 2], inx + 2]]
-                                while len(stack1) > 0:
-                                    tt = stack1.pop()
-                                    group.update([x for x in self.first[tt[0]] if x != 'ε'])
-                                    if 'ε' in self.first[tt[0]]:
-                                        if tt[1] + 1 == len(h[1]):
-                                            group.update(h[2])
-                                        elif h[tt[1] + 1] in self.Formula:
-                                            stack1.append([h[tt[1] + 1], tt[1] + 1])
-                                        else:
-                                            group.add(h[tt[1] + 1])
-                                    lookahead_symbol = list(group)
-                            else:
-                                lookahead_symbol = [h[1][inx + 2]]
-                        else:
-                            lookahead_symbol = h[2]
-                        lookahead_symbol.sort()
                         for g in prod.split('|'):
                             word = [k for k in g.split(' ') if k != '']
                             if word == ['ε']:
                                 word = []
                             word.insert(0, '.')
-                            st = h[0] + '→' + ''.join(word) + ' ' + '|'.join(lookahead_symbol)
+                            st = h[0] + '→' + ''.join(word)
                             if st not in prod_state:
                                 prod_state[st] = label
                                 label += 1
                             if prod_state[st] in id_n:
                                 continue
                             id_n.append(prod_state[st])
-                            new_status.append([h[0], word, lookahead_symbol])
+                            new_status.append([h[0], word])
                             if len(word) > 1 and word[1] in self.Formula:
-                                stack.append([word[1], word, lookahead_symbol])
+                                stack.append([word[1], word])
                 #  判断状态是否相同，如I1和new_status
                 id_n.sort()
                 # 判断各个状态间是否有重复
@@ -267,7 +212,7 @@ class CLRParser:
                 dot.node(str(i), lab, fontname="SimHei", shape='doublecircle')
         for i in self.direction:
             dot.edge(str(i[0]), str(i[2]), i[1], fontname="SimHei")
-        dot.render('LR_Digraph.gv', view=True, format='png', directory='LR_Digraph')
+        dot.render('LR_Digraph.gv', view=True, format='png', directory='LR0_Digraph')
 
     def ControlProgram(self, token):
         self.dot.clear()
@@ -354,6 +299,14 @@ class CLRParser:
         self.dot.render('tree.gv', view=False, format='png', directory='Syntax_Tree')
 
 
+
+lr1 = CLRParser()
+lr1.input('E:E + T| T\nT:T * F|F\nF:( E ) | i')
+lr1.Action_and_GoTo_Table()
+lr1.draw_graphic()
+'''tokens = []
+lex = AnalyzerLex()
+lex.input('a b c')'''
 
 #f = open('test.txt', 'r', encoding='utf-8')
 '''lr1 = CLRParser()
