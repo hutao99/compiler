@@ -32,6 +32,8 @@ class CLRParser:
         self.parsing_table1 = None
         # 规约式_中间代码
         self.reduction1 = None
+        # 终结状态
+        self.Final_State = set()
 
         self.prod_state = None
         self.status_include_num = None
@@ -139,6 +141,7 @@ class CLRParser:
                 i = status[l]
                 idx = i[1].index('.')
                 if idx+1 == len(i[1]):  # 可规约
+                    self.Final_State.add(father)
                     if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
                         reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
                         number += 1
@@ -251,13 +254,17 @@ class CLRParser:
         self.direction = direction
 
     def draw_graphic(self):
+        print(self.Final_State)
         prod_state_exchange = {v: k for k, v in self.prod_state.items()}
         dot = Digraph(comment='LR_Digraph')
         for i in range(len(self.status_include_num)):
             lab = 'I' + str(i) + '\n'
             for j in self.status_include_num[i]:
                 lab += prod_state_exchange[j] + '\n'
-            dot.node(str(i), lab, fontname="SimHei")
+            if i not in self.Final_State:
+                dot.node(str(i), lab, fontname="SimHei", shape='rectangle')
+            else:
+                dot.node(str(i), lab, fontname="SimHei", shape='doublecircle')
         for i in self.direction:
             dot.edge(str(i[0]), str(i[2]), i[1], fontname="SimHei")
         dot.render('LR_Digraph.gv', view=True, format='png', directory='LR_Digraph')
