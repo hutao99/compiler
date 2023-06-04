@@ -1,7 +1,13 @@
+import os
 import sys
 
+import numpy as np
+from PIL.Image import Image
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyQt5 import QtGui, QtCore, QtWidgets
+import cv2
+import matplotlib.image as img
+from matplotlib import pyplot as plt
 
 from REG_interface import Ui_MainWindow
 import REG
@@ -32,6 +38,11 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.action_NFA_2.triggered.connect(self.save_nfa)
         self.action_DFA.triggered.connect(self.save_dfa)
         self.action_MFA.triggered.connect(self.save_mfa)
+        self.action_11.triggered.connect(self.save_nfa_graph)
+        self.action_DFA_2.triggered.connect(self.save_dfa_graph)
+        self.action_MFA_2.triggered.connect(self.save_mfa_graph)
+        self.action_12.triggered.connect(self.save_all)
+
         self.my_object = None
         self.nfa = []
         self.dfa = []
@@ -330,11 +341,112 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
     def save_mfa(self):
         filename = 'MFA.txt'
         self.file_save_as(filename)
+
+    def save_nfa_graph(self):
+        filename = './Reg_Graph/NFA.gv.png'
+        image = cv2.imread(filename)
+        if image is None:
+            QMessageBox.warning(self, '警告', '请先生成对应图片')
+        else:
+            # 获取保存路径
+            path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '所有文件 (*.png)')
+            if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+                """
+                原因：cv2读取彩色图片通道顺序为B、G、R，PIL显示图片是R、G、B顺序，因此读出来图片颜色会改变，需要对图像通道进行调序。
+                """
+                b, g, r = cv2.split(image)
+                image = cv2.merge([r, g, b])
+                img.imsave(path, image)
+
+    def save_dfa_graph(self):
+        filename = './Reg_Graph/DFA.gv.png'
+        image = cv2.imread(filename)
+        if image is None:
+            QMessageBox.warning(self, '警告', '请先生成对应图片')
+        else:
+            # 获取保存路径
+            path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '所有文件 (*.png)')
+            if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+                """
+                原因：cv2读取彩色图片通道顺序为B、G、R，PIL显示图片是R、G、B顺序，因此读出来图片颜色会改变，需要对图像通道进行调序。
+                """
+                b, g, r = cv2.split(image)
+                image = cv2.merge([r, g, b])
+                img.imsave(path, image)
+
+    def save_mfa_graph(self):
+        filename = './Reg_Graph/MFA.gv.png'
+        image = cv2.imread(filename)
+        if image is None:
+            QMessageBox.warning(self, '警告', '请先生成对应图片')
+        else:
+            # 获取保存路径
+            path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '所有文件 (*.png)')
+            if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+                """
+                原因：cv2读取彩色图片通道顺序为B、G、R，PIL显示图片是R、G、B顺序，因此读出来图片颜色会改变，需要对图像通道进行调序。
+                """
+                b, g, r = cv2.split(image)
+                image = cv2.merge([r, g, b])
+                img.imsave(path, image)
+
+    def save_all(self):
+        if cv2.imread('./Reg_Graph/NFA.gv.png') is None or cv2.imread('./Reg_Graph/DFA.gv.png') is None or cv2.imread(
+                './Reg_Graph/MFA.gv.png') is None:
+            QMessageBox.warning(self, '警告', '请先生成全部状态转换图')
+        elif not os.path.exists('NFA.txt') or not os.path.exists('DFA.txt') or not os.path.exists('MFA.txt'):
+            QMessageBox.warning(self, '警告', '请先生成全部文件')
+        else:
+            path, _ = QFileDialog.getSaveFileName(self, '保存文件', '')
+            if os.path.exists(path):
+                QMessageBox.warning(self, '警告', '该文件夹已存在')
+            elif path != '':   # 解决未选择文件卡死的问题:
+                os.mkdir(path)
+                path1 = path + '/NFA.txt'
+                text = str(open("MFA.txt").read())  # 从文件中读入数据并强转为字符串类型
+                with open(path1, 'w') as f:
+                    f.write(text)
+
+                filename = './Reg_Graph/NFA.gv.png'
+                path1 = path + '/NFA.gv.png'
+                image = cv2.imread(filename)
+                b, g, r = cv2.split(image)
+                image = cv2.merge([r, g, b])
+                img.imsave(path1, image)
+
+                path1 = path + '/DFA.txt'
+                text = str(open("DFA.txt").read())  # 从文件中读入数据并强转为字符串类型
+                with open(path1, 'w') as f:
+                    f.write(text)
+
+                filename = './Reg_Graph/DFA.gv.png'
+                path1 = path + '/DFA.gv.png'
+                image = cv2.imread(filename)
+                b, g, r = cv2.split(image)
+                image = cv2.merge([r, g, b])
+                img.imsave(path1, image)
+
+                path1 = path + '/MFA.txt'
+                text = str(open("MFA.txt").read())  # 从文件中读入数据并强转为字符串类型
+                with open(path1, 'w') as f:
+                    f.write(text)
+
+                filename = './Reg_Graph/MFA.gv.png'
+                path1 = path + '/MFA.gv.png'
+                image = cv2.imread(filename)
+                b, g, r = cv2.split(image)
+                image = cv2.merge([r, g, b])
+                img.imsave(path1, image)
+
     def file_save_as(self, filename):
-        path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '所有文件 (*.txt)')
-        if not path:
-            return
-        self.savePath(path, filename)
+        if os.path.exists(filename):
+            path, _ = QFileDialog.getSaveFileName(self, '保存文件', '', '所有文件 (*.txt)')
+            if not path:
+                return
+            if path != '':   # 解决未选择文件卡死的问题
+                self.savePath(path, filename)
+        else:
+            QMessageBox.warning(self, '警告', '请先生成对应文件')
 
     def savePath(self, path, filename):
         text = str(open(filename).read())  # 从文件中读入数据并强转为字符串类型

@@ -1,12 +1,37 @@
 import re
 
+import Analyzer
 
-class LL:
+
+class ASTNode:
+    def __init__(self, Type, content=None):
+        self.type = Type
+        self.text = content
+        self.child_node = list()
+
+    def __str__(self):
+        child_nodes = list()
+        for child in self.child_node:
+            child_nodes.append(child.__str__())
+        out = "<{type}, {text}>".format(type=self.type, text=self.text)
+        for child in child_nodes:
+            if child:
+                for item in child.split("\n"):
+                    out = out + "\n     " + item
+
+        return out
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class Predictive_Analysis:
     def __init__(self):
+        self.follow_dict = None
         self.first = dict()
         self.last = dict()
-        # 非终结符和产生式
         self.Formula = dict()
+        self.productions = {}
         self.begin = ''
         self.predict_table = dict()
         self.predict_table_ = dict()
@@ -14,13 +39,18 @@ class LL:
         self.vt = []
         self.grammars = dict()
         self.flag = 0
+        self.first_dict = dict()
+        self.nonterminals = []  # 非终结符
+        self.kong = []
 
     def input(self, data):
-        # 处理文法
+        # 种别码
         carve = list(filter(None, data.split('\n')))
         index = carve[0].find(':')
         begin = carve[0][0:index]
         self.begin = begin
+        print('-----------------')
+        print(self.begin)
         for i in carve:
             index = i.find(':')
             self.Formula[i[0:index]] = i[index + 1:]
@@ -28,10 +58,20 @@ class LL:
             self.last[i[0:index]] = []
         self.last[begin].append('#')
         self.get_vn_vt(data)
-        self.First_()
+        # self.First_()
+        self.compute_first(self.productions)
+        print('first', self.first)
+        self.FIRST()
+        print('first_dict', self.first_dict)
+        # self.first=self.first_dict
+        # self.FOLLOW()
+        for i in self.first:
+            if '$' in self.first[i]:
+               self.kong.append(i)
+        print('kong', self.kong)
         self.Last_()
         self.get_predict_table_(data)
-        print("\n预测表如下\n")
+        print("\n预测分析表\n")
         for i in self.predict_table_:
             print(i, self.predict_table_[i])
         self.get_predict_table(data)
@@ -49,7 +89,21 @@ class LL:
                         grammar_list[line.split(':')[0]] = []
                         grammar_list[line.split(':')[0]].append(i.strip(' '))
                     else:
-                        grammar_list[line.split(':')[0]].append(i.strip(' '))  # 用于消除左递归的字典填充
+                        grammar_list[line.split(':')[0]].append(i.strip(' '))
+
+        for production in data.split('\n'):
+            left, right = production.split(':')
+            left = left.strip()
+            # 按照空格分割右部符号
+            symbols_list = right.split('|')
+
+            # 将左部和右部添加到字典中
+            if left not in self.productions:
+                self.productions[left] = []
+                self.nonterminals.append(left)
+            for symbols in symbols_list:
+                self.productions[left].append(symbols.split())
+        self.nonterminals=list(set(self.nonterminals))
         self.grammars = grammar_list
         for i in self.grammars:
             print(i, self.grammars[i])
@@ -64,35 +118,86 @@ class LL:
         self.vn = list(set(self.vn))
         print('\n\n--------- 文法的非终结符为 ----------\n', self.vn,
               '\n\n--------- 文法的终结符为 ----------\n', self.vt)
+        print(self.productions)
 
-    def First_(self):
-        # 第一次先求出能一次找到的First集合
-        for i in self.Formula:
-            production = self.Formula[i]
-            for j in production.split('|'):
-                word = [k for k in j.split(' ') if k != '']
-                if word[0] not in self.Formula:
-                    self.first[i].append(word[0])
-        flag = True
-        while flag:
-            flag = False
-            for i in self.Formula:
-                production = self.Formula[i]
-                for j in production.split('|'):
-                    word = [k for k in j.split(' ') if k != '']
-                    for n in word:
-                        # 是非终结符
-                        if n in self.Formula:
-                            for m in self.first[n]:
-                                if m not in self.first[i]:
-                                    flag = True
-                                    self.first[i].append(m)
-                        else:
-                            # 是终结符就跳出
+    def compute_first(self, productions):
+        print(len(self.vn))
+        # 初始化非终结符号的FIRST集
+        for nonterminal in self.nonterminals:
+            print(nonterminal)
+            self.first[nonterminal] = set()
+
+        # 重复处理直到FIRST集不再发生变化
+        while True:
+            changed = False
+
+            # 处理每个产生式
+            for left, rights in productions.items():
+                for right in rights:
+                    i = 0
+                    # 处理产生式右部的每个符号
+                    while i < len(right):
+                        symbol = right[i]
+
+                        # 如果是终结符号，则将其加入FIRST集
+                        if symbol not in self.nonterminals:
+                            if symbol not in self.first[left]:
+                                self.first[left].add(symbol)
+                                changed = True
                             break
-                        # 没有空字符就不用处理后面的非终结符
-                        if '$' not in self.first[n]:
-                            break
+
+                        # 如果是非终结符号，则将其FIRST集合并到左部符号的FIRST集中
+                        elif symbol in self.nonterminals:
+                            for s in self.first[symbol]:
+                                if s != '$' and s not in self.first[left]:
+                                    self.first[left].add(s)
+                                    changed = True
+
+                            # 如果该非终结符号不能推导出空串，则退出循环
+                            if '$' not in self.first[symbol]:
+                                break
+
+                            # 否则，继续处理下一个符号
+                            i += 1
+
+                    # 如果产生式右部的所有符号都能推导出空串，则将空串加入左部符号的FIRST集中
+                    else:
+                        if '$' not in self.first[left]:
+                            self.first[left].add('$')
+                            changed = True
+
+            # 如果FIRST集不再发生变化，则退出循环
+            if not changed:
+                break
+
+    def compute_first_set(self, symbols):
+        first_set = set()
+        i = 0
+        while i < len(symbols):
+            symbol = symbols[i]
+            if symbol not in self.nonterminals:
+                first_set.add(symbol)
+                break
+            elif symbol in self.nonterminals:
+                first_i = self.first[symbol] - {'$'}
+                first_set |= first_i
+                if '$' not in self.first[symbol]:
+                    break
+            else:
+                raise ValueError(f"Invalid symbol: {symbol}")
+            i += 1
+        else:
+            first_set.add('$')
+        return first_set
+
+    def FIRST(self):
+        # 计算每个候选式的FIRST集
+        for nonter, production in self.productions.items():
+            self.first_dict[nonter] = []
+            for rhs in production:
+                first_set = self.compute_first_set(rhs)
+                for i in list(first_set):
+                    self.first_dict[nonter].append(i)
 
     def Last_(self):
         self.last[self.begin] = ["#"]
@@ -117,7 +222,7 @@ class LL:
                                         if n == '$' and k + 2 < length:
                                             # 是非终结符
                                             if word[k + 2] in self.Formula:
-                                                for e in self.first[word[k + 2]]:
+                                                for e in self.first_dict[word[k + 2]]:
                                                     if e != '$' and e not in self.last[word[k]]:
                                                         flag = True
                                                         self.last[word[k]].append(e)
@@ -152,17 +257,17 @@ class LL:
             for next_t in self.grammars[item]:
                 next_value = next_t.split()[0]
                 if next_value in self.grammars:
-                    out = self.first[next_value]
+                    out = self.first_dict[next_value]
                     for i in out:
                         if i != '$':
-                            self.predict_table[item][i] = next_t  # 参考书上113页第2条
+                            self.predict_table[item][i] = next_t
                 else:
-                    self.predict_table[item][next_value] = next_t  # 参考书上113页第2条
+                    self.predict_table[item][next_value] = next_t
         for k in self.grammars:
             for next_grammar in self.grammars[k]:
                 next_k = next_grammar.split()[0]
-                # 参考书上113页第3条
-                if next_k in self.grammars and "$" in self.first[next_k] or next_k == "$":
+
+                if next_k in self.grammars and "$" in self.first_dict[next_k] or next_k == "$":
                     for fk in self.last[k]:
                         self.predict_table[k][fk] = next_grammar
 
@@ -172,76 +277,62 @@ class LL:
             for next_t in self.grammars[item]:
                 next_value = next_t.split()[0]
                 if next_value in self.grammars:
-                    out = self.first[next_value]
+                    out = self.first_dict[next_value]
                     for i in out:
                         if i != '$':
-                            self.predict_table_[item][i] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
+
+                            self.predict_table_[item][i] = item + '->' + next_t
                 else:
-                    self.predict_table_[item][next_value] = item + '->' + next_t.replace(" ", "")  # 参考书上113页第2条
+                    if(next_value=='{'):
+                        print('---------------------------12222222222222222222')
+                        print(item + '->' + next_t)
+                    self.predict_table_[item][next_value] = item + '->' + next_t
+                    print(self.predict_table_[item])
         for k in self.grammars:
             for next_grammar in self.grammars[k]:
                 next_k = next_grammar.split()[0]
-                # 参考书上113页第3条
-                if next_k in self.grammars and "$" in self.first[next_k] or next_k == "$":
+                if next_k in self.grammars and "$" in self.first_dict[next_k] or next_k == "$":
                     for fk in self.last[k]:
-                        self.predict_table_[k][fk] = k + '->' + next_grammar.replace(" ", "")
+                        self.predict_table_[k][fk] = k + '->' + next_grammar
 
-    # 书上112页
-    def analysis(self, analyze_str):
-        stack = []
-        index = 0
-        stack.append('#')
-        stack.append(self.begin)
-        while len(stack) != 0:
-            cur = stack.pop()
-            if cur == "#" and len(stack) == 0:
-                print("分析完成")
-                return
-            elif cur in self.vt:
-                a = analyze_str[index]
-                if a == cur:
-                    index += 1
-                    if index >= len(analyze_str):
-                        index -= 1
-                else:
-                    print("分析错误")
-                    self.flag = 1
-                    break
 
-            else:
-                a = analyze_str[index]
-                if a in self.predict_table[cur]:
-                    if self.predict_table[cur][a] == "$":
-                        continue
-                    next_epr = self.predict_table[cur][a].split()
-                    node_list = []
-                    """
-                      产生式右部符号入栈,反序入栈
-                      子节点入栈
-                    """
-                    for epr in next_epr:
-                        node_list.append(epr)
+# coding=utf-8
+def check_charset(file_path):
+    import chardet
+    with open(file_path, "rb") as f:
+        data = f.read(1000)
+        charset = chardet.detect(data)['encoding']
+    return charset
 
-                    node_list.reverse()
-                    for nl in node_list:
-                        stack.append(nl)
-                else:
-                    print("分析错误")
-                    self.flag = 1
-                    return
-test = LL()
-path = "全部测试程序\\11LL(1)测试用例\LL1_1.TXT"
-ans = "i+i#"
-grammar = str(open(path).read())
-grammar = grammar.replace(' - > ', ':')
-print(grammar)
-test.input(grammar)
-print("\nfirst集合如下\n")
-for i in test.first:
-    print(i, test.first[i])
-print("\nfollow集合如下\n")
-for j in test.last:
-    print(j, test.last[j])
-print(test.first)
-print(test.last)
-test.analysis(ans)
+
+if __name__ == "__main__":
+    test = Predictive_Analysis()
+    path = "全部测试程序\\11LL(1)测试用例\文法.TXT"
+    grammar = str(open(path).read())
+    grammar = grammar.replace('->', ':')
+    test.input(grammar)
+    con = 'i+i*i'
+    # con+='#'
+    # con = ""
+    # Filepath = "D:\pythonProject\compiler\全部测试程序\\02已测试正确的编译器用例\\test2.2.txt"
+    # for line in open(Filepath, 'r', encoding=check_charset(Filepath)):
+    #     con += line
+    lex = Analyzer.AnalyzerLex()
+    lex.input(con)
+    expression = []
+
+    while True:
+        tok = lex.token()
+        if not tok:
+            break
+        s1 = ['operator', 'keyword', 'Boundary']
+        s2 = ['integer', 'character', 'string', 'identifier', 'float']
+        if tok.type in s1:
+            expression.append([tok.value, tok.value])
+        elif tok.type in s2:
+            expression.append([tok.type, tok.value])
+    expression.append(['#', '#'])
+    print(expression)
+    print(test.first_dict)
+    print(test.last)
+    print(test.predict_table_['A1'])

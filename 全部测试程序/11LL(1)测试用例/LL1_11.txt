@@ -2,4 +2,4 @@ U->V A
 A->+ U|- U|$
 V->W B
 B->* V|/ V|% V|$
-W->( U )|i
+W->( U )|identifier

@@ -1,5 +1,6 @@
 B->T C
-C->o T C|$
+C->identifier T C|$
 T->F D
-D->a F D|$
-F->n F|( B )|t|f
+D->identifier F D|$
+F->identifier F_|( B )
+F_->F|$

@@ -7,7 +7,7 @@ from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_DAG import MyDesiger_DAG
-from MY_DESIGN_LL1 import MyDesiger_LL
+from MY_DESIGN_LL1 import LL1GrammarSolver
 from MyDesign_suanfu import MyDesiger_suanfu
 from MY_DESIGN_LR import MyDesiger_LR
 
@@ -500,7 +500,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             cursor.insertText(selected_text, format)
 
     def LL1_analyze(self):
-        self.LL_window = MyDesiger_LL()
+        self.LL_window = LL1GrammarSolver()
         self.LL_window.show()
 
     def DAG_analyze(self):
