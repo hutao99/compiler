@@ -1,7 +1,6 @@
 
 import os
 import sys
-import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
@@ -132,14 +131,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         对一些变量进行初始化
         '''
         self.siyuanshi = None
-        '''
-        添加帮助文档
-        '''
-        self.actionHELP_CHM.triggered.connect(self.searchHelp)
-        '''
-        知识产权：归属于重庆理工大学2020
-        '''
-        self.action.triggered.connect(self.my_right)
+        self.basic_blocks = None
+        self.split_flag = 0  # 是否划分四元式
+        self.yh_flag = 0  # 是否进行优化
 
     def recent_folders(self):
         try:
@@ -260,11 +254,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         print(dict_)
         print(type(dict_))
 
-    def searchHelp(self):
-        webbrowser.open('编译器.chm')
-
-    def my_right(self):
-        QMessageBox.warning(self, '警告', '版权归属于CQUT2020')
     def check_charset(self, file_path):
         import chardet
         with open(file_path, "rb") as f:
@@ -533,8 +522,15 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.wordlist, self.errorlist, self.lbword = a.print_out()
             self.textEdit_3.setText(self.wordlist)
             self.textEdit_2.setText(self.errorlist)
+
+            # 初始化
+            self.split_flag = 0
+            self.yh_flag = 0
+            self.siyuanshi = None
+            self.basic_blocks = None
         except:
             QMessageBox.warning(self, '警告', '系统无法处理！')
+
     # 递归下降语法分析
     def Manual_grammar_analysis(self):
         if self.recursive_or_lr_flag == 0:
@@ -638,7 +634,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     text = ''
                     idx = 0
                     for quad in self.siyuanshi:
-                        text += str(idx)+':'+str(quad[1:]) + '\n'
+                        text += str(idx)+':'+str(quad) + '\n'
                         idx+=1
                     print(text)
                     self.textEdit_3.setText(text)
@@ -691,24 +687,26 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 self.textEdit_2.clear()
                 cursor = self.textEdit_2.textCursor()
                 cursor.insertImage(image_format)
-
                 self.textEdit_2.show()
+                self.split_flag = 1
             except:
                 QMessageBox.warning(self, '警告', '系统错误！')
 
-    # DAG优化
+        # DAG优化
+
     def DAG_optimization(self):
-        if len(self.basic_blocks) == 0:
-            QMessageBox.warning(self, '警告', '请先生成四元式！')
+        if self.split_flag != 1:
+            self.Basic_Block()  # 先生成四元式
         try:
-            optimize_quaternion = all_basic_optimize(self.basic_blocks)
+            self.optimize_quaternion = all_basic_optimize(self.basic_blocks)
             text = ''
             idx = 0
-            for i in optimize_quaternion:
-                text+=str(idx)+':'+str(i)+'\n'
-                idx+=1
+            for i in self.optimize_quaternion:
+                text += str(idx) + ':' + str(i) + '\n'
+                idx += 1
             self.textEdit_2.setText(text)
-            print('optimize_quaternion', optimize_quaternion)
+            print('optimize_quaternion', self.optimize_quaternion)
+            self.yh_flag = 1
         except:
             QMessageBox.warning(self, '警告', '系统错误！')
 
@@ -722,30 +720,49 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     QMessageBox.warning(self, '警告', '请先生成中间代码!')
                 else:
                     try:
-                        siyuanshi = []
-                        for i in self.siyuanshi:
-                            siyuanshi.append(i[1:])
-                        text = solve(self.function_param_list, self.function_jubu_list, siyuanshi,{},[])
+                        if not self.yh_flag:
+                            text = solve(self.function_param_list, self.function_jubu_list, self.siyuanshi, {},[])
+                        else:
+                            text = ''
+                            idx = 0
+                            for i in self.optimize_quaternion:
+                                text += str(idx) + ':' + str(i) + '\n'
+                                idx += 1
+                            self.textEdit_3.setText(text)
+                            text = solve(self.function_param_list, self.function_jubu_list, self.optimize_quaternion,{},[])
                         self.textEdit_2.setText(text)
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:  # LR目标代码
-                MiddleCode = self.LR.code
-                function_param_list = self.LR.function_param_list
-                function_jubu_list = self.LR.function_jubu_list
-                function_array_list = self.LR.function_array_list
-                global_array_list = self.LR.global_array_list
-                for i in range(len(MiddleCode)):
-                    for j in range(4):
-                        if MiddleCode[i][j] == '':
-                            MiddleCode[i][j] = '_'
-                if len(MiddleCode) != 0:
-                    try:
+                try:
+                    function_param_list = self.LR.function_param_list
+                    function_jubu_list = self.LR.function_jubu_list
+                    function_array_list = self.LR.function_array_list
+                    global_array_list = self.LR.global_array_list
+                    if not self.yh_flag:
+                        MiddleCode = self.LR.code
+                        for i in range(len(MiddleCode)):
+                            for j in range(4):
+                                if MiddleCode[i][j] == '':
+                                    MiddleCode[i][j] = '_'
+                        print('MiddleCode',MiddleCode)
+                        if len(MiddleCode) != 0:
+                            self.textEdit_2.setText(
+                                ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                                  global_array_list))
+                    else:
+                        text = ''
+                        idx = 0
+                        for i in self.optimize_quaternion:
+                            text += str(idx) + ':' + str(i) + '\n'
+                            idx += 1
+                        print('self.optimize_quaternion',self.optimize_quaternion)
+                        self.textEdit_3.setText(text)
                         self.textEdit_2.setText(
-                            ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                            ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion, function_array_list,
                                               global_array_list))
-                    except:
-                        QMessageBox.warning(self, '警告', '系统无法处理！')
+                except:
+                    QMessageBox.warning(self, '警告', '系统无法处理！')
 
 
     def REG_transform(self):

@@ -15,7 +15,6 @@ codes = optimize(DAG)
 print('optcodes:',codes)
 
 '''
-
 #DAG优化 单目运算 双目运算 赋值运算
 def DAG_draw(codes):
     filename = './DAG/visible'
@@ -80,7 +79,7 @@ def is_in_DAG(DAG, elem, son = None, left = None, right = None):# elem +-*/
     return False
 
 def index_of_DAG(DAG, x):
-    if x not in ['+', '-', '/', '*']:
+    if x not in ['+', '-', '/', '*','&&','||','!','@','>','<','>=','<=','!=','==']:
         for i, e in enumerate(DAG):
             if x in e['node_label'] or x == e['label']:
                 return i
@@ -93,12 +92,13 @@ def create_DAG(codes: list): #start
     for code in codes:
         flag = 0
         for i in code:
+            i = str(i)
             if flag == 0:
                 flag = 1
                 continue
-            if i in ['_',''] or i[0] == 'T' :
+            if i in ['_',''] or i[0] == 'T' : # T是临时变量
                 continue
-            if i not in Active_variable:
+            if not i[0].isdigit() and i not in Active_variable:
                 Active_variable.append(i)
     for code in codes: # ('=', ' 3.14', ' ', ' T0')
         if code[0] == '=': # x = y
@@ -196,8 +196,8 @@ def optimize(DAG_node):
     for e in DAG_node:
         if 'son' in e:
             son = DAG_node[e['son'][0]]
-            la = (e['label'], son['label'], '', e['node_label'] ) if not son['node_label'] \
-                                                                       or isleaf(son) else (e['label'], son['node_label'], '', e['node_label'] )
+            la = (e['label'], son['label'], '_', e['node_label'] ) if not son['node_label'] \
+                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'] )
             code.append(la)
         elif 'left' in e and 'right' in e:
             left = DAG_node[e['left']]
@@ -205,14 +205,18 @@ def optimize(DAG_node):
             fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label']
             fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label']
             code.append((e['label'], fun1, fun2, e['node_label']))
+        elif len(e['node_label']) == 1 and e['node_label'][0] in Active_variable:
+            code.append(('=', e['label'], '_', e['node_label'][0]))
     return code
-
-
-
-
 
 #切分基本块
 def Partition_Basic_Block(codes):
+    print(codes)
+    # 转化成列表形式
+    new_codes = []
+    for i in codes:
+        new_codes.append(list(i))
+    codes = new_codes
     filename = './Basic_Block/basic_block'
     dot = Digraph(filename, 'Basic_Block', None, None, 'png', None, "UTF-8")
     # 划分基本块
@@ -220,27 +224,12 @@ def Partition_Basic_Block(codes):
     flag = []  # 入口flag
     flag.append(0) #刚开始的语句是入口
     for i in range(len(codes)):
-        if codes[i][0] in ['j', 'jz', 'jnz']:
+        if codes[i][0][0] == 'j':
             if int(codes[i][3]) not in flag: # 跳转语句跳转到的地方是入口
                 flag.append(int(codes[i][3]))
             if (i + 1) < len(codes) and (i + 1) not in flag:  # 跳转语句的下一条语句也是入口
                 flag.append(i + 1)
-    '''
-    将运算四元式与函数调用、跳转等四元式进行划分
-    '''
-    pre_sym = 0 # 为1表示运算符 为2表示其他
-    for i in range(len(codes)):
-        if codes[i][0] in ['+','-','*','/','%','=']:
-            if pre_sym!=1:
-                pre_sym = 1
-                if i not in flag:
-                    flag.append(i)
-        else:
-            if pre_sym!=2:
-                pre_sym=2
-                if i not in flag:
-                    flag.append(i)
-    flag.append(int(len(codes)))
+    flag.append(len(codes))
     print(flag)
     flag.sort()  # 对列表进行排序
     print('基本块切分序号列表',flag)
@@ -261,7 +250,6 @@ def Partition_Basic_Block(codes):
     # 基本块流程图
     # 基本块序号
     basic_number = 0
-    first = 0 # 标记是否是第一个基本块
     idx = 0 # 四元式序号
     for code in basic_blocks:
         text = ''
@@ -270,21 +258,21 @@ def Partition_Basic_Block(codes):
             idx+=1
         dot.node(str(basic_number),text, fontname="SimHei",shape='rectangle')
         basic_number+=1
+
     max_basic_number = basic_number-1 #最后一个基本块的编号
     basic_number = 0
+
     for code in basic_blocks:
-        if code[-1][0] == 'jz':
-            dot.edge(str(basic_number-1), str(basic_number))
-        if code[-1][0][0] == 'j':
-            if len(code)>=2:
-                print('code',code,code[-2][0][0])
-                if code[-2][0][0] == 'j' and code[-2][0][1] in ['=','<','>','!']:
-                    id = int(code[-2][3])
-                    basic_idx = flag.index(id)
-                    dot.edge(str(basic_number), str(basic_idx))
+        if code[-1][0] in ['jnz','j<','j>','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
             id = int(code[-1][3])
             basic_idx = flag.index(id)
-            dot.edge(str(basic_number),str(basic_idx))
+            dot.edge(str(basic_number), str(basic_idx))
+            if basic_idx < max_basic_number: # 不是最后一个基本块
+                dot.edge(str(basic_number), str(basic_number + 1))
+        elif code[-1][0] == 'jz' or code[-1][0] == 'j': # 跳转到下一条语句
+            id = int(code[-1][3])
+            basic_idx = flag.index(id)
+            dot.edge(str(basic_number), str(basic_idx))
         else:
             if basic_number < max_basic_number:# 不是最后一个基本块
                 dot.edge(str(basic_number),str(basic_number+1))
@@ -296,30 +284,49 @@ def Partition_Basic_Block(codes):
 #对程序中的所有基本块进行优化
 def all_basic_optimize(basic_blocks):
     optimize_quaternion = []
-    number = -1  # 标识读到哪条四元式
+    number = 0
     for code in basic_blocks:
-        count = 0  # 每个四元式块缩减条数
-        if code[0][0] in ['+','-','*','/','%','='] and len(code)>1:
-            prelen = len(code)
-            number+=prelen
-            DAG = create_DAG(code)
+        dag_block = []
+        count = 0
+        for c in code: # 遍历每一个四元式
+            if c[0] in ['+', '-', '*', '/', '%', '=','&&','||','!','@','>','<','>=','<=','!=','==']:
+                dag_block.append(c)
+            else:
+                if len(dag_block) == 1: # 优化四元式只有一条
+                    count+=1
+                    optimize_quaternion.append(dag_block[0])
+                    dag_block = []
+                elif len(dag_block) > 1: # 对四元式进行优化
+                    DAG = create_DAG(dag_block)
+                    codes = optimize(DAG)
+                    count+=len(codes)
+                    for i in codes:
+                        optimize_quaternion.append(list(i))
+                    dag_block = []
+                count+=1
+                optimize_quaternion.append(c)
+        if len(dag_block) == 1:  # 优化四元式只有一条
+            count += 1
+            optimize_quaternion.append(dag_block[0])
+            dag_block = []
+        elif len(dag_block) > 1:  # 对四元式进行优化
+            DAG = create_DAG(dag_block)
             codes = optimize(DAG)
-            newlen = len(codes)
-            count=(prelen-newlen)
-            for c in codes:
-                optimize_quaternion.append(list(c))
-            for c1 in basic_blocks: # 更新四元式跳转语句
-                for c2 in c1:
-                    if c2[0] in ['j', 'jz', 'jnz']:
-                        l = list(c2)
-                        if int(c2[3]) > number:
-                            c2[3] = int(c2[3]) - count
+            count += len(codes)
+            for i in codes:
+                optimize_quaternion.append(list(i))
+            dag_block = []
+        # 更新跳转语句跳转四元式
+        prelen = len(code) # 原先四元式条数
+        count = prelen-count # 优化四元式条数
+        for c1 in basic_blocks: # 更新四元式跳转语句
+            for c2 in c1:
+                if c2[0][0] == 'j':
+                    l = list(c2)
+                    if int(c2[3]) > number:
+                        c2[3] = int(c2[3]) - count
+        number+=len(code)
 
-            count = 0
-        else:
-            for c in code:
-                    optimize_quaternion.append(list(c))
-            number+=len(code)
     #返回优化后的四元式列表
     return optimize_quaternion
 
@@ -339,20 +346,28 @@ def test1():#基本块内优化
 
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes=[['=', '1000', '_', 'max'], ['main', '_', '_', '_'], ['=', '100', '_', 'm'], ['/', 'max', '2', 'T0'], ['<', 'm', 'T0', 'T1'], ['jnz', 'T1', '_', '10'], ['jz', 'T1', '_', '32'], ['+', 'm', '1', 'T2'], ['=', 'T2', '_', 'm'], ['j', '_', '_', '3'], ['/', 'm', '100', 'T3'], ['=', 'T3', '_', 'a'], ['/', 'm', '10', 'T4'], ['%', 'T4', '10', 'T5'], ['=', 'T5', '_', 'b'], ['%', 'm', '10', 'T6'], ['=', 'T6', '_', 'c'], ['*', 'a', 'a', 'T7'], ['*', 'T7', 'a', 'T8'], ['*', 'b', 'b', 'T9'], ['*', 'T9', 'b', 'T10'], ['+', 'T8', 'T10', 'T11'], ['*', 'c', 'c', 'T12'], ['*', 'T12', 'c', 'T13'], ['+', 'T11', 'T13', 'T14'], ['==', 'm', 'T14', 'T15'], ['jnz', 'T15', '_', '28'], ['jz', 'T15', '_', '31'], ['para', 'm', '_', '_'], ['call', 'write', '_', 'T16'], ['j', '_', '_', '31'], ['j', '_', '_', '7'], ['sys', '_', '_', '_']]
+    codes=[['main', '_', '_', '_'], ['=', '2', '_', 'x'], ['=', '3', '_', 'y'], ['&&', 'x', 'y', 'T0'], ['=', 'T0', '_',
+                                                                                                         'a'], ['&&',
+                                                                                                                'x',
+                                                                                                                '0',
+                                                                                                                'T1'], [
+               '=', 'T1', '_', 'b'], ['||', 'x', 'y', 'T2'], ['=', 'T2', '_', 'c'], ['||', 'x', '0', 'T3'], ['=', 'T3',
+                                                                                                             '_',
+                                                                                                             'd'], [
+               'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['para', 'b', '_', '_'], ['call', 'write', '_',
+                                                                                               'T5'], ['para', 'c', '_',
+                                                                                                       '_'], ['call',
+                                                                                                              'write',
+                                                                                                              '_',
+                                                                                                              'T6'], [
+               'para', 'd', '_', '_'], ['call', 'write', '_', 'T7'], ['sys', '_', '_', '_']]
 
-    # codes = []
-    # for i in a:
-    #     codes.append(i[1:])
-    # codes=[['=', '1', '_', 'a'], ['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['call',
-    #                                                                                                           'read',
-    #                                                                                                           '_',
-    #                                                                                                           'T1'], [
-    #           '=', 'T1', '_', 'M'], ['>=', 'M', 'N', 'T2'], ['jnz', 'T2', '_', '9'], ['jz', 'T2', '_', '11'], ['=', 'M',
-    #                                                                                                            '_',
-    #                                                                                                            'result'], [
-    #           'j', '_', '_', '12'], ['=', 'N', '_', 'result'], ['+', 'result', '100', 'T3'], ['=', 'T3', '_', 'a'], [
-    #           'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['sys', '_', '_', '_']]
+    # cc = []
+    # for i in codes:
+    #     cc.append(i[1:])
+    # print('cc:', cc)
+    # codes=cc
+
     basic_blocks=Partition_Basic_Block(codes)
     optimize_quaternion = all_basic_optimize(basic_blocks)
     print('optimize_quaternion',optimize_quaternion)
@@ -366,11 +381,3 @@ def test3():
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
 # test2()
-
-'''
-codes: [('=', '3', '', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B')]
-codes: [('"+"', 'A', 'B', 'T1'), ('"-"', 'A', 'B', 'T2'), ('"*"', 'T1', 'T2', 'F'), ('"-"', 'A', 'B', 'T1'), ('"-"', 'A', 'C', 'T2'), ('"-"', 'B', 'C', 'T3'), ('"*"', 'T1', 'T2', 'T1'), ('"*"', 'T1', 'T3', 'G')]
-optcodes: [('*', '2', '3', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('-', 'R', 'r', 'T6'), ('*', 'A', 'T6', 'B')]
-optcodes: [('+', 'A', 'B', 't_1'), ('-', 'A', 'B', 't_2'), ('*', 't_1', 't_2', 'F'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 't_2', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-
-'''

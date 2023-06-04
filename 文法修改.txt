@@ -51,10 +51,10 @@ if语句:if ( 表达式 ) 语句 | if ( 表达式 ) 语句 else 语句
 for语句:for ( 表达式 ; 表达式 ; 表达式 ) 循环语句
 while语句:while ( 表达式 ) 循环语句
 do-while语句:do 循环复合语句 while ( 表达式 ) ;
-循环语句:声明语句 | 循环执行语句 | 循环复合语句 | 执行语句
+循环语句:声明语句 | 循环执行语句 | 循环复合语句
 循环复合语句:{ 循环语句列表 }
 循环语句列表:循环语句 | 循环语句 循环语句列表
-循环执行语句:带if的循环语句 | for语句 | while语句 | do-while语句 | return语句 | break语句 | continue语句
+循环执行语句:带if的循环语句 | for语句 | while语句 | do-while语句 | return语句 | break语句 | continue语句 | 数据处理语句
 带if的循环语句:if ( 表达式 ) 循环语句 | if ( 表达式 ) 循环语句 else 循环语句
 return语句:return ; | return 表达式 ;
 break语句:break ;

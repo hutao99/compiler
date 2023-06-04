@@ -533,7 +533,9 @@ class NfaDfaMfa:
                 not_final_state.append(arc[2])
         mfa.append(not_final_state)
         mfa.append(final_states)
-
+        print("=================")
+        print(mfa)
+        print("=================")
         flag = True
         while flag:
             for index, states in enumerate(mfa):  # 得到等价状态集
@@ -551,23 +553,32 @@ class NfaDfaMfa:
                         for arc in dfa:  # 遍历dfa 找到该状态经过输入符号到达的新状态
                             if arc[0] == state and arc[1] == symbol:
                                 new_states.append(arc[2])
+                                # new_states_total.append(arc[2])
                         new_states_total.append(new_states)
-
+                    # print(mfa)
+                    # print(states)
+                    # print(new_states_total)
                     new_states_total2 = []  # 新的等价状态集来替换最外层的states
                     # 如果该等价状态集被分割了就找到分割后的等价状态集,用新的替换旧的, 通过双层遍历来实现
                     for index1, state1 in enumerate(states):
                         new_states = [state1]
                         for index2, state2 in enumerate(states):
-                            if index1 == index2:  # 自己不与自己比较
+                            if index2 == index1:  # 自己不与自己比较,小于避免重复比较
                                 continue
-                            elif new_states_total[index1] == new_states_total[index2]:  # 二者输入符号α到达的状态集相同
+                            elif len(new_states_total[index1]) > 0 and len(new_states_total[index2]) > 0:
+                                for states3 in mfa:     # 二者输入符号α到达的状态集相同
+                                    if new_states_total[index1][0] in states3 and new_states_total[index2][0] in states3:
+                                        new_states.append(state2)
+                                        break
+                            elif len(new_states_total[index1]) == 0 and len(new_states_total[index2]) == 0:
                                 new_states.append(state2)
+
                         new_states.sort()  # 对其按编号由小到大进行排序，方便后面判断是否为重复元素
                         if new_states not in new_states_total2:
                             new_states_total2.append(new_states)
                     # print(symbol)
-                    # print(states)
                     # print(new_states_total2)
+                    # print("========================")
                     # 被分割了就对其进行替换同时跳出输入符号这个循环, 前面算法保证了如果未被分割则二者相等
                     if len(new_states_total2) > 0 and new_states_total2[0] != states:
                         mfa.pop(index)  # 删除该等价状态集然后添加分割后的
@@ -579,24 +590,6 @@ class NfaDfaMfa:
                     break
             if flag1 == 1:  # 遍历正常结束
                 flag = False
-
-        # 将终结状态的单独处理一下，将可以合并的终结状态合并   终结状态的所有射出去的箭头仍指向终结状态
-        for index, states in enumerate(mfa):
-            if len(states) > 0 and states[0] in final_states:  # 里面所有的状态都会变成第一个状态
-                for index2, value in enumerate(mfa):  # 不知道为什么这里 值起名为 states2 会出错
-                    if states == value:
-                        pass
-                    elif len(value) > 0 and value[0] in final_states:
-                        flag = 1  # 1表示可以合并
-                        for arc in dfa:
-                            if (arc[0] == states[0] and arc[2] not in final_states) or (
-                                    arc[0] == value[0] and arc[2] not in final_states):
-                                flag = 0
-                                break
-                        if flag == 1:
-                            for state in value:
-                                mfa[index].append(state)
-                            mfa.pop(index2)
 
         # 结合dfa对mfa进行优化 将其变成 [初始状态,输入符号,结束状态]的形式
         # 主要思想 如mfa = [[0,1],[2],[3,4]] 则将dfa中的所有0,1变成 0。 3,4变成3(第一个状态) 最后使编号从0递增处理一下即可
@@ -640,7 +633,10 @@ class NfaDfaMfa:
                     # 同时终结状态集中大于 Min的状态编号也要减一
                     for index2, value2 in enumerate(final_states):
                         if value2 > Min:
-                            final_states[index2] -= 1
+                            if final_states[index2] - 1 in final_states:
+                                final_states.pop(index2)
+                            else:
+                                final_states[index2] -= 1
                 Max -= 1    # 同时最大值减一
             else:
                 Min += 1
@@ -700,44 +696,59 @@ class NfaDfaMfa:
         return final_mfa, final_states
 
 
+
+
+
+
 if __name__ == '__main__':
     texts = str(open('keshe.txt').read())  # 从文件中读入数据并强转为字符串类型
-    text = texts.split("\n")
-    print(text)
-    if len(text) > 1:  # 多个正规式
-        # 方法1 自己把每行的正规式套上一个（）合并成一个正规式
-        texts = ""
-        for index, value in enumerate(text):
-            print(value)
-            if index < len(text) - 1:
-                texts += "(" + value + ")|"
-            else:
-                texts += "(" + value + ")"
-        test = NfaDfaMfa(texts)
-        nfa = test.reg_to_nfa()  # final_nfa 得到的nfa
-        dfa, final_states, input_symbols = test.nfa_to_dfa(nfa)  # dfa,终态集和输入符号集
-        mfa, final_states = test.dfa_to_mfa(dfa, final_states, input_symbols)
-        print("多个正规式")
-
-        # 方法2 合并每个正规式的nfa
-        # nfas = []
-        # for reg in text:
-        #     test = NfaDfaMfa(reg)
-        #     nfas.append(test.reg_to_nfa())
-        # final_nfa = nfa_associate(nfas)
-        #
-        # first = final_nfa[0][0]
-        # last = final_nfa[len(final_nfa) - 1][2]
-        # nfa_graph(first, last, final_nfa)
-        # test = NfaDfaMfa("")  # 只是为了实例化对象
-        # dfa, final_states, input_symbols = test.nfa_to_dfa(final_nfa)  # dfa,终态集和输入符号集
-        # mfa, final_states = test.dfa_to_mfa(dfa, final_states, input_symbols)
-    else:
-        print("一个正规式")
-        test = NfaDfaMfa(texts)
-        nfa = test.reg_to_nfa()  # final_nfa 得到的nfa
-        dfa, final_states, input_symbols = test.nfa_to_dfa(nfa)  # dfa,终态集和输入符号集
-        mfa, final_states = test.dfa_to_mfa(dfa, final_states, input_symbols)
+    test = NfaDfaMfa(texts)
+    nfa = test.reg_to_nfa()  # final_nfa 得到的nfa
+    dfa, final_states, input_symbols = test.nfa_to_dfa(nfa)  # dfa,终态集和输入符号集
+    dfa1 = [[0, 'a', 1], [0, 'b', 2], [1, 'a', 3], [1, 'b', 2], [2, 'a', 1], [2, 'b', 4], [3, 'a', 3], [3, 'b', 5],
+           [4, 'a', 6], [4, 'b', 4], [5, 'a', 6], [5, 'b', 4], [6, 'a', 3], [6, 'b', 5]]
+    final_state = [3, 4, 5, 6]
+    input_symbols1 = ['a', 'b']
+    mfa, final_states1 = test.dfa_to_mfa(dfa1, final_state, input_symbols1)
+    print(mfa)
+    print(final_states1)
+    # texts = str(open('keshe.txt').read())  # 从文件中读入数据并强转为字符串类型
+    # text = texts.split("\n")
+    # print(text)
+    # if len(text) > 1:  # 多个正规式
+    #     # 方法1 自己把每行的正规式套上一个（）合并成一个正规式
+    #     texts = ""
+    #     for index, value in enumerate(text):
+    #         print(value)
+    #         if index < len(text) - 1:
+    #             texts += "(" + value + ")|"
+    #         else:
+    #             texts += "(" + value + ")"
+    #     test = NfaDfaMfa(texts)
+    #     nfa = test.reg_to_nfa()  # final_nfa 得到的nfa
+    #     dfa, final_states, input_symbols = test.nfa_to_dfa(nfa)  # dfa,终态集和输入符号集
+    #     mfa, final_states = test.dfa_to_mfa(dfa, final_states, input_symbols)
+    #     print("多个正规式")
+    #
+    #     # 方法2 合并每个正规式的nfa
+    #     # nfas = []
+    #     # for reg in text:
+    #     #     test = NfaDfaMfa(reg)
+    #     #     nfas.append(test.reg_to_nfa())
+    #     # final_nfa = nfa_associate(nfas)
+    #     #
+    #     # first = final_nfa[0][0]
+    #     # last = final_nfa[len(final_nfa) - 1][2]
+    #     # nfa_graph(first, last, final_nfa)
+    #     # test = NfaDfaMfa("")  # 只是为了实例化对象
+    #     # dfa, final_states, input_symbols = test.nfa_to_dfa(final_nfa)  # dfa,终态集和输入符号集
+    #     # mfa, final_states = test.dfa_to_mfa(dfa, final_states, input_symbols)
+    # else:
+    #     print("一个正规式")
+    #     test = NfaDfaMfa(texts)
+    #     nfa = test.reg_to_nfa()  # final_nfa 得到的nfa
+    #     dfa, final_states, input_symbols = test.nfa_to_dfa(nfa)  # dfa,终态集和输入符号集
+    #     mfa, final_states = test.dfa_to_mfa(dfa, final_states, input_symbols)
 
 #   code = "case\naut"
 #   test.Lexical_Analysis(mfa, code, final_states)

@@ -916,8 +916,8 @@ class CLRParser:
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
-            #print(stack_symbol)
-            #print(stack_state)
+            print(stack_symbol)
+            print(stack_state)
             #input()
         # print(self.var_num)
         print(self.function_array_list)
@@ -1138,6 +1138,8 @@ class CLRParser:
                             index_code += 2
 
                     elif father.name == '关系表达式':
+                        print('tttttttttttttttttttttttt')
+                        print(sign_list[index])
                         if sign_list[index] != 'or':
                             self.code.append(
                                 ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
@@ -1146,12 +1148,14 @@ class CLRParser:
                             bool_false.append(index_code + 1)
                             index_code += 2
                         else:
+                            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaa')
                             self.code.append(
                                 ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
                                  0])  # 跳转真出口
                             # self.code.append(['j', '', '', exit_code])
                             bool_true.append(index_code)
                             index_code += 1
+                            print(bool_true)
                     elif father.name == '变量声明':
                         if fun_flag:
                             if len(father.children) >= 3 and father.children[-3].name == 'identifier':
@@ -1196,18 +1200,24 @@ class CLRParser:
                                     self.code[i][3] = index_code + 2
                                 bool_true.clear()
                                 bool_false.clear()
-                                self.code.append([father.children[1].name, '1', '', father.children[-1].symbol_info[1]])
+                                self.code.append([father.children[1].name, '1', '', father.children[2].symbol_info[1]])
                                 self.code.append(['j', '', '', index_code + 3])
-                                self.code.append([father.children[1].name, '0', '', father.children[-1].symbol_info[1]])
+                                self.code.append([father.children[1].name, '0', '', father.children[2].symbol_info[1]])
                                 index_code += 3
                             else:
                                 if father.children[0].name == '表达式':
                                     self.code.append(
                                         ['=', father.children[0].value, '', father.children[2].symbol_info[1]])
                                     index_code += 1
+                    elif father.name == '常量声明':
+                        if fun_flag:
+                            self.function_jubu_list[fun_name].append(father.children[2].symbol_info[1])
+                        self.code.append(['=', father.children[0].value, '', father.children[2].symbol_info[1]])
+                        index_code += 1
+
                     elif father.name == 'if无else':
                         print(stack_symbol[-1])
-                        if stack_symbol[-1] != 'if有else':
+                        if stack_symbol[-1] != 'if有else' and stack_symbol[-1] != '带if的循环语句有else':
                             stack_if_total.append([])
                         # exit_true = index_code
                         if father.children[1].value is not None:
@@ -1220,15 +1230,17 @@ class CLRParser:
                         stack_if.append(bool_false.copy())
                         bool_true.clear()
                         bool_false.clear()
-                    elif father.name == 'if有else':
+                    elif father.name == 'if有else' or father.name == '带if的循环语句有else':
                         stack_if_total[-1].append(index_code)
+                        print('mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm')
+                        print(stack_if_total)
                         self.code.append(['j', '', '', index_code])
                         index_code += 1
                         q = stack_if.pop()
                         for i in q:
                             self.code[i][3] = index_code
                         flag_if = False
-                    elif father.name == 'if语句' and name != 'else':  # if语句结束
+                    elif father.name == 'if语句' and name != 'else' or father.name == '带if的循环语句' and name != 'else':  # if语句结束
                         if len(stack_if_total) != 0:
                             q = stack_if_total.pop()
                             # print(q)
@@ -1310,6 +1322,8 @@ class CLRParser:
                             bool_false.clear()
                             bool_true.clear()
                         else:
+                            print(bool_true)
+                            print(stack_for)
                             if father.children[1].value is not None:  # 表达式不是布尔表达式
                                 self.code.append(['jnz', father.children[1].value, '', 0])
                                 bool_true.append(index_code)
@@ -1323,11 +1337,15 @@ class CLRParser:
                                 for i in bool_false:
                                     self.code[i][3] = index_code
                                 if self.code[-1][0] == 'j':
+                                    for i in bool_false[:-1]:
+                                        self.code[i][3] = index_code-1
                                     self.code.pop()
+                                    self.code[-1][3] = stack_for[-1][0]
                                     index_code -= 1
                                 elif self.code[-1][0] == 'jz':
                                     self.code[-1][0] = 'jnz'
                                     self.code[-1][3] = stack_for[-1][0]
+                            stack_for.pop()
                             bool_false.clear()
                             bool_true.clear()
                     elif father.name == '实参':

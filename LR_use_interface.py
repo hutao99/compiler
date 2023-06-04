@@ -48,7 +48,6 @@ class CLRParser:
         self.Formula = p.Formula
         self.begin = p.begin
 
-
     def Action_and_GoTo_Table(self):
         self.Formula[self.begin+"'"] = self.begin
         state = []
@@ -106,7 +105,7 @@ class CLRParser:
                 if word == ['ε']:
                     word = []
                 word.insert(0, '.')
-                st = h[0]+'→'+''.join(word)+' '+''.join(lookahead_symbol)
+                st = h[0]+'→'+''.join(word)+' '+'|'.join(lookahead_symbol)
                 if st not in prod_state:
                     prod_state[st] = label
                     label += 1
@@ -168,7 +167,7 @@ class CLRParser:
                     # 加入向前搜索符
                     itemset.append(status[j][2])
                     new_status.append(itemset)
-                    st = status[j][0]+'→'+''.join(u)+' '+''.join(status[j][2])
+                    st = status[j][0]+'→'+''.join(u)+' '+'|'.join(status[j][2])
                     if st not in prod_state:
                         prod_state[st] = label
                         label += 1
@@ -209,7 +208,7 @@ class CLRParser:
                             if word == ['ε']:
                                 word = []
                             word.insert(0, '.')
-                            st = h[0] + '→' + ''.join(word) + ' ' + ''.join(lookahead_symbol)
+                            st = h[0] + '→' + ''.join(word) + ' ' + '|'.join(lookahead_symbol)
                             if st not in prod_state:
                                 prod_state[st] = label
                                 label += 1
@@ -258,9 +257,9 @@ class CLRParser:
             lab = 'I' + str(i) + '\n'
             for j in self.status_include_num[i]:
                 lab += prod_state_exchange[j] + '\n'
-            dot.node(str(i), lab)
+            dot.node(str(i), lab, fontname="SimHei")
         for i in self.direction:
-            dot.edge(str(i[0]), str(i[2]), i[1])
+            dot.edge(str(i[0]), str(i[2]), i[1], fontname="SimHei")
         dot.render('LR_Digraph.gv', view=True, format='png', directory='LR_Digraph')
 
     def ControlProgram(self, token):

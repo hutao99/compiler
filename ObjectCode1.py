@@ -118,7 +118,10 @@ def array_address1(fun_name1, name):
                 p = function[fun_name][1][t]
             else:
                 p = function[fun_name][0][t]
-            return 'lea si, [bp - %d]\n\tmov di, %s\n\tshl di, 1\n\tsub si, di\n\t'%(int(function_array[fun_name1][name[:name.index('[')]]), p)
+            if name[:name.index('[')] in function_array[fun_name1]:
+                return 'lea si, [bp - %d]\n\tmov di, %s\n\tshl di, 1\n\tsub si, di\n\t'%(int(function_array[fun_name1][name[:name.index('[')]]), p)
+            else:
+                return 'lea si, [_%s]\n\tmov di, %s\n\tshl di, 1\n\tadd si, di\n\t' % (name[:name.index('[')], p)
     else:
         if '[' in name:
             match = re.findall(regex, name)
@@ -171,17 +174,17 @@ def target_code(four_table):
             '''
             先查看数据是否在当前函数栈中 在查看是否在全局作用域中
             '''
-            if fun_name != '**' and '[' in two:
+            if fun_name != '**' and '[' in two and two[:two.index('[')] in function_array:  # 在函数内且是数组，数组为函数局部变量
                 two = 'ss:[si]'
-            elif fun_name == '**' and '[' in two:
+            elif '[' in two:  # 全局数组
                 two = '[si]'
-            if fun_name != '**' and '[' in three:
+            if fun_name != '**' and '[' in three and three[:three.index('[')] in function_array:
                 three = 'ss:[si]'
-            elif fun_name == '**' and '[' in three:
+            elif '[' in three:
                 three = '[si]'
-            if fun_name != '**' and '[' in four:
+            if fun_name != '**' and '[' in four and four[:four.index('[')] in function_array:
                 four = 'ss:[si]'
-            elif fun_name == '**' and '[' in four:
+            elif '[' in four:
                 four = '[si]'
             if fun_name != '**' and two in function[fun_name][0]:  # 当前为函数 使用的值在该函数栈里面 形参
                 print(function[fun_name][0])
@@ -244,10 +247,8 @@ def target_code(four_table):
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + 'MOV DX,0\n\t' + array_address1(fun_name,three1) +'MOV BX,' + three + '\n\t' + 'DIV BX\n\t' + array_address1(fun_name,four1) +'MOV ' + four + ',DX\n'
         elif one == '<':
             s += '_%d:\t' % (
-                i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
-                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JA _GT_' + str(
-                i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_GT_' + str(
-                i) + ':\tMOV ' + four + ',DX\n'
+                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t'+'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + 'JB _LT_' + str(
+                i) + '\n\t' +array_address1(fun_name,four1) + 'MOV DX,0\n' + '_LT_' + str(i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j<':  # 1
             s += '_%d:\t' % (
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) + 'jl _%s\n' % four
@@ -260,11 +261,8 @@ def target_code(four_table):
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jge _%s\n' % four
         elif one == '>':
             s += '_%d:\t' % (
-                i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
-                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JB _LT_' + str(
-                i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_LT_' + str(
-                i) + ':\tMOV ' + four + ',DX\n'
-
+                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + 'JA _GT_' + str(
+                i) + '\n\t' + array_address1(fun_name,four1) +'MOV DX,0\n' + '_GT_' + str(i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j>':  # 3
             s += '_%d:\t' % (
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jg _%s\n' % four
@@ -416,8 +414,11 @@ def solve(function_param_list1, function_jubu_list1, siyuanshi1, function_array_
     # test.quaternion_changeT()
     # [print(i, k) for i, k in enumerate(test.quaternion_list)]
     # function_param_list=test.function_param_table
-
-
+# a = [['=', '1000', '_', 'max'], ['main', '_', '_', '_'], ['=', '100', '_', 'm'], ['/', 'max', '2', 'T0'], ['j<', 'm', 'T0', 6], ['j', '_', '_', 25], ['/', 'm', '100', 'a'], ['/', 'm', '10', 'T3'], ['%', 'T3', '10', 'b'], ['%', 'm', '10', 'c'], ['*', 'a', 'a', 'T6'], ['*', 'T6', 'a', 'T7'], ['*', 'b', 'b', 'T8'], ['*', 'T8', 'b', 'T9'], ['+', 'T7', 'T9', 'T10'], ['*', 'c', 'c', 'T11'], ['*', 'T11', 'c', 'T12'], ['+', 'T10', 'T12', 'T13'], ['j==', 'm', 'T13', 20], ['j', '_', '_', 22], ['para', 'm', '_', '_'], ['call', 'write', '_', '_'], ['+', 'm', '1', 'm'], ['j', '_', '_', 3], ['ret', '0', '_', '_'], ['sys', '_', '_', '_']]
+# c = []
+# for i in a:
+#     c.append(i[1:])
+# solve({},{},a,[],{})
 # a = [ ['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['call', 'read', '_', 'T1'], ['=', 'T1', '_', 'M'], ['>=', 'M', 'N', 'T2'], ['jnz', 'T2', '_', 9], ['jz', 'T2', '_', 11], ['=', 'M', '_', 'result'], ['j', '_', '_', 12], ['=', 'N', '_', 'result'], ['+', 'result', '100', 'T3'], ['=', 'T3', '_', 'a'], ['para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['sys', '_', '_', '_']]
 
 # print(a)
