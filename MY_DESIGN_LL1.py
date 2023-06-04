@@ -721,7 +721,6 @@ class LL1GrammarSolver(QMainWindow):
                     f.write('\n')
 
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = LL1GrammarSolver()
