@@ -7,8 +7,9 @@ from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_DAG import MyDesiger_DAG, MyDialog
 from MY_DESIGN_LL1 import LL1GrammarSolver
-from MyDesign_suanfu import MyDesiger_suanfu
-from MY_DESIGN_LR import MyDesiger_LR
+from suanfu_final import OPGGrammarSolver
+from LR1_surface import LR1GrammarSolver
+from LR0_surface import LR0GrammarSolver
 
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
@@ -124,6 +125,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         # LR1自定义语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
+        # LR0语法分析
+        self.actionLR0.triggered.connect(self.LR0_analyze)
 
         '''
         图片导出
@@ -511,8 +514,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.DAG_window.show()
 
     def LR1_analyze(self):
-        self.LR_window = MyDesiger_LR()
+        self.LR_window = LR1GrammarSolver()
         self.LR_window.show()
+
+    def LR0_analyze(self):
+        self.LR0_window = LR0GrammarSolver()
+        self.LR0_window.show()
+
 
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):
@@ -813,7 +821,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.reg_window.show()
 
     def suanfu(self):
-        self.suanfu_window = MyDesiger_suanfu()
+        self.suanfu_window = OPGGrammarSolver()
         self.suanfu_window.show()
 
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
