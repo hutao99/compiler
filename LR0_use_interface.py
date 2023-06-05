@@ -39,6 +39,7 @@ class CLRParser:
         self.begin = p.begin
 
     def Action_and_GoTo_Table(self):
+        is_LR = True
         # 统计所有终结符
         terminal = set()
         for i in self.first:
@@ -109,6 +110,8 @@ class CLRParser:
                 i = status[l]
                 idx = i[1].index('.')
                 if idx+1 == len(i[1]):  # 可规约
+                    if len(status) != 1:
+                        is_LR = False
                     self.Final_State.add(father)
                     if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
                         reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
@@ -197,6 +200,7 @@ class CLRParser:
         self.prod_state = prod_state
         self.status_include_num = status_include_num
         self.direction = direction
+        return is_LR
 
     def draw_graphic(self):
         print(self.Final_State)
@@ -301,8 +305,9 @@ class CLRParser:
 
 
 lr1 = CLRParser()
-lr1.input('E:E + T| T\nT:T * F|F\nF:( E ) | i')
-lr1.Action_and_GoTo_Table()
+lr1.input('E:a A|b B\nA:c A|d\nB:c B|d')
+t = lr1.Action_and_GoTo_Table()
+print(t)
 lr1.draw_graphic()
 '''tokens = []
 lex = AnalyzerLex()
