@@ -128,6 +128,10 @@ class LexicalAnalysis():
                     self.idx += 1
                 elif ch in self.jielist:
                     state = 9
+                elif ch.isalpha():
+                    self.error(start)
+                    self.idx += 1
+                    return
                 else:
                     self.save_word(start, "整数")
                     return
@@ -554,12 +558,12 @@ def check_charset(file_path):
     return charset
 
 
-# filename = r'全部测试程序\00编译阶段 部分错误测试用例\词法分析用例.txt'
-# with open(filename, encoding=check_charset(filename)) as f:
-#     text = f.read()
-#     a = LexicalAnalysis(text)  # 读入文章
-#     c, d, e = a.print_out()
-#     print(c)
-#     print(d)
-#     print(e)
+filename = r'全部测试程序\00编译阶段 部分错误测试用例\词法分析用例.txt'
+with open(filename, encoding=check_charset(filename)) as f:
+    text = f.read()
+    a = LexicalAnalysis(text)  # 读入文章
+    c, d, e = a.print_out()
+    print(c)
+    print(d)
+    print(e)
 
