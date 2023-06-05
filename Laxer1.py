@@ -371,6 +371,7 @@ class LexicalAnalysis():
                 self.save_word(start, "字符串")
                 return
 
+
     def yufei_Check(self):
         state, start = self.init_start()
         while self.idx < self.text_len:
