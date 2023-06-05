@@ -1,42 +1,65 @@
 // Basic_Block
 digraph "./Basic_Block/basic_block" {
-	0 [label="0:['=', '1', '_', 'a']
-1:['main', '_', '_', '_']
-2:['=', '1', '_', 'i']
-3:['=', '0', '_', 'sum']
-4:['call', 'read', '_', 'T0']
-5:['=', 'T0', '_', 'N']
+	0 [label="0:['main', '_', '_', '_']
+1:['call', 'read', '_', 'T0']
+2:['=', 'T0', '_', 'N']
+3:['=', '0', '_', 'count']
+4:['=', '0', '_', 'nprime']
+5:['=', '2', '_', 'i']
 " fontname=SimHei shape=rectangle]
-	1 [label="6:['<', 'i', 'N', 'T1']
-7:['jnz', 'T1', '_', 9]
+	1 [label="6:['j<=', 'i', 'N', 8]
 " fontname=SimHei shape=rectangle]
-	2 [label="8:['jz', 'T1', '_', 19]
+	2 [label="7:['j', '_', '_', 29]
 " fontname=SimHei shape=rectangle]
-	3 [label="9:['%', 'i', '2', 'T2']
-10:['==', 'T2', '0', 'T3']
-11:['jnz', 'T3', '_', 13]
+	3 [label="8:['=', '0', '_', 'nprime']
+9:['=', '2', '_', 'j']
 " fontname=SimHei shape=rectangle]
-	4 [label="12:['jz', 'T3', '_', 16]
+	4 [label="10:['j<', 'j', 'i', 12]
 " fontname=SimHei shape=rectangle]
-	5 [label="13:['+', 'sum', 'i', 'T4']
-14:['=', 'T4', '_', 'sum']
-15:['j', '_', '_', 16]
+	5 [label="11:['j', '_', '_', 20]
 " fontname=SimHei shape=rectangle]
-	6 [label="16:['+', 'i', '1', 'T5']
-17:['=', 'T5', '_', 'i']
-18:['j', '_', '_', 6]
+	6 [label="12:['%', 'i', 'j', 'T3']
+13:['j==', 'T3', '0', 15]
 " fontname=SimHei shape=rectangle]
-	7 [label="19:['para', 'sum', '_', '_']
-20:['call', 'write', '_', 'T6']
-21:['sys', '_', '_', '_']
+	7 [label="14:['j', '_', '_', 17]
+" fontname=SimHei shape=rectangle]
+	8 [label="15:['+', 'nprime', '1', 'T4']
+16:['=', 'T4', '_', 'nprime']
+" fontname=SimHei shape=rectangle]
+	9 [label="17:['+', 'j', '1', 'T2']
+18:['=', 'T2', '_', 'j']
+19:['j', '_', '_', 10]
+" fontname=SimHei shape=rectangle]
+	10 [label="20:['j==', 'nprime', '0', 22]
+" fontname=SimHei shape=rectangle]
+	11 [label="21:['j', '_', '_', 26]
+" fontname=SimHei shape=rectangle]
+	12 [label="22:['para', 'i', '_', '_']
+23:['call', 'write', '_', '_']
+24:['+', 'count', '1', 'T5']
+25:['=', 'T5', '_', 'count']
+" fontname=SimHei shape=rectangle]
+	13 [label="26:['+', 'i', '1', 'T1']
+27:['=', 'T1', '_', 'i']
+28:['j', '_', '_', 6]
+" fontname=SimHei shape=rectangle]
+	14 [label="29:['sys', '_', '_', '_']
 " fontname=SimHei shape=rectangle]
 	0 -> 1
-	1 -> 3
 	1 -> 2
-	2 -> 7
-	3 -> 5
+	2 -> 14
 	3 -> 4
 	4 -> 6
-	5 -> 6
-	6 -> 1
+	4 -> 5
+	5 -> 10
+	6 -> 8
+	6 -> 7
+	7 -> 9
+	8 -> 9
+	9 -> 4
+	10 -> 12
+	10 -> 11
+	11 -> 13
+	12 -> 13
+	13 -> 1
 }
