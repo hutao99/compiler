@@ -23,7 +23,7 @@ D1 -> D2 m3
 m3 -> ; | , D1
 D2 -> A7 n4
 n4 -> = D4 |  r
-D4 -> A7 p2 | ( F2 ) m7 n3 q1 q2 | G3 m7 n3 q1 q2 | ! F4 m6 m5 | - n7 m7 n3
+D4 -> A7 p2 | ( F2 ) m7 n3 q1 q2 | G3 m7 n3 q1 q2 | ! F4 m6 m5 | - n7 m7 n3 q1
 q1 -> F3 F2 | r
 q2 -> m6 m5 | r
 p1 -> ( H1 ) | r
@@ -44,7 +44,7 @@ n6 -> E5 | r
 F1 -> F2 F3 F2
 F2 -> G1 n3
 n3 -> + G1 n3 | - G1 n3 | r
-F3 -> > m4 | < m4 | >= | <= | == | !=
+F3 -> > m4 | < m4 | <= | >= | == | !=
 m4 -> = | r
 F4 -> F5 m5
 m5 -> or F5 m5 | r
