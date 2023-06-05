@@ -23,7 +23,6 @@ class Ui_MainWindow_DAG(object):
         # 设置提示文本
         self.textEdit.setPlaceholderText("存放待分析的四元式列表")
 
-
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(15)
