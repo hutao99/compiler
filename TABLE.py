@@ -92,6 +92,8 @@ class Predictive_Analysis:
                         grammar_list[line.split(':')[0]].append(i.strip(' '))
 
         for production in data.split('\n'):
+            if ':' not in production:
+                continue
             left, right = production.split(':')
             left = left.strip()
             # 按照空格分割右部符号
@@ -304,7 +306,6 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
-
 if __name__ == "__main__":
     test = Predictive_Analysis()
     path = "全部测试程序\\11LL(1)测试用例\文法.TXT"
@@ -336,3 +337,4 @@ if __name__ == "__main__":
     print(test.first_dict)
     print(test.last)
     print(test.predict_table_['A1'])
+
