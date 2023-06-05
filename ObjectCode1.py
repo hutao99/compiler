@@ -248,7 +248,7 @@ def target_code(four_table):
         elif one == '<':
             s += '_%d:\t' % (
                 i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
-                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JA _GT_' + str(
+                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JL _GT_' + str(
                 i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_GT_' + str(
                 i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j<':  # 1
@@ -256,7 +256,7 @@ def target_code(four_table):
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) + 'jl _%s\n' % four
         elif one == '>=':
             s += '_%d:\t' % (
-                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'JNB _GE_' + str(
+                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'JGE _GE_' + str(
                 i) + '\n\t' + 'MOV DX,0\n' + '_GE_' + str(i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j>=':  # 2
             s += '_%d:\t' % (
@@ -264,7 +264,7 @@ def target_code(four_table):
         elif one == '>':
             s += '_%d:\t' % (
                 i) + array_address1(fun_name, two1) + 'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(
-                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JB _LT_' + str(
+                fun_name, three1) + 'CMP AX,' + three + '\n\t' + 'JG _LT_' + str(
                 i) + '\n\t' + array_address1(fun_name, four1) + 'MOV DX,0\n' + '_LT_' + str(
                 i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j>':  # 3
@@ -272,7 +272,7 @@ def target_code(four_table):
                 i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) + 'CMP AX,' + three + '\n\t' + array_address1(fun_name,four1) +'jg _%s\n' % four
         elif one == '<=':  # (j<=,A,B,P)
             s += '_%d:\t' % (
-                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + 'JNA _LE_' + str(
+                i) + array_address1(fun_name,two1) +'MOV DX,1\n\t' + 'MOV AX,' + two + '\n\t' + array_address1(fun_name,three1) +'CMP AX,' + three + '\n\t' + 'JLE _LE_' + str(
                 i) + '\n\t' + array_address1(fun_name,four1) +'MOV DX,0\n' + '_LE_' + str(i) + ':\tMOV ' + four + ',DX\n'
         elif one == 'j<=':  # (j<=,A,B,P) 4
             s += '_%d:\t' % (
@@ -426,3 +426,4 @@ def solve(function_param_list1, function_jubu_list1, siyuanshi1, function_array_
 # a = [ ['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['call', 'read', '_', 'T1'], ['=', 'T1', '_', 'M'], ['>=', 'M', 'N', 'T2'], ['jnz', 'T2', '_', 9], ['jz', 'T2', '_', 11], ['=', 'M', '_', 'result'], ['j', '_', '_', 12], ['=', 'N', '_', 'result'], ['+', 'result', '100', 'T3'], ['=', 'T3', '_', 'a'], ['para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['sys', '_', '_', '_']]
 
 # print(a)
+
