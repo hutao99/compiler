@@ -561,6 +561,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         cursor.insertImage(image_format)
 
                         self.textEdit_3.show()
+
                         QMessageBox.information(self, 'Export Image',
                                                 'Please export the image in the menu bar if you want to view it more clearly.')
                     except:
