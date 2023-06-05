@@ -274,6 +274,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_5.setText("打开测试案例或手动输入")
         self.pushButton_5.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
+
         # 显示分析过程
         self.tableStack = QtWidgets.QTableWidget()
         self.tableStack.setObjectName("tableStack")
