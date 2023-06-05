@@ -10,6 +10,24 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QT
 import sys
 
 
+def grammar_cut(grammar):
+    non_terminals = set()
+    terminals = set()
+    for line in grammar.split('\n'):
+        if line == '':
+            continue
+        lhs, rhs = line.split(':')
+        non_terminals.add(lhs)
+        for symbol in rhs:
+            if symbol.isalpha() and symbol.islower():
+                terminals.add(symbol)
+
+    # 为每个符号添加空格
+    for symbol in non_terminals.union(terminals):
+        grammar = grammar.replace(symbol, f" {symbol} ")
+    return grammar, non_terminals, terminals
+
+
 class OPGGrammarSolver(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -18,6 +36,9 @@ class OPGGrammarSolver(QMainWindow):
         self.setWindowTitle("算符优先分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
+
+        # 控制选项的变量
+        self.chose_mode = '系统分词模式'
 
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
@@ -64,6 +85,7 @@ class OPGGrammarSolver(QMainWindow):
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("算符优先文法分析")
+        self.pushButton.clicked.connect(self.get_VT)
         self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
 
         # 导入LL1文法的按钮
@@ -168,7 +190,6 @@ class OPGGrammarSolver(QMainWindow):
         self.pushButton_.setFixedHeight(size.height())
         self.mode_combo.setFixedHeight(size.height())
 
-        self.pushButton.clicked.connect(self.open_text)
         self.pushButton_.clicked.connect(self.open_text)
         #保存FirstVT
         # self.pushButton_2.clicked.connect(self.save_first)
@@ -242,6 +263,7 @@ class OPGGrammarSolver(QMainWindow):
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_4.setText("分析过程")
+        self.pushButton_4.clicked.connect(self.analyze_sentence)
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
@@ -273,10 +295,10 @@ class OPGGrammarSolver(QMainWindow):
         self.tableStack.setObjectName("tableStack")
         self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
 
-        self.tableStack.setColumnCount(3)
+        self.tableStack.setColumnCount(4)
 
         # 设置tablewidget 栈分析表的表头
-        self.tableStack.setHorizontalHeaderLabels(["符号栈", "产生式", "匹配字符"])
+        self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
         '''
         使用 QSizePolicy 控件来实现 QTableWidget 表格的大小随着界面的变化而自动调整
         如果表格中的数据量很大，自动调整表格大小可能会影响程序的性能
@@ -324,6 +346,7 @@ class OPGGrammarSolver(QMainWindow):
     def on_mode_changed(self, index):
         # 处理用户选择的模式
         mode = self.mode_combo.currentText()
+        self.chose_mode = mode
         print("当前模式：", mode)
 
     def onItemChanged(self, item):
@@ -381,7 +404,6 @@ class OPGGrammarSolver(QMainWindow):
                     str = f.read()
                     print(str)
                     self.textEdit.setText(str)
-                    self.get_VT()
         except Exception as e:
             print("Error: ", e)
 
@@ -401,6 +423,8 @@ class OPGGrammarSolver(QMainWindow):
     def get_VT(self):
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
+        if self.chose_mode == '系统分词模式':
+            grammar, non_terminals, terminals = grammar_cut(grammar)
         op = FirstVTAndLastVT()
         op.input(grammar)
         terminal = set()
@@ -438,6 +462,8 @@ class OPGGrammarSolver(QMainWindow):
         try:
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
             op = FirstVTAndLastVT()
             op.input(grammar)
             sequence1, precedence_table1, is_opg = op.Table()
@@ -463,6 +489,41 @@ class OPGGrammarSolver(QMainWindow):
                 idx += 1
             print(precedence_table1)
         except Exception as e:
+            print("Error: ", e)
+
+    def analyze_sentence(self):
+        try:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+            text = self.textEdit_1.toPlainText()
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
+                for symbol in non_terminals.union(terminals):
+                    text = text.replace(symbol, f" {symbol} ")
+            op = FirstVTAndLastVT()
+            op.input(grammar)
+            sequence1, precedence_table1, is_opg = op.Table()
+            if not is_opg:
+                QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎分析语句')
+            expression = ['#']
+            expression.extend(text.split())
+            expression.append('#')
+            t = [[], [], [], []]
+            t[0], info, t[3], t[1], t[2] = op.OP(sequence1, precedence_table1, expression)
+            # stack, info, action, remainder, priority
+            # self.tableStack.setColumnCount(4)  # 设置列数
+            self.tableStack.setRowCount(len(t[0]) + 1)  # 设置行数
+            for i in range(len(t[0])):
+                for j in range(4):
+                    if len(t[j]) == i:
+                        item = QtWidgets.QTableWidgetItem(info)
+                        self.tableStack.setItem(len(t[0]), 0, item)
+                        break
+                    p = str(t[j][i])
+                    item = QtWidgets.QTableWidgetItem(p)
+                    self.tableStack.setItem(i, j, item)
+        except Exception as e:
+            QMessageBox.warning(self, '警告', '句子中可能存在文法中没有的终结符')
             print("Error: ", e)
 
 
