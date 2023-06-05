@@ -108,8 +108,8 @@ class Ui_MainWindow_DAG(object):
         self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
         # 设置提示文本
         self.textEdit_3.setPlaceholderText("优化后的四元式列表")
+
         self.splitter2 = QSplitter(Qt.Vertical)
-        # self.splitter2.addWidget(self.splitter1)
         self.splitter2.addWidget(self.pushButton)
         self.splitter2.addWidget(self.textEdit)
 
