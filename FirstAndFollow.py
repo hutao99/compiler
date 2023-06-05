@@ -18,6 +18,7 @@ with open('文法.txt', 'r') as f:
             productions[left].append(symbols.split())
 print(productions)
 print(nonterminals)
+print(len(nonterminals))
 
 
 def compute_first(productions):
