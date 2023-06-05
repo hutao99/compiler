@@ -14,12 +14,12 @@ class Ui_MainWindow_DAG(object):
         MainWindow.resize(1033, 837)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#c9daf8").name())
+        MainWindow.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(510, 0, 521, 191))
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         # 设置提示文本
         self.textEdit.setPlaceholderText("存放待分析的四元式列表")
 
@@ -74,7 +74,7 @@ class Ui_MainWindow_DAG(object):
         font.setWeight(50)
         self.textEdit_2.setFont(font)
         self.textEdit_2.setObjectName("textEdit_2")
-        self.textEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         # 设置提示文本
         self.textEdit_2.setPlaceholderText("DAG优化图")
 
@@ -103,7 +103,7 @@ class Ui_MainWindow_DAG(object):
         font.setWeight(50)
         self.textEdit_3.setFont(font)
         self.textEdit_3.setObjectName("textEdit_3")
-        self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         # 设置提示文本
         self.textEdit_3.setPlaceholderText("优化后的四元式列表")
 
