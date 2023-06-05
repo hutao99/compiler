@@ -1,16 +1,16 @@
-// 杈撳叆a鍜宐锛岃緭鍑烘渶澶у叕绾︽暟
-// 娴嬭瘯鍑芥暟鐨勯�掑綊璋冪敤
+// 输入a和b，输出最大公约数
+// 测试函数的递归调用
 int gcd(int, int);
 
-int main(void)
+main()
 {
     int a;
     int b;
     int c;
-    input(a);
-    input(b);
+    a=read();
+    b = read();
     c = gcd(a, b);
-    output(c);
+    write(c);
     return 0;
 }
 int gcd(int x, int y)

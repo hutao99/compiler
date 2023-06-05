@@ -1,0 +1,28 @@
+//输入3个数排序，按从小到大的顺序输出
+int main(){
+    int a,b,c,t;
+    write("请输入3个整数: \n");
+    a=read();
+    b=read();
+    c=read();
+    if(a>b)    {
+       t=a;
+       a=b;
+       b=t;
+    }
+   if(a>c){
+      t=a;
+      a=c;
+      c=t;
+    }
+   if(b>c){
+      t=b;
+      b=c;
+      c=t;
+    }
+    write("三个数从小到大的顺序是：")
+    write(a);
+    write(b);
+    write(c);
+    return 0;
+}

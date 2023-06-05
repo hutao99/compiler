@@ -1,4 +1,12 @@
-//鍙岄噸for宓屽锛岃緭鍏ヤ竴涓暟n,杈撳嚭鍓峮鍒椾箻娉曡〃
+//双重for嵌套，输入一个数n,输出前n列乘法表
+int chengfabiao(int);
+main()
+{
+   int n;
+   n=read();
+   chengfabiao(n);
+}
+
 int chengfabiao(int n)
 {
   int i,j,s;
@@ -7,21 +15,10 @@ int chengfabiao(int n)
          for(j=1;j<=i;j=j+1)
         {
              s=i*j;
-           write(j);write("*");write(i);write("=");write(s );write(" ");
+           write(j);write(i);write(s);
        }
-            write("鎹㈣");
     }
   return 0;
-}
-
-
-
-
-main()
-{
-   int n;
-   n=read();
-   chengfabiao(n);
 }
 
 

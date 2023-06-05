@@ -1,18 +1,17 @@
-// breakï¼Œcontinueè·³è½¬
-int read();
-void write(int);
+// break£¬continueÌø×ª ÊäÈëÑ¡Ôñ(1:break,2:continue,3:exit)
+
 main()
 {
     int a;
     while (1)
     {
-        write("è¯·è¾“å…¥é€‰æ‹©(1:break,2:continue,3:exit):\n");
+ 
         a = read();
         if (a == 1 || a == 2)
         {
             do
             {
-                write("å¾ªçŽ¯å†…\n");
+
                 if (a == 1)
                     break;
                 if (a == 2)
@@ -21,7 +20,6 @@ main()
                     continue;
                 }
             } while (1);
-            write("å¾ªçŽ¯å¤–\n");
         }
         else
             break;

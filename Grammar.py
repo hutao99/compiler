@@ -338,10 +338,50 @@ class recDesc_analysis:
                         self.match(ch=item, fabian=self.node_number)  # 如果碰到了非终结符，直接递归非终结符的子程序
                     elif self.p >= len(self.goal_list):
                         return 1
-                    elif self.p < len(self.goal_list) and item == self.goal_list[self.p][1]:  # 终结符 则进行匹配 字符串指针++
+                    elif self.p < len(self.goal_list) and item == self.goal_list[self.p][2]:
+                        if self.func_define_flag:
+                            if item == '700':
+                                if self.func_define_flag == 2:
+                                    self.function_param_list[self.fun_list[-1]].append(self.goal_list[self.p][1])
+                                else:  # 添加局部变量
+                                    temp = self.goal_list[self.p][1]
+                                    if temp not in self.function_param_list[self.fun_list[-1]] and temp not in \
+                                            self.function_jubu_list[self.fun_list[-1]] and temp != self.fun_list[-1]:
+                                        self.function_jubu_list[self.fun_list[-1]].append(self.goal_list[self.p][1])
                         # 声明语句处理
+                        if self.expression_shengming:
+                            self.str1.gettop().push('a')
+                            if self.goal_list[self.p][2] == '700':
+                                str_type = self.sym1.get_type(self.goal_list[self.p][1],self.scope)
+                            else:
+                                str_type = self.goal_list[self.p][2]
+                            self.str2.gettop().push([str_type, self.goal_list[self.p][1]])
+
+                        if self.shengmingflag and not self.func_call_flag:
+                            if item == '700':
+                                if not self.sym_flag.Equal_Flag:
+                                    self.sym_flag.name = self.goal_list[self.p][1]
+                                    self.sym_flag.line = self.goal_list[self.p][0]
+                            else:  # 其他常量
+                                self.sym_flag.value = self.goal_list[self.p][1]
+                        else:
+                            if item == '700' and self.goal_list[self.p + 1][1] != '(':
+                                if not self.sym1.get(self.goal_list[self.p][1], self.scope):  # 等号左边变量是否声明
+                                    if self.func_define_flag != 2:
+                                        self.warnings_str += ("Warning: 第%s行 变量%s未声明\n" % (
+                                            self.goal_list[self.p][0], self.goal_list[self.p][1]))
+                                else:
+                                    print(self.warnings_str)
+                        self.node_number += 1
+                        tree.node(str(self.node_number), self.goal_list[self.p][1])
+                        tree.edge(str(fabian), str(self.node_number))
+                        self.p += 1
+                    elif self.p < len(self.goal_list) and (item == self.goal_list[self.p][1]):  # 终结符 则进行匹配 字符串指针++
+                        # 声明语句处理
+
                         if item == '/' and (self.p + 1) < len(self.goal_list) and self.goal_list[self.p + 1][1] == '0':
                             self.warnings_str += ("Warning: 第%s行 0不能做除数\n" % (self.goal_list[self.p][0]))
+
                         if self.shengmingflag:
                             if item == 'const':
                                 self.shengmingflag = 1  # 常量声明
@@ -410,43 +450,6 @@ class recDesc_analysis:
                         # 对作用域进行标记
                         self.node_number += 1
                         tree.node(str(self.node_number), self.goal_list[self.p][1], fontname="SimHei")
-                        tree.edge(str(fabian), str(self.node_number))
-                        self.p += 1
-                    elif self.p < len(self.goal_list) and item == self.goal_list[self.p][2]:
-                        if self.func_define_flag:
-                            if item == '700':
-                                if self.func_define_flag == 2:
-                                    self.function_param_list[self.fun_list[-1]].append(self.goal_list[self.p][1])
-                                else:  # 添加局部变量
-                                    temp = self.goal_list[self.p][1]
-                                    if temp not in self.function_param_list[self.fun_list[-1]] and temp not in \
-                                            self.function_jubu_list[self.fun_list[-1]] and temp != self.fun_list[-1]:
-                                        self.function_jubu_list[self.fun_list[-1]].append(self.goal_list[self.p][1])
-                        # 声明语句处理
-                        if self.expression_shengming:
-                            self.str1.gettop().push('a')
-                            if self.goal_list[self.p][2] == '700':
-                                str_type = self.sym1.get_type(self.goal_list[self.p][1],self.scope)
-                            else:
-                                str_type = self.goal_list[self.p][2]
-                            self.str2.gettop().push([str_type, self.goal_list[self.p][1]])
-                        if self.shengmingflag and not self.func_call_flag:
-                            if item == '700':
-                                if not self.sym_flag.Equal_Flag:
-                                    self.sym_flag.name = self.goal_list[self.p][1]
-                                    self.sym_flag.line = self.goal_list[self.p][0]
-                            else:  # 其他常量
-                                self.sym_flag.value = self.goal_list[self.p][1]
-                        else:
-                            if item == '700' and self.goal_list[self.p + 1][1] != '(':
-                                if not self.sym1.get(self.goal_list[self.p][1], self.scope):  # 等号左边变量是否声明
-                                    if self.func_define_flag != 2:
-                                        self.warnings_str += ("Warning: 第%s行 变量%s未声明\n" % (
-                                            self.goal_list[self.p][0], self.goal_list[self.p][1]))
-                                else:
-                                    print(self.warnings_str)
-                        self.node_number += 1
-                        tree.node(str(self.node_number), self.goal_list[self.p][1])
                         tree.edge(str(fabian), str(self.node_number))
                         self.p += 1
                 if ch == 'A5':  # 取消函数定义 记录函数形参及函数内变量
@@ -734,8 +737,7 @@ class Stack(object):
 
 # file_object = open('文法.txt')
 # a = recDesc_analysis(file_object)
-# a.solve([[1, 'main', '142'], [1, '(', '201'], [1, ')', '202'], [2, '{', '301'], [3, 'int', '102'], [3, 'm', '700'], [3, ',', '304'], [3, 'a', '700'], [3, ',', '304'], [3, 'b', '700'], [3, ',', '304'], [3, 'c', '700'], [3, ';', '303'], [4, 'for', '113'], [4, '(', '201'], [4, 'a', '700'], [4, '=', '230'], [4, '1', '400'], [4, ';', '303'], [4, 'a', '700'], [4, '<', '219'], [4, '3', '400'], [4, ';', '303'], [4, 'a', '700'], [4, '=', '230'], [4, 'a', '700'], [4, '+', '207'], [4, '1', '400'], [4, ')', '202'], [4, '{', '301'], [5, 'break', '104'], [5, ';', '303'], [6, '}', '302'], [7, 'return', '106'], [7, '0', '400'], [7, ';', '303'], [8, '}', '302']]
-# )
+# a.solve([[2, 'main', '142'], [2, '(', '201'], [2, ')', '202'], [3, '{', '301'], [4, 'int', '102'], [4, 'y', '700'], [4, ',', '304'], [4, 'a', '700'], [4, '=', '230'], [4, '1', '400'], [4, ',', '304'], [4, 'b', '700'], [4, '=', '230'], [4, '0', '400'], [4, ';', '303'], [5, 'y', '700'], [5, '=', '230'], [5, 'read', '700'], [5, '(', '201'], [5, ')', '202'], [5, ';', '303'], [7, 'if', '111'], [7, '(', '201'], [7, 'y', '700'], [7, '%', '216'], [7, '4', '400'], [7, '==', '223'], [7, '0', '400'], [7, '&&', '227'], [7, 'y', '700'], [7, '%', '216'], [7, '100', '400'], [7, '!=', '224'], [7, '0', '400'], [7, 'or', '227'], [7, 'y', '700'], [7, '%', '216'], [7, '400', '400'], [7, '==', '223'], [7, '0', '400'], [7, ')', '202'], [8, 'write', '700'], [8, '(', '201'], [8, 'a', '700'], [8, ')', '202'], [8, ';', '303'], [9, 'else', '112'], [10, 'write', '700'], [10, '(', '201'], [10, 'b', '700'], [10, ')', '202'], [10, ';', '303'], [11, 'return', '106'], [11, '0', '400'], [11, ';', '303'], [12, '}', '302']])
 # fun_list,function_param_list,function_jubu_list,siyuanshia,worrings_str,text1,text2 = a.solve([[2, 'int', '102'], [2, 'a', '700'], [2, '=', '230'], [2, '1', '400'], [2, ';', '303'], [3, 'int', '102'], [3, 'seq', '700'], [3, '(', '201'], [3, 'int', '102'], [3, ',', '304'], [3, 'int', '102'], [3, ')', '202'], [3, ';', '303'], [4, 'const', '105'], [4, 'int', '102'], [4, 'c', '700'], [4, '=', '230'], [4, '2', '400'], [4, ',', '304'], [4, 'd', '700'], [4, '=', '230'], [4, '3', '400'], [4, ';', '303'], [5, 'int', '102'], [5, 'p', '700'], [5, ',', '304'], [5, 'q', '700'], [5, '=', '230'], [5, '9', '400'], [5, ';', '303'], [6, 'main', '142'], [6, '(', '201'], [6, ')', '202'], [6, '{', '301'], [8, 'int', '102'], [8, 'result', '700'], [8, ';', '303'], [9, 'int', '102'], [9, 'N', '700'], [9, '=', '230'], [9, 'read', '700'], [9, '(', '201'], [9, 'a', '700'], [9, '+', '207'], [9, '1', '400'], [9, ',', '304'], [9, 'c', '700'], [9, ')', '202'], [9, ';', '303'], [10, 'int', '102'], [10, 'M', '700'], [10, '=', '230'], [10, 'read', '700'], [10, '(', '201'], [10, ')', '202'], [10, ';', '303'], [11, 'int', '102'], [11, 'b', '700'], [11, '=', '230'], [11, '2', '400'], [11, '+', '207'], [11, '3', '400'], [11, '-', '208'], [11, '2', '400'], [11, '+', '207'], [11, '(', '201'], [11, '5', '400'], [11, '+', '207'], [11, '6', '400'], [11, ')', '202'], [11, '+', '207'], [11, '3', '400'], [11, '*', '213'], [11, '5', '400'], [11, '/', '215'], [11, 'a', '700'], [11, ';', '303'], [12, 'if', '111'], [12, '(', '201'], [12, 'A', '700'], [12, '&&', '227'], [12, 'B', '700'], [12, '&&', '227'], [12, 'c', '700'], [12, '>', '221'], [12, 'D', '700'], [12, ')', '202'], [13, 'if', '111'], [13, '(', '201'], [13, 'M', '700'], [13, '>=', '222'], [13, 'N', '700'], [13, ')', '202'], [13, 'result', '700'], [13, '=', '230'], [13, 'M', '700'], [13, ';', '303'], [14, 'else', '112'], [14, 'result', '700'], [14, '=', '230'], [14, 'N', '700'], [14, ';', '303'], [16, 'if', '111'], [16, '(', '201'], [16, 'w', '700'], [16, '<', '219'], [16, '1', '400'], [16, ')', '202'], [17, 'a', '700'], [17, '=', '230'], [17, 'b', '700'], [17, '*', '213'], [17, 'c', '700'], [17, '+', '207'], [17, 'd', '700'], [17, ';', '303'], [18, 'else', '112'], [19, '{', '301'], [20, 'do', '109'], [21, '{', '301'], [22, 'a', '700'], [22, '=', '230'], [22, 'a', '700'], [22, '-', '208'], [22, '1', '400'], [22, ';', '303'], [23, '}', '302'], [23, 'while', '110'], [23, '(', '201'], [23, 'a', '700'], [23, '<', '219'], [23, '0', '400'], [23, ')', '202'], [23, ';', '303'], [25, '}', '302'], [26, 'for', '113'], [26, '(', '201'], [26, 'i', '700'], [26, '=', '230'], [26, 'a', '700'], [26, '+', '207'], [26, 'b', '700'], [26, '*', '213'], [26, '2', '400'], [26, ';', '303'], [26, 'i', '700'], [26, '<', '219'], [26, 'c', '700'], [26, '+', '207'], [26, 'd', '700'], [26, '+', '207'], [26, '10', '400'], [26, ';', '303'], [26, 'i', '700'], [26, '=', '230'], [26, 'i', '700'], [26, '+', '207'], [26, '1', '400'], [26, ')', '202'], [27, 'if', '111'], [27, '(', '201'], [27, 'h', '700'], [27, '>', '221'], [27, 'g', '700'], [27, ')', '202'], [28, 'p', '700'], [28, '=', '230'], [28, 'p', '700'], [28, '+', '207'], [28, '1', '400'], [28, ';', '303'], [29, 'a', '700'], [29, '=', '230'], [29, 'result', '700'], [29, '+', '207'], [29, '100', '400'], [29, ';', '303'], [30, 'write', '700'], [30, '(', '201'], [30, 'a', '700'], [30, ')', '202'], [30, ';', '303'], [32, '}', '302']])
 # print(fun_list)
 # print(function_param_list,function_jubu_list)

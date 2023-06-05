@@ -1,0 +1,13 @@
+//求两个数的最大公约数
+ main(){
+    int a， b;
+    a=read();
+    b=read();
+    while (a % b){
+         int tmp = a % b;
+         a = b;
+         b = tmp;
+     }
+     write(b);
+     return 0;
+}

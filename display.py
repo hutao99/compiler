@@ -1,4 +1,3 @@
-
 import os
 import sys
 
@@ -6,7 +5,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
-from MY_DESIGN_DAG import MyDesiger_DAG
+from MY_DESIGN_DAG import MyDesiger_DAG, MyDialog
 from MY_DESIGN_LL1 import LL1GrammarSolver
 from MyDesign_suanfu import MyDesiger_suanfu
 from MY_DESIGN_LR import MyDesiger_LR
@@ -16,7 +15,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Laxer1 import LexicalAnalysis
 # import webbrowser
-#webbrowser.open(fname[0])  # 打开chm格式的文件
+# webbrowser.open(fname[0])  # 打开chm格式的文件
 from Grammar import recDesc_analysis
 from ObjectCode1 import solve
 import ObjectCode1
@@ -24,10 +23,9 @@ import ObjectCode1
 import LR
 from Analyzer import AnalyzerLex
 
-from create_DAG import create_DAG, optimize,Partition_Basic_Block,all_basic_optimize
+from create_DAG import create_DAG, optimize, Partition_Basic_Block, all_basic_optimize
 # REG
 from REG_control import REG_MainWindow
-
 
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
@@ -84,7 +82,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionorange_font.triggered.connect(self.set_orange_font)
         self.actionpurple_font.triggered.connect(self.set_purple_font)
 
-
         '''
         LL1预测分析
         '''
@@ -127,6 +124,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         # LR1自定义语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
+
+        '''
+        图片导出
+        '''
+        self.action_tree_pic.triggered.connect(self.save_tree)
+        self.action_baseblock_pic.triggered.connect(self.save_base_block)
+        self.action_DAG_pic.triggered.connect(self.save_DAG)
         '''
         对一些变量进行初始化
         '''
@@ -299,10 +303,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             if file_name:
                 # 如果用户选择了文件路径和文件名，则执行保存操作
                 with open(file_name, 'w') as f:
-                    f.write(self.text_edit.toPlainText())
+                    f.write(self.textEdit.toPlainText())
                 # 更新当前文件名
                 self.file_name = file_name
-
 
     def closeEvent(self, event):
         # 保存设置
@@ -558,6 +561,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         cursor.insertImage(image_format)
 
                         self.textEdit_3.show()
+
+
+
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:
@@ -622,20 +628,36 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
                     self.textEdit_2.setText(s)
 
-    # 中间代码
-    def middle_analysis(self):
-        if self.recursive_or_lr_flag == 0 :
+    def save_tree(self):
+        if self.recursive_or_lr_flag == 0:
             QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
-            if self.recursive_or_lr_flag == 1: # 递归下降中间代码
+            if self.siyuanshi == None or self.siyuanshi == []:
+                QMessageBox.warning(self, '警告', '请先进行语法分析！')
+            else:
+                try:
+                    dialog = MyDialog('./Syntax_Tree/tree.gv.png', self)
+                    dialog.setModal(True)
+                    dialog.exec_()
+                except FileNotFoundError as e:
+                    print('文件不存在：', e.filename)
+                except Exception as e:
+                    print('发生了异常：', e)
+
+    # 中间代码
+    def middle_analysis(self):
+        if self.recursive_or_lr_flag == 0:
+            QMessageBox.warning(self, '警告', '请先进行词法分析！')
+        else:
+            if self.recursive_or_lr_flag == 1:  # 递归下降中间代码
                 if self.siyuanshi == None or self.siyuanshi == []:
                     QMessageBox.warning(self, '警告', '请先进行语法分析！')
                 else:
                     text = ''
                     idx = 0
                     for quad in self.siyuanshi:
-                        text += str(idx)+':'+str(quad) + '\n'
-                        idx+=1
+                        text += str(idx) + ':' + str(quad) + '\n'
+                        idx += 1
                     print(text)
                     self.textEdit_3.setText(text)
             else:  # LR中间代码
@@ -670,18 +692,17 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 基本块划分
     def Basic_Block(self):
-        s = self.textEdit_3.toPlainText() # 获取四元式序列
-        if  s == '':
+        s = self.textEdit_3.toPlainText()  # 获取四元式序列
+        if s == '':
             QMessageBox.warning(self, '警告', '请先生成四元式！')
         else:
             try:
                 codes = self.format_conversion(s)
-                self.basic_blocks=Partition_Basic_Block(codes)
-                print('basic_blocks',self.basic_blocks)
+                self.basic_blocks = Partition_Basic_Block(codes)
+                print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
                 image_format = QtGui.QTextImageFormat()
                 image_format.setName('./Basic_Block/basic_block.gv.png')
-
 
                 # 在QTextEdit中插入图片
                 self.textEdit_2.clear()
@@ -693,7 +714,19 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 QMessageBox.warning(self, '警告', '系统错误！')
 
         # DAG优化
-
+    def save_base_block(self):
+        s = self.textEdit_3.toPlainText()  # 获取四元式序列
+        if s == '':
+            QMessageBox.warning(self, '警告', '请先生成四元式！')
+        else:
+            try:
+                dialog = MyDialog('./Basic_Block/basic_block.gv.png', self)
+                dialog.setModal(True)
+                dialog.exec_()
+            except FileNotFoundError as e:
+                print('文件不存在：', e.filename)
+            except Exception as e:
+                print('发生了异常：', e)
     def DAG_optimization(self):
         if self.split_flag != 1:
             self.Basic_Block()  # 先生成四元式
@@ -709,19 +742,27 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.yh_flag = 1
         except:
             QMessageBox.warning(self, '警告', '系统错误！')
-
+    def save_DAG(self):
+        try:
+            dialog = MyDialog('./DAG/visible.gv.png', self)
+            dialog.setModal(True)
+            dialog.exec_()
+        except FileNotFoundError as e:
+            print('文件不存在：', e.filename)
+        except Exception as e:
+            print('发生了异常：', e)
     # 目标代码
     def Object_analysis(self):
-        if self.recursive_or_lr_flag == 0 :
+        if self.recursive_or_lr_flag == 0:
             QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
-            if self.recursive_or_lr_flag == 1: # 递归下降目标代码
+            if self.recursive_or_lr_flag == 1:  # 递归下降目标代码
                 if self.siyuanshi == None or self.siyuanshi == []:
                     QMessageBox.warning(self, '警告', '请先生成中间代码!')
                 else:
                     try:
                         if not self.yh_flag:
-                            text = solve(self.function_param_list, self.function_jubu_list, self.siyuanshi, {},[])
+                            text = solve(self.function_param_list, self.function_jubu_list, self.siyuanshi, {}, [])
                         else:
                             text = ''
                             idx = 0
@@ -729,7 +770,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                                 text += str(idx) + ':' + str(i) + '\n'
                                 idx += 1
                             self.textEdit_3.setText(text)
-                            text = solve(self.function_param_list, self.function_jubu_list, self.optimize_quaternion,{},[])
+                            text = solve(self.function_param_list, self.function_jubu_list, self.optimize_quaternion,
+                                         {}, [])
                         self.textEdit_2.setText(text)
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
@@ -745,10 +787,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                             for j in range(4):
                                 if MiddleCode[i][j] == '':
                                     MiddleCode[i][j] = '_'
-                        print('MiddleCode',MiddleCode)
+                        print('MiddleCode', MiddleCode)
                         if len(MiddleCode) != 0:
                             self.textEdit_2.setText(
-                                ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode, function_array_list,
+                                ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode,
+                                                  function_array_list,
                                                   global_array_list))
                     else:
                         text = ''
@@ -756,14 +799,14 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         for i in self.optimize_quaternion:
                             text += str(idx) + ':' + str(i) + '\n'
                             idx += 1
-                        print('self.optimize_quaternion',self.optimize_quaternion)
+                        print('self.optimize_quaternion', self.optimize_quaternion)
                         self.textEdit_3.setText(text)
                         self.textEdit_2.setText(
-                            ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion, function_array_list,
+                            ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion,
+                                              function_array_list,
                                               global_array_list))
                 except:
                     QMessageBox.warning(self, '警告', '系统无法处理！')
-
 
     def REG_transform(self):
         self.reg_window = REG_MainWindow()
@@ -774,10 +817,16 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.suanfu_window.show()
 
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
+        # 对全局变量进行初始化
+        self.split_flag = 0
+        self.yh_flag = 0
+        self.siyuanshi = None
+        self.basic_blocks = None
+
         self.recursive_or_lr_flag = 2
         text = self.textEdit.toPlainText()
         lex = AnalyzerLex()
-        lex.input(text+'\n')
+        lex.input(text + '\n')
         s = ''
         while True:
             tok = lex.token()
@@ -852,9 +901,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     #         s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
     #     self.textEdit_2.setText(s)
 
-        #将文本框中的四元式转换
-    def format_conversion(self,s):
-        print('s',s)
+    # 将文本框中的四元式转换
+    def format_conversion(self, s):
+        print('s', s)
         # 去掉末尾的换行符
         s = s.strip()
         # 按照换行符分割成多个行字符串
@@ -868,8 +917,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)
-        print('result',result)
+        print('result', result)
         return result
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = DetailUI()

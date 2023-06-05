@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QComboBox
 
 import Analyzer
 from TABLE import Predictive_Analysis, ASTNode
@@ -15,14 +15,36 @@ class LL1GrammarSolver(QMainWindow):
         super().__init__()
         # 创建一个选项卡窗口部件
         self.tabWidget = QtWidgets.QTabWidget(self)
+        self.tabWidget.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.setWindowTitle("LL1预测分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
 
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
+        self.tab1.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab1, "FIRST和FOLLOW集合")
 
+        # 创建下拉框，用于选择模式
+        self.mode_combo = QComboBox(self.tab1)
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(15)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.mode_combo.setFont(font)
+
+        self.mode_combo.setWindowTitle('模式选择')
+        self.mode_combo.setObjectName('模式选择')
+        self.mode_combo.addItem("系统分词模式")
+        self.mode_combo.addItem("用户分词模式")
+        self.mode_combo.currentIndexChanged.connect(self.on_mode_changed)
+        self.mode_combo.setStyleSheet(
+            "#模式选择 {text-align:center;} QComboBox::drop-down {subcontrol-origin: padding; subcontrol-position: top right; width: 20px;}")
+        # choice=0代表系统分词模式||choice=1代表用户分词模式
+        self.choice = 0
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab2, "预测分析表")
@@ -45,7 +67,9 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.setText("导入LL1简单文法")
+        self.pushButton.setText("LL1文法分析")
+        self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 导入LL1文法的按钮
         self.pushButton_ = QtWidgets.QPushButton()
@@ -59,7 +83,9 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_.setFont(font)
         self.pushButton_.setObjectName("pushButton")
-        self.pushButton_.setText("导入LL1复杂文法")
+        self.pushButton_.setText("导入LL1文法")
+        self.pushButton_.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 求解FIRST集合的按钮
         # 求解FOLLOW集合的按钮
@@ -75,6 +101,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText("保存FIRST集合内容")
+        self.pushButton_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示LL1文法的内容
         self.textEdit = QtWidgets.QTextEdit()
@@ -87,11 +114,12 @@ class LL1GrammarSolver(QMainWindow):
         font.setUnderline(False)
         self.textEdit.setFont(font)
         self.textEdit.setObjectName("textEdit")
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 显示FIRST集合的内容
         self.table_FIRST = QtWidgets.QTableWidget()
         self.table_FIRST.setObjectName("tableAnalyze")
-        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         # self.table_FIRST.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -100,7 +128,7 @@ class LL1GrammarSolver(QMainWindow):
         # 显示FOLLOW集合的内容
         self.table_FOLLOW = QtWidgets.QTableWidget()
         self.table_FOLLOW.setObjectName("tableAnalyze")
-        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         # self.table_FOLLOW.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -118,12 +146,14 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3_.setFont(font)
         self.pushButton_3_.setObjectName("pushButton_2")
         self.pushButton_3_.setText("保存FOLLOW集合内容")
+        self.pushButton_3_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-        buttonSplitter.addWidget(self.pushButton)
+        buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
+        buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
         textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -144,10 +174,11 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton.setFixedHeight(size.height())
         self.pushButton_.setFixedHeight(size.height())
 
-        self.pushButton.clicked.connect(self.open_text)
+        self.pushButton.clicked.connect(self.onClick_create_first_follow)
         self.pushButton_.clicked.connect(self.open_text)
         self.pushButton_2.clicked.connect(self.save_first)
         self.pushButton_3_.clicked.connect(self.save_follow)
+        self.mode_combo.setFixedHeight(size.height())
 
         layout2 = QtWidgets.QGridLayout()
 
@@ -163,11 +194,12 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("预测分析表")
+        self.pushButton_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示预测分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
-        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -199,6 +231,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3__.setFixedHeight(size.height())
         self.pushButton_3.clicked.connect(self.analyze_table)
         self.pushButton_3__.clicked.connect(self.save_analyze_table)
+        self.pushButton_3__.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
 
@@ -214,10 +247,11 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_4.setText("分析过程")
+        self.pushButton_4.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
-        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(13)
@@ -239,11 +273,13 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_5.setFont(font)
         self.pushButton_5.setObjectName("pushButton_5")
         self.pushButton_5.setText("打开测试案例或手动输入")
+        self.pushButton_5.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
+
 
         # 显示分析过程
         self.tableStack = QtWidgets.QTableWidget()
         self.tableStack.setObjectName("tableStack")
-        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.tableStack.setColumnCount(3)
 
@@ -287,9 +323,19 @@ class LL1GrammarSolver(QMainWindow):
         layout3.addWidget(self.splitter2_)
 
         self.tab3.setLayout(layout3)
-        self.pushButton_4.clicked.connect(self.onClick_analyze_stack)
-        self.pushButton_5.clicked.connect(self.open_sample)
+        if self.choice == 1:
+            self.pushButton_4.clicked.connect(self.onClick_analyze_stack_1)
+        elif self.choice == 0:
+            self.pushButton_4.clicked.connect(self.onClick_analyze_stack_2)
         self.pushButton_5_.clicked.connect(self.save_analyze_process)
+
+    def on_mode_changed(self, index):
+        if index == 0:
+            self.choice = 0
+            print('用户选择了系统分词模式')
+        elif index == 1:
+            self.choice = 1
+            print('用户选择了用户分词模式')
 
     def onItemChanged(self, item):
         # 自动调整表格大小
@@ -323,14 +369,14 @@ class LL1GrammarSolver(QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/11LL(1)测试用例',
+                                                '文本文件 (*.txt)')
             if fname[0]:
                 print(fname[0])
                 with open(fname[0], encoding=self.check_charset(fname[0])) as f:
                     str = f.read()
                     print(str)
                     self.textEdit.setText(str)
-                    self.onClick_create_first_follow()
         except Exception as e:
             print("Error: ", e)
 
@@ -349,8 +395,29 @@ class LL1GrammarSolver(QMainWindow):
 
     def onClick_create_first_follow(self):
         test = Predictive_Analysis()
-        grammar = self.textEdit.toPlainText()
-        grammar = grammar.replace('->', ':')
+        grammar = ""
+        if self.choice == 0:
+            text = self.textEdit.toPlainText()
+            lines = text.splitlines(True)
+            res = ""
+            for line in lines:
+                print(line.rstrip('\r\n'))
+                line = line.rstrip()
+                new_s = line[0]
+                for i in range(1, len(line)):
+                    if line[i] != ' ' and line[i - 1] != ' ':
+                        new_s += ' '
+                    new_s += line[i]
+                print(new_s)
+                res += new_s.strip() + '\n'
+            print(res)
+            grammar = res.replace(' - > ', ':')
+            grammar = grammar.replace(' | ', '|')
+        elif self.choice == 1:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+        print("\ngrammar如下\n")
+        print(grammar)
         test.input(grammar)
         VN = test.vn
         VT = test.vt
@@ -388,28 +455,6 @@ class LL1GrammarSolver(QMainWindow):
                 if VT_1[size] in FIRST[VN[i]]:
                     item1 = QtWidgets.QTableWidgetItem(VT_1[size])
                     self.table_FIRST.setItem(i + 1, size + 1, item1)
-        '''
-        QtCore.QCoreApplication.processEvents()
-    
-        # 弹出消息框，询问用户是否保存内容
-        reply = QMessageBox.question(self, '保存内容', '是否保存FIRST集合内容到本地文件？',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            # 如果用户选择保存，则将内容保存到本地文件中
-            # 弹出文件对话框，让用户选择要保存的文件名和路径
-            filename1, _ = QFileDialog.getSaveFileName(self, '保存FIRST集合', '', 'Text Files (*.txt)')
-            if filename1:
-                with open(filename1, 'w') as f:
-                    for row in range(self.table_FIRST.rowCount()):
-                        for col in range(self.table_FIRST.columnCount()):
-                            item = self.table_FIRST.item(row, col)
-                            if item is not None:
-                                f.write(item.text() + '\t')
-                            else:
-                                f.write('\t')
-                        f.write('\n')
-                        '''
 
         # FOLLOW
         self.table_FOLLOW.setColumnCount(len(VT) + 1)
@@ -433,52 +478,6 @@ class LL1GrammarSolver(QMainWindow):
                 if VT_1[size] in FOLLOW[VN[i]]:
                     item1 = QtWidgets.QTableWidgetItem(VT_1[size])
                     self.table_FOLLOW.setItem(i + 1, size + 1, item1)
-        '''
-        # 弹出消息框，询问用户是否保存内容
-        reply = QMessageBox.question(self, '保存内容', '是否保存FOLLOW集合内容到本地文件？',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            # 如果用户选择保存，则将内容保存到本地文件中
-            # 弹出文件对话框，让用户选择要保存的文件名和路径
-            filename1, _ = QFileDialog.getSaveFileName(self, '保存FOLLOW集合', '', 'Text Files (*.txt)')
-            if filename1:
-                with open(filename1, 'w') as f:
-                    for row in range(self.table_FIRST.rowCount()):
-                        for col in range(self.table_FIRST.columnCount()):
-                            item = self.table_FIRST.item(row, col)
-                            if item is not None:
-                                f.write(item.text() + '\t')
-                            else:
-                                f.write('\t')
-                        f.write('\n')
-                    '''
-        '''
-        另外一种界面展示方式
-        labels = ['非终结符', 'FIRST集']
-        self.table_FIRST.setColumnCount(len(labels))
-        self.table_FIRST.setHorizontalHeaderLabels(labels)
-        self.table_FIRST.resizeRowsToContents()
-        self.table_FIRST.resizeColumnsToContents()
-        for i in range(len(VN)):
-            # 没遍历一次增加一层
-            layer_analyze = layer_analyze + 1
-            self.table_FIRST.setRowCount(layer_analyze)
-            # 界面显示 预测分析表
-            # 显示预测分析表的第一列 非终结符
-            item1 = QtWidgets.QTableWidgetItem(VN[i])
-            self.table_FIRST.setItem(i, 0, item1)
-            # # 显示预测分析表的每一行 动作
-
-            for key in FIRST:
-                FIRST[key] = str(FIRST[key])
-            item1 = QtWidgets.QTableWidgetItem(FIRST[VN[i]])
-            self.table_FIRST.setItem(i, 1, item1)
-            for size in range(len(VT_1)):
-                if VT_1[size] in FIRST[VN[i]]:
-                    item1 = QtWidgets.QTableWidgetItem(VT_1[size])
-                    self.table_FIRST.setItem(i + 1, size + 1, item1)
-        '''
 
     def save_first(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存FIRST集合', '', 'Text Files (*.txt)')
@@ -508,8 +507,28 @@ class LL1GrammarSolver(QMainWindow):
 
     def analyze_table(self):
         test = Predictive_Analysis()
-        grammar = self.textEdit.toPlainText()
-        grammar = grammar.replace('->', ':')
+        grammar = ""
+        if self.choice == 0:
+            text = self.textEdit.toPlainText()
+            lines = text.splitlines(True)
+            res = ""
+            for line in lines:
+                print(line.rstrip('\r\n'))
+                line = line.rstrip()
+                new_s = line[0]
+                for i in range(1, len(line)):
+                    if line[i] != ' ' and line[i - 1] != ' ':
+                        new_s += ' '
+                    new_s += line[i]
+                print(new_s)
+                res += new_s.strip() + '\n'
+            print(res)
+            grammar = res.replace(' - > ', ':')
+            grammar = grammar.replace(' | ', '|')
+        elif self.choice == 1:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+
         test.input(grammar)
         VN = test.vn
         VT = test.vt
@@ -539,26 +558,7 @@ class LL1GrammarSolver(QMainWindow):
                 if VT_1[size] in SELECT[VN[i]]:
                     item1 = QtWidgets.QTableWidgetItem(SELECT[VN[i]][VT_1[size]])
                     self.tableAnalyze.setItem(i + 1, size + 1, item1)
-        '''
-        # 弹出消息框，询问用户是否保存内容
-        reply = QMessageBox.question(self, '保存内容', '是否保存预测分析表内容到本地文件？',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            # 如果用户选择保存，则将内容保存到本地文件中
-            # 弹出文件对话框，让用户选择要保存的文件名和路径
-            filename1, _ = QFileDialog.getSaveFileName(self, '保存预测分析表', '', 'Text Files (*.txt)')
-            if filename1:
-                with open(filename1, 'w') as f:
-                    for row in range(self.tableAnalyze.rowCount()):
-                        for col in range(self.tableAnalyze.columnCount()):
-                            item = self.tableAnalyze.item(row, col)
-                            if item is not None:
-                                f.write(item.text() + '\t')
-                            else:
-                                f.write('\t')
-                        f.write('\n')
-        '''
     def save_analyze_table(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存预测分析表', '', 'Text Files (*.txt)')
         if filename1:
@@ -571,16 +571,36 @@ class LL1GrammarSolver(QMainWindow):
                         else:
                             f.write('\t')
                     f.write('\n')
+
     def obtain_type(self, stack):
         res = []
         for item in stack:
             res.append(item.type)
         return res
 
-    def onClick_analyze_stack(self):
+    def onClick_analyze_stack_1(self):
         test = Predictive_Analysis()
-        grammar = self.textEdit.toPlainText()
-        grammar = grammar.replace('->', ':')
+        grammar = ""
+        if self.choice == 0:
+            text = self.textEdit.toPlainText()
+            lines = text.splitlines(True)
+            res = ""
+            for line in lines:
+                print(line.rstrip('\r\n'))
+                line = line.rstrip()
+                new_s = line[0]
+                for i in range(1, len(line)):
+                    if line[i] != ' ' and line[i - 1] != ' ':
+                        new_s += ' '
+                    new_s += line[i]
+                print(new_s)
+                res += new_s.strip() + '\n'
+            print(res)
+            grammar = res.replace(' - > ', ':')
+            grammar = grammar.replace(' | ', '|')
+        elif self.choice == 1:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
         test.input(grammar)
         VN = test.vn
         VT = test.vt
@@ -687,26 +707,125 @@ class LL1GrammarSolver(QMainWindow):
                     item1 = QtWidgets.QTableWidgetItem('ERROR')
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
                     break
-        '''
-        # 弹出消息框，询问用户是否保存内容
-        reply = QMessageBox.question(self, '保存内容', '是否保存符号串的分析过程到本地文件？',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            # 如果用户选择保存，则将内容保存到本地文件中
-            # 弹出文件对话框，让用户选择要保存的文件名和路径
-            filename1, _ = QFileDialog.getSaveFileName(self, '保存符号串的分析过程', '', 'Text Files (*.txt)')
-            if filename1:
-                with open(filename1, 'w') as f:
-                    for row in range(self.tableStack.rowCount()):
-                        for col in range(self.tableStack.columnCount()):
-                            item = self.tableStack.item(row, col)
-                            if item is not None:
-                                f.write(item.text() + '\t')
-                            else:
-                                f.write('\t')
-                        f.write('\n')
-        '''
+    def obtain_con(self, stack):
+        res = []
+        for item in stack:
+            res.append(item)
+        return res
+
+    def onClick_analyze_stack_2(self):
+        test = Predictive_Analysis()
+        grammar = ""
+        if self.choice == 0:
+            text = self.textEdit.toPlainText()
+            lines = text.splitlines(True)
+            res = ""
+            for line in lines:
+                print(line.rstrip('\r\n'))
+                line = line.rstrip()
+                new_s = line[0]
+                for i in range(1, len(line)):
+                    if line[i] != ' ' and line[i - 1] != ' ':
+                        new_s += ' '
+                    new_s += line[i]
+                print(new_s)
+                res += new_s.strip() + '\n'
+            print(res)
+            grammar = res.replace(' - > ', ':')
+            grammar = grammar.replace(' | ', '|')
+        elif self.choice == 1:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+        test.input(grammar)
+        VN = test.vn
+        VT = test.vt
+        self.predict_table = test.predict_table
+        self.predict_table_ = test.predict_table_
+        # 获取输入串并加入‘#’结束标志
+        layer_stack = 0
+        # 先设置 table层数为1 后 动态增加
+        self.tableStack.setRowCount(layer_stack)
+        analyze_str = self.textEdit_1.toPlainText()
+        analyze_str += '#'
+        print('09999999999999999999999')
+        print(analyze_str)
+        stack = []
+        index = 0
+        stack.append('#')
+        stack.append(test.begin)
+
+        while len(stack) != 0:
+            # 层数增加一层
+            layer_stack = layer_stack + 1
+            self.tableStack.setRowCount(layer_stack)
+            cur = stack.pop()
+            if cur == "#" and len(stack) == 0:
+                print("符号栈：", self.obtain_con(stack), "\n匹配字符: ", '#')
+                item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
+                self.tableStack.setItem(layer_stack - 1, 0, item1)
+
+                item1 = QtWidgets.QTableWidgetItem(str(analyze_str[index]))
+                self.tableStack.setItem(layer_stack - 1, 2, item1)
+
+                print("分析完成")
+                break
+            elif cur in VT:
+                a = analyze_str[index]
+                if a == cur:
+                    print("符号栈：", self.obtain_con(stack), "\n匹配字符: ", analyze_str[index])
+                    item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
+                    self.tableStack.setItem(layer_stack - 1, 0, item1)
+
+                    item1 = QtWidgets.QTableWidgetItem(str(analyze_str[index]))
+                    self.tableStack.setItem(layer_stack - 1, 2, item1)
+                    index += 1
+                    if index >= len(analyze_str):
+                        index -= 1
+                else:
+                    print("分析错误")
+                    item1 = QtWidgets.QTableWidgetItem('ERROR')
+                    self.tableStack.setItem(layer_stack - 1, 0, item1)
+                    break
+
+            else:
+                a = analyze_str[index]
+                if a in self.predict_table[cur]:
+                    if self.predict_table[cur][a] == "$":
+                        print("\n符号栈：", self.obtain_con(stack), "\n产生式: ", cur, "->",
+                              self.predict_table[cur][a])
+                        item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
+                        self.tableStack.setItem(layer_stack - 1, 0, item1)
+
+                        item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur][a]))
+                        self.tableStack.setItem(layer_stack - 1, 1, item1)
+                        continue
+                    next_epr = self.predict_table[cur][a].split()
+
+                    print("\n符号栈：", self.obtain_con(stack), "\n产生式: ", cur, "->",
+                          self.predict_table[cur][a])
+                    item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
+                    self.tableStack.setItem(layer_stack - 1, 0, item1)
+
+                    item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur][a]))
+                    self.tableStack.setItem(layer_stack - 1, 1, item1)
+                    node_list = []
+                    """
+                      产生式右部符号入栈,反序入栈
+                      子节点入栈
+                    """
+                    for epr in next_epr:
+                        node_list.append(epr)
+
+                    node_list.reverse()
+                    for nl in node_list:
+                        stack.append(nl)
+                else:
+                    print("分析错误")
+                    item1 = QtWidgets.QTableWidgetItem('ERROR')
+                    self.tableStack.setItem(layer_stack - 1, 0, item1)
+                    break
+
     def save_analyze_process(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存符号串的分析过程', '', 'Text Files (*.txt)')
         if filename1:

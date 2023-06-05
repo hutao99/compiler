@@ -175,38 +175,41 @@ def link(DAG, father, son = None, left = None, right = None):
 
 
 def optimize(DAG_node):
+    print('DAG_node:',DAG_node)
     global Active_variable
-    print('optimize',Active_variable)
+    print('111optimize',Active_variable)
     id = 1
     for e in DAG_node:
+        new_label = []
         if e['node_label']:
-            flag=0
             for i in e['node_label']:
                 if i in Active_variable:
-                    e['node_label'] = i
-                    flag=1
-                    break
-            if not flag:
-                e['node_label'] = e['node_label'][0]
+                    new_label.append(i)
+            if len(new_label) == 0:
+                new_label.append(e['node_label'][0])
         else:
-            if not isleaf(e):
-                e['node_label'] = ('t_'+str(id))
+            if not isleaf(e): # 如果不是叶子节点 新增变量进行标记
+                new_label.append('t_'+str(id))
                 id+=1
+        e['node_label'] = new_label
     code = []
     for e in DAG_node:
         if 'son' in e:
             son = DAG_node[e['son'][0]]
-            la = (e['label'], son['label'], '_', e['node_label'] ) if not son['node_label'] \
-                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'] )
+            la = (e['label'], son['label'], '_', e['node_label'][0] ) if not son['node_label'] \
+                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'][0] )
             code.append(la)
         elif 'left' in e and 'right' in e:
             left = DAG_node[e['left']]
             right = DAG_node[e['right']]
-            fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label']
-            fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label']
-            code.append((e['label'], fun1, fun2, e['node_label']))
-        elif len(e['node_label']) == 1 and e['node_label'][0] in Active_variable:
-            code.append(('=', e['label'], '_', e['node_label'][0]))
+            fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label'][0]
+            fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label'][0]
+            code.append((e['label'], fun1, fun2, e['node_label'][0]))
+        elif len(e['node_label']) >= 1:
+            for i in e['node_label']:
+                if i in Active_variable:
+                    code.append(('=', e['label'], '_', i))
+    print('code:',code)
     return code
 
 #切分基本块
@@ -263,7 +266,7 @@ def Partition_Basic_Block(codes):
     basic_number = 0
 
     for code in basic_blocks:
-        if code[-1][0] in ['jnz','j<','j>','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
+        if code[-1][0] in ['jnz','j<','j>','j>=','j<=','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
             id = int(code[-1][3])
             basic_idx = flag.index(id)
             dot.edge(str(basic_number), str(basic_idx))
@@ -325,7 +328,9 @@ def all_basic_optimize(basic_blocks):
                     l = list(c2)
                     if int(c2[3]) > number:
                         c2[3] = int(c2[3]) - count
-        number+=len(code)
+        count2 = len(code) - count
+        number+=count2
+
 
     #返回优化后的四元式列表
     return optimize_quaternion
@@ -345,22 +350,9 @@ def test1():#基本块内优化
     # print('optcodes:',codes)
 
 def test2(): # 将程序划分为基本块，得到DAG优化代码
+    global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes=[['main', '_', '_', '_'], ['=', '2', '_', 'x'], ['=', '3', '_', 'y'], ['&&', 'x', 'y', 'T0'], ['=', 'T0', '_',
-                                                                                                         'a'], ['&&',
-                                                                                                                'x',
-                                                                                                                '0',
-                                                                                                                'T1'], [
-               '=', 'T1', '_', 'b'], ['||', 'x', 'y', 'T2'], ['=', 'T2', '_', 'c'], ['||', 'x', '0', 'T3'], ['=', 'T3',
-                                                                                                             '_',
-                                                                                                             'd'], [
-               'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['para', 'b', '_', '_'], ['call', 'write', '_',
-                                                                                               'T5'], ['para', 'c', '_',
-                                                                                                       '_'], ['call',
-                                                                                                              'write',
-                                                                                                              '_',
-                                                                                                              'T6'], [
-               'para', 'd', '_', '_'], ['call', 'write', '_', 'T7'], ['sys', '_', '_', '_']]
+    codes = [['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['=', '0', '_', 'count'], ['=', '0', '_', 'nprime'], ['=', '2', '_', 'i'], ['j<=', 'i', 'N', 8], ['j', '_', '_', 29], ['=', '0', '_', 'nprime'], ['=', '2', '_', 'j'], ['j<', 'j', 'i', 12], ['j', '_', '_', 20], ['%', 'i', 'j', 'T3'], ['j==', 'T3', '0', 15], ['j', '_', '_', 17], ['+', 'nprime', '1', 'T4'], ['=', 'T4', '_', 'nprime'], ['+', 'j', '1', 'T2'], ['=', 'T2', '_', 'j'], ['j', '_', '_', 10], ['j==', 'nprime', '0', 22], ['j', '_', '_', 26], ['para', 'i', '_', '_'], ['call', 'write', '_', '_'], ['+', 'count', '1', 'T5'], ['=', 'T5', '_', 'count'], ['+', 'i', '1', 'T1'], ['=', 'T1', '_', 'i'], ['j', '_', '_', 6], ['sys', '_', '_', '_']]
 
     # cc = []
     # for i in codes:

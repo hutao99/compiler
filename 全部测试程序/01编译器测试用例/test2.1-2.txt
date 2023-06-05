@@ -1,5 +1,5 @@
-//while和if嵌套测试，求最大值、最小值和平均值
-void main()
+//while��ifǶ�ײ��ԣ������ֵ����Сֵ��ƽ��ֵ
+main()
 {
 	int a=0;
 	int max = 0;
@@ -20,13 +20,8 @@ void main()
 		sum = sum+a;
 		i = i+1;
 	}
-	write('最大 最小 平均值：');
-	write('\n');
 	write(max);
-	write('\n');
 	write(min);
-	write('\n');
 	sum = sum/5;
 	write(sum);
-	write('\n');
 }

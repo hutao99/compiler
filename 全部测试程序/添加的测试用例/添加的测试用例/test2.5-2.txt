@@ -1,0 +1,22 @@
+//分解质因数
+int main(){
+    int x,i;
+    write("请输入一个整数:\n");
+    x=read();
+    write(x);
+     write("=");
+    for(i=2; i<=x; i=i+1){
+         while(x!=1)   //i=x时，循环结束
+          {
+                if(×%i==0)         //判断x%i是否能整除，如果能，则当做一个新数继续运算
+                   {
+                     write(i);
+                     x=x/i;
+                   }
+                else{
+                     break;
+                  }
+           }
+     }
+     write(x);
+}
