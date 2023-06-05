@@ -1,7 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QComboBox, QDialog, QPushButton, \
+    QHBoxLayout
 
 import Analyzer
 from TABLE import Predictive_Analysis, ASTNode
@@ -22,6 +23,24 @@ class LL1GrammarSolver(QMainWindow):
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab1, "FirstVT和LastVT")
+        # 创建下拉框，用于选择模式
+        self.mode_combo = QComboBox(self.tab1)
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(15)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.mode_combo.setFont(font)
+
+        self.mode_combo.setWindowTitle('模式选择')
+        self.mode_combo.setObjectName('模式选择')
+        self.mode_combo.addItem("系统分词模式")
+        self.mode_combo.addItem("用户分词模式")
+        self.mode_combo.currentIndexChanged.connect(self.on_mode_changed)
+        self.mode_combo.setStyleSheet("#模式选择 {text-align:center;} QComboBox::drop-down {subcontrol-origin: padding; subcontrol-position: top right; width: 20px;}")
+
 
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
@@ -45,7 +64,8 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.setText("导入算符优先简单文法")
+        self.pushButton.setText("算符优先文法分析")
+        self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
 
         # 导入LL1文法的按钮
         self.pushButton_ = QtWidgets.QPushButton()
@@ -59,7 +79,8 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_.setFont(font)
         self.pushButton_.setObjectName("pushButton")
-        self.pushButton_.setText("导入算符优先复杂文法")
+        self.pushButton_.setText("导入算符优先文法")
+        self.pushButton_.setStyleSheet("QPushButton {text-align:left;}")
 
         # 求解FIRST集合的按钮
         # 求解FOLLOW集合的按钮
@@ -121,9 +142,10 @@ class LL1GrammarSolver(QMainWindow):
 
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-        buttonSplitter.addWidget(self.pushButton)
+        buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
+        buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
         textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -136,6 +158,8 @@ class LL1GrammarSolver(QMainWindow):
         self.splitter1.addWidget(buttonSplitter)
         self.splitter1.addWidget(textEditSplitter)
 
+
+
         # 将两个水平布局添加到垂直布局中
         layout1.addWidget(self.splitter1)
 
@@ -143,12 +167,14 @@ class LL1GrammarSolver(QMainWindow):
         size = self.pushButton_2.minimumSizeHint()
         self.pushButton.setFixedHeight(size.height())
         self.pushButton_.setFixedHeight(size.height())
+        self.mode_combo.setFixedHeight(size.height())
 
-        self.pushButton.clicked.connect(self.open_text)
         self.pushButton_.clicked.connect(self.open_text)
-        #保存FirstVT
+        #计算FirstVT、LastVT
+        # self.pushButton.clicked.connect(self.onClick_create_first_follow)
+        # 保存FirstVT
         # self.pushButton_2.clicked.connect(self.save_first)
-        #保存LastVT
+        # 保存LastVT
         # self.pushButton_3_.clicked.connect(self.save_follow)
 
         layout2 = QtWidgets.QGridLayout()
@@ -199,9 +225,9 @@ class LL1GrammarSolver(QMainWindow):
         size = self.pushButton_2.minimumSizeHint()
         self.pushButton_3.setFixedHeight(size.height())
         self.pushButton_3__.setFixedHeight(size.height())
-        #显示算符优先分析表
+        # 显示算符优先分析表
         # self.pushButton_3.clicked.connect(self.analyze_table)
-        #保存算符优先分析表
+        # 保存算符优先分析表
         # self.pushButton_3__.clicked.connect(self.save_analyze_table)
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
@@ -291,16 +317,37 @@ class LL1GrammarSolver(QMainWindow):
         layout3.addWidget(self.splitter2_)
 
         self.tab3.setLayout(layout3)
-        #按钮显示分析栈的分析过程
+        # 按钮显示分析栈的分析过程
         # self.pushButton_4.clicked.connect(self.onClick_analyze_stack)
         self.pushButton_5.clicked.connect(self.open_sample)
-        #保存预测分析过程
+        # 保存预测分析过程
         # self.pushButton_5_.clicked.connect(self.save_analyze_process)
+
+    def on_mode_changed(self, index):
+        # 处理用户选择的模式
+        mode = self.mode_combo.currentText()
+        print("当前模式：", mode)
 
     def onItemChanged(self, item):
         # 自动调整表格大小
         self.tableStack.resizeColumnsToContents()
         self.tableStack.resizeRowsToContents()
+
+    def select_mode(self):
+        # 弹出 QDialog，并在其中添加 QComboBox 和 QPushButton
+        dialog = QDialog(self.tab1)
+        dialog.setModal(True)
+
+        combo = QComboBox(dialog)
+        combo.addItem("模式1")
+        combo.addItem("模式2")
+
+        button = QPushButton("确定", dialog)
+        button.clicked.connect(lambda: self.on_mode_changed(combo.currentText()))
+
+        hbox = QHBoxLayout(dialog)
+        hbox.addWidget(combo)
+        hbox.addWidget(button)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -352,7 +399,6 @@ class LL1GrammarSolver(QMainWindow):
                     self.textEdit_1.setText(str)
         except Exception as e:
             print("Error: ", e)
-
 
 
 if __name__ == '__main__':
