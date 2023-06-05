@@ -1,0 +1,13 @@
+M->u M_|( u rela_op u )|AB|X
+M_->rela_op u|$
+u->v u_
+u_->+ u|- u|$
+v->w v_
+v_->* v|/ v|% v|$
+w->( u )|G|H|Z
+rela_op->>|>=|<|<=|==|!=
+AB->bool_i AB_
+AB_->|| bool_i AB_|&& bool_i AB_|$
+bool_i->u M_|! AB|( bool_i_
+bool_i_->u rela_op u )|AB )
+X->x = M
