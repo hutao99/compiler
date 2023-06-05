@@ -111,17 +111,19 @@ class FirstVTAndLastVT:
         self.begin = ''
 
     def input(self, data):
-        '''carve = list(filter(None, data.split('\n')))
+        carve = list(filter(None, data.split('\n')))
         index = carve[0].find(':')
         begin = carve[0][0:index]
-        self.begin = begin'''
+        self.begin = begin.replace(" ", "")
+        self.Formula[self.begin+"'"] = '# ' + self.begin + ' #'
+        self.first[self.begin + "'"] = []
+        self.last[self.begin + "'"] = []
         # 处理文法
         for i in list(filter(None, data.split('\n'))):
             index = i.find(':')
-            self.Formula[i[0:index]] = i[index+1:]
-            self.first[i[0:index]] = []
-            self.last[i[0:index]] = []
-        #self.last[begin].append('#')
+            self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
+            self.first[i[0:index].replace(" ", "")] = []
+            self.last[i[0:index].replace(" ", "")] = []
         self.FirstVT()
         self.LastVT()
 
@@ -180,6 +182,7 @@ class FirstVTAndLastVT:
 
     # 优先表
     def Table(self):
+        is_opg = True
         sequence = dict()
         # 去重
         operator = set()
@@ -204,64 +207,63 @@ class FirstVTAndLastVT:
                 for k in range(l):
                     # P->...ab...
                     if k + 1 < l and word[k] not in self.Formula and word[k+1] not in self.Formula:
-                        precedence_table[sequence[word[k]]][sequence[word[k+1]]] = '='
+                        if precedence_table[sequence[word[k]]][sequence[word[k+1]]] == '':
+                            precedence_table[sequence[word[k]]][sequence[word[k+1]]] = '='
+                        else:
+                            is_opg = False
                     # P->...aB...
                     if k + 1 < l and word[k] not in self.Formula and word[k+1] in self.Formula:
                         for m in self.first[word[k+1]]:
-                            precedence_table[sequence[word[k]]][sequence[m]] = '<'#
+                            if precedence_table[sequence[word[k]]][sequence[m]] == '':
+                                precedence_table[sequence[word[k]]][sequence[m]] = '<'#
+                            else:
+                                is_opg = False
                     # P->...Ab...
                     if k + 1 < l and word[k] in self.Formula and word[k+1] not in self.Formula:
                         for m in self.last[word[k]]:
-                            precedence_table[sequence[m]][sequence[word[k+1]]] = '>'#
+                            if precedence_table[sequence[m]][sequence[word[k+1]]] == '':
+                                precedence_table[sequence[m]][sequence[word[k+1]]] = '>'#
+                            else:
+                                is_opg = False
                     # P->...aQb...
                     if k + 2 < l and word[k] not in self.Formula and word[k+1] in self.Formula and word[k+2] not in self.Formula:
-                        precedence_table[sequence[word[k]]][sequence[word[k + 2]]] = '='
-        return sequence, precedence_table
+                        if precedence_table[sequence[word[k]]][sequence[word[k + 2]]] == '':
+                            precedence_table[sequence[word[k]]][sequence[word[k + 2]]] = '='
+                        else:
+                            is_opg = False
+        return sequence, precedence_table, is_opg
+
+    def is_in_Formula(self, lmp):
+        for i in self.Formula:
+            production = self.Formula[i]
+            for j in list(filter(None, production.split('|'))):
+                # 去除元素为空的字符
+                word = list(filter(None, j.split(' ')))
+                if len(lmp) != len(word):
+                    continue
+                else:
+                    flag = True
+                    for k in range(len(lmp)):
+                        if lmp[k] in self.Formula and word[k] in self.Formula:  # 非终结符匹配
+                            continue
+                        elif lmp[k] == word[k]:  # 非终结符匹配
+                            continue
+                        else:  # 不匹配
+                            flag = False
+                            break
+                    if flag:
+                        return True
+        return False
 
     # 算符优先分析
     def OP(self, sequence, precedence_table, expression):
         info = ""
-        opposite = dict()
-        for i in self.Formula:
-            production = self.Formula[i].split('|')
-            for j in production:
-                word = list(filter(None, j.split(' ')))
-                opposite[''.join(word)] = i
-        modify = []
-        for i in opposite:
-            if len(i) == 1 and i in self.Formula:
-                modify.append({i: opposite[i]})
-        for i in modify:
-            opposite.pop(list(i.keys())[0])
-        for p in range(len(modify)):
-            for i in modify:
-                for j in opposite:
-                    opposite[j] = opposite[j].replace(list(i.keys())[0], list(i.values())[0])
-        new_opposite = dict()
-        for i in opposite:
-            key = i
-            for p in range(len(modify)):
-                for j in modify:
-                    key = key.replace(list(j.keys())[0], list(j.values())[0])
-            new_opposite[key] = opposite[i]
-        print(new_opposite)
         stack = [expression[0][1]]
         symbol = [expression[0][1]]
-        result = []
         index = 1
-        isinteger = True
-        # print(precedence_table[sequence['identifier']][sequence['and']])
-        for i in expression:
-            if i[0] == 'float':
-                isinteger = False
-                break
         stack_total = []
         while index < len(expression):
             i = expression[index][0]
-            if i != 'integer' and i != 'float' and i != 'identifier':
-                i = expression[index][1]
-            if expression[index][1] == 'and' or expression[index][1] == 'or' or expression[index][1] == 'ture' or expression[index][1] == 'False':
-                i = expression[index][1]
             sign = symbol[-1]
             if sign == '#' and sign == i:
                 print("接受表达式")
@@ -269,32 +271,30 @@ class FirstVTAndLastVT:
                 break
             elif precedence_table[sequence[sign]][sequence[i]] == '<' or precedence_table[sequence[sign]][sequence[i]] == '=':
                 stack.append(i)
-                '''if expression[index][1] == '/' and isinteger:
-                    result.append('//')
-                else:
-                    result.append(expression[index][1])
-                '''
                 symbol.append(i)
                 index += 1
             # 规约
             elif precedence_table[sequence[sign]][sequence[i]] == '>':
                 length = len(stack)
                 flag = True
-                for j in range(length-1, -1, -1):
-                    if ''.join(stack[j:length]) in new_opposite:
-                        # 消除规约中包含的终结符
-                        for c in stack[j:length]:
-                            if c not in self.Formula:
-                                symbol.pop()
-                        m = new_opposite[''.join(stack[j:length])]
-                        #r = ''.join(result[j-1:length-1])
-                        stack = stack[0:j]
-                        stack.append(m)
-                        #result = result[0:j - 1]
-                        #result.append(str(eval(r)))
-                        # 还可能规约
-                        flag = False
+                lmp = []
+                # 求最左素短语
+                idx = 0
+                for j in range(length - 1, -1, -1):
+                    if stack[j] == sign:
+                        idx = j
+                for j in range(idx - 1, -1, -1):
+                    if stack[j] not in self.Formula and precedence_table[sequence[stack[j]]][sequence[sign]] == '<':
+                        lmp = stack[j + 1:]
                         break
+                # 检查最左素短语是否在产生式的右部
+                if self.is_in_Formula(lmp):
+                    flag = False
+                    for k in range(len(lmp)):
+                        stack.pop()
+                        if lmp[k] not in self.Formula:
+                            symbol.pop()
+                stack.append(self.begin)
                 # 规约不了，报错
                 if flag:
                     print("没有产生式可以规约")
@@ -302,11 +302,9 @@ class FirstVTAndLastVT:
                     break
             else:
                 # 没有优先级关系报错
-                print("未正确输入表达式")
-                info += "未正确输入表达式"
+                print("栈顶符号与输入符号无优先关系，分析失败")
+                info += "栈顶符号与输入符号无优先关系，分析失败"
                 break
             print(stack)
-            if stack not in stack_total:
-                stack_total.append(stack)
-            #print(result)
+            stack_total.append(stack)
         return stack_total, info

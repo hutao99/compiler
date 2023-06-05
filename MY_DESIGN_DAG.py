@@ -1,11 +1,44 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QDialog, QLabel, QScrollArea, QVBoxLayout
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
+class MyDialog(QDialog):
+    def __init__(self, file_path, parent=None):
+        super(MyDialog, self).__init__(parent)
+        # 设置窗口标志，添加缩小、放大和关闭按钮
+        self.setWindowFlags(
+            Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
+        self.label = QLabel(self)
+        self.pixmap = QPixmap(file_path)
+        self.label.setPixmap(self.pixmap)
+
+        # 创建滚动区域并将标签控件添加到其中
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(self.label)
+
+        self.setWindowTitle('分析图')
+        self.resize(800, 600)
+
+        # 将滚动区域设置为对话框的主布局
+        layout = QVBoxLayout(self)
+        layout.addWidget(scroll_area)
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, '保存图片', '是否要保存图片？',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            file_name, _ = QFileDialog.getSaveFileName(self, '保存图片', '', 'Images (*.png *.xpm *.jpg)')
+            if file_name:
+                self.pixmap.save(file_name)
+        event.accept()
+
 
 
 class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
@@ -16,6 +49,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         # 设置响应槽
         self.pushButton.clicked.connect(self.open_text)
         self.pushButton_1.clicked.connect(self.DAG_optimal)
+        self.pushButton_2.clicked.connect(self.show_image)
 
     def DAG_optimal(self):
         s = self.textEdit.toPlainText()
@@ -41,7 +75,6 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             self.textEdit_2.clear()
             cursor = self.textEdit_2.textCursor()
             cursor.insertImage(image_format)
-
             self.textEdit_2.show()
         except:
             QMessageBox.warning(self, '警告', '系统无法处理！')
@@ -64,8 +97,20 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             self.textEdit.clear()
             self.textEdit.setText(text)
 
+    def show_image(self):
+        '''
+        :return:显示图片
+        '''
+        try:
+            dialog = MyDialog('./DAG/visible.gv.png',self)
+            dialog.setModal(True)
+            dialog.exec_()
+        except FileNotFoundError as e:
+            print('文件不存在：', e.filename)
+        except Exception as e:
+            print('发生了异常：', e)
 
-#
+
 # app = QApplication(sys.argv)
 # LL_window = MyDesiger_DAG()
 # LL_window.show()
