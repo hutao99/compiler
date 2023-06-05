@@ -101,7 +101,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         :return:显示图片
         '''
         try:
-            dialog = MyDialog('./Syntax_Tree/tree.gv.png',self)
+            dialog = MyDialog('./DAG/visible.gv.png',self)
             dialog.setModal(True)
             dialog.exec_()
         except FileNotFoundError as e:
