@@ -17,7 +17,7 @@ class FirstAndFollow:
             self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
             self.first[i[0:index].replace(" ", "")] = []
             self.last[i[0:index].replace(" ", "")] = []
-        self.last[begin].append('#')
+        self.last[self.begin].append('#')
         self.First_()
         self.Last_()
 
@@ -258,23 +258,32 @@ class FirstVTAndLastVT:
     # 算符优先分析
     def OP(self, sequence, precedence_table, expression):
         info = ""
-        stack = [expression[0][1]]
-        symbol = [expression[0][1]]
+        stack = [expression[0]]
+        symbol = [expression[0]]
         index = 1
         stack_total = []
+        action = []
+        remainder = []
+        priority = []
         while index < len(expression):
-            i = expression[index][0]
+            stack_total.append(stack.copy())
+            remainder.append(expression[index:].copy())
+            i = expression[index]
             sign = symbol[-1]
             if sign == '#' and sign == i:
                 print("接受表达式")
                 info += "接受表达式"
                 break
             elif precedence_table[sequence[sign]][sequence[i]] == '<' or precedence_table[sequence[sign]][sequence[i]] == '=':
+                priority.append(precedence_table[sequence[sign]][sequence[i]])
+                action.append('移进')
                 stack.append(i)
                 symbol.append(i)
                 index += 1
             # 规约
             elif precedence_table[sequence[sign]][sequence[i]] == '>':
+                priority.append('>')
+                action.append('规约')
                 length = len(stack)
                 flag = True
                 lmp = []
@@ -305,6 +314,4 @@ class FirstVTAndLastVT:
                 print("栈顶符号与输入符号无优先关系，分析失败")
                 info += "栈顶符号与输入符号无优先关系，分析失败"
                 break
-            print(stack)
-            stack_total.append(stack)
-        return stack_total, info
+        return stack_total, info, action, remainder, priority
