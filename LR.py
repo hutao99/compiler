@@ -1328,8 +1328,15 @@ class CLRParser:
                                 self.code.append(['jnz', father.children[1].value, '', 0])
                                 bool_true.append(index_code)
                                 index_code += 1
+                            q = stack_for.pop()
                             loop_count -= 1
-                            stack_for.pop()
+                            if len(stack_break) > 0 and stack_break[-1][1] == loop_count:
+                                self.code[stack_break[-1][0]][3] = index_code
+                                stack_break.pop()
+                            if len(stack_continue) > 0 and stack_continue[-1][1] == loop_count:
+                                self.code[stack_continue[-1][0]][3] = stack_for[-1][0]
+                                stack_continue.pop()
+                            loop_count -= 1
                             if len(bool_true) != 0:  # 有布尔表达式
                                 for i in bool_true:
                                     self.code[i][3] = stack_for[-1][0]
