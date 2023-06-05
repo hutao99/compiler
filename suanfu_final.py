@@ -4,13 +4,12 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog
 
 import Analyzer
-from TABLE import Predictive_Analysis, ASTNode
-
+from collection import FirstVTAndLastVT
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
 
 
-class LL1GrammarSolver(QMainWindow):
+class OPGGrammarSolver(QMainWindow):
     def __init__(self):
         super().__init__()
         # 创建一个选项卡窗口部件
@@ -200,7 +199,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3.setFixedHeight(size.height())
         self.pushButton_3__.setFixedHeight(size.height())
         #显示算符优先分析表
-        # self.pushButton_3.clicked.connect(self.analyze_table)
+        self.pushButton_3.clicked.connect(self.analyze_table)
         #保存算符优先分析表
         # self.pushButton_3__.clicked.connect(self.save_analyze_table)
         # 测试案例布局
@@ -336,7 +335,7 @@ class LL1GrammarSolver(QMainWindow):
                     str = f.read()
                     print(str)
                     self.textEdit.setText(str)
-                    # self.onClick_create_first_follow()
+                    self.get_VT()
         except Exception as e:
             print("Error: ", e)
 
@@ -350,13 +349,80 @@ class LL1GrammarSolver(QMainWindow):
                     str = f.read()
                     print(str)
                     self.textEdit_1.setText(str)
+                    self.pushButton.clicked(self.get_VT)
+        except Exception as e:
+            print("Error: ", e)
+
+    def get_VT(self):
+        grammar = self.textEdit.toPlainText()
+        grammar = grammar.replace('->', ':')
+        op = FirstVTAndLastVT()
+        op.input(grammar)
+        terminal = set()
+        for i in op.first:
+            terminal.update(op.first[i])
+        for i in op.last:
+            terminal.update(op.last[i])
+        del op.first[op.begin+"'"]
+        del op.last[op.begin + "'"]
+        self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
+        self.table_FIRST.setRowCount(len(op.first))  # 设置行数
+        self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
+        self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
+        idx = 0
+        print(op.first)
+        print(op.last)
+        for i in op.first:
+            item1 = QtWidgets.QTableWidgetItem(i)
+            self.table_FIRST.setVerticalHeaderItem(idx, item1)
+            print(op.first[i])
+            for j in range(len(op.first[i])):
+                item = QtWidgets.QTableWidgetItem(op.first[i][j])
+                self.table_FIRST.setItem(idx, j, item)
+            idx += 1
+        idx = 0
+        for i in op.last:
+            item1 = QtWidgets.QTableWidgetItem(i)
+            self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
+            for j in range(len(op.last[i])):
+                item = QtWidgets.QTableWidgetItem(op.last[i][j])
+                self.table_FOLLOW.setItem(idx, j, item)
+            idx += 1
+
+    def analyze_table(self):
+        try:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+            op = FirstVTAndLastVT()
+            op.input(grammar)
+            sequence1, precedence_table1, is_opg = op.Table()
+            if not is_opg:
+                QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎使用')
+            self.tableAnalyze.setColumnCount(len(sequence1)+1)  # 设置列数
+            self.tableAnalyze.setRowCount(len(sequence1)+1)  # 设置行
+            idx = 1
+            for i in sequence1:
+                item = QtWidgets.QTableWidgetItem(i)
+                self.tableAnalyze.setItem(0, idx, item)
+                idx += 1
+            idx = 1
+            for i in sequence1:
+                item = QtWidgets.QTableWidgetItem(i)
+                self.tableAnalyze.setItem(idx, 0, item)
+                idx += 1
+            idx = 1
+            for i in sequence1:
+                for j in range(len(sequence1)):
+                    item = QtWidgets.QTableWidgetItem(precedence_table1[sequence1[i]][j])
+                    self.tableAnalyze.setItem(idx, j+1, item)
+                idx += 1
+            print(precedence_table1)
         except Exception as e:
             print("Error: ", e)
 
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = LL1GrammarSolver()
+    window = OPGGrammarSolver()
     window.show()
     sys.exit(app.exec_())
