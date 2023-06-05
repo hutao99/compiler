@@ -565,6 +565,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         QMessageBox.information(self, 'Export Image',
                                                 'Please export the image in the menu bar if you want to view it more clearly.')
 
+
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:
