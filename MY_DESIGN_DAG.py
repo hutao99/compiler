@@ -89,7 +89,6 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         dialog.setModal(True)
         dialog.exec_()
 
-
 # app = QApplication(sys.argv)
 # LL_window = MyDesiger_DAG()
 # LL_window.show()
