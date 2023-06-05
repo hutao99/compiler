@@ -281,7 +281,6 @@ class LL1GrammarSolver(QMainWindow):
 
         self.tableStack.setColumnCount(3)
 
-
         # 设置tablewidget 栈分析表的表头
         self.tableStack.setHorizontalHeaderLabels(["符号栈", "产生式", "匹配字符"])
         '''
