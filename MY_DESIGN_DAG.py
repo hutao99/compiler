@@ -27,7 +27,6 @@ class MyDialog(QDialog):
         event.accept()
 
 
-
 class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
     def __init__(self, parent=None):
         super(MyDesiger_DAG, self).__init__(parent)
