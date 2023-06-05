@@ -266,7 +266,7 @@ def Partition_Basic_Block(codes):
     basic_number = 0
 
     for code in basic_blocks:
-        if code[-1][0] in ['jnz','j<','j>','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
+        if code[-1][0] in ['jnz','j<','j>','j>=','j<=','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
             id = int(code[-1][3])
             basic_idx = flag.index(id)
             dot.edge(str(basic_number), str(basic_idx))
@@ -326,10 +326,11 @@ def all_basic_optimize(basic_blocks):
             for c2 in c1:
                 if c2[0][0] == 'j':
                     l = list(c2)
-                    if int(c2[3]) >= number:
+                    if int(c2[3]) > number:
                         c2[3] = int(c2[3]) - count
-        number+=len(code)
-        print('number:',number)
+        count2 = len(code) - count
+        number+=count2
+
 
     #返回优化后的四元式列表
     return optimize_quaternion
@@ -371,4 +372,4 @@ def test3():
     print('cc:',cc)
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
-test2()
+# test2()
