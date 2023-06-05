@@ -4,21 +4,49 @@ from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QPushButton, QLabel, QDialog, \
     QHBoxLayout, QScrollArea, QSizePolicy, QComboBox
 
-import Analyzer
-from TABLE import Predictive_Analysis, ASTNode
 
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
+import LR0_use_interface
+
+# lr0界面
 
 
-class LL1GrammarSolver(QMainWindow):
+def grammar_cut(grammar):
+    non_terminals = set()
+    terminals = set()
+    print(grammar.split('\n'))
+    for line in grammar.split('\n'):
+        if line == '':
+            continue
+        print(line)
+        lhs, rhs = line.split(':')
+        lhs = lhs.replace(" ", "")
+        non_terminals.add(lhs)
+        for symbol in rhs:
+            if symbol.isalpha() and symbol.islower():
+                terminals.add(symbol)
+
+    # 为每个符号添加空格
+    for symbol in non_terminals.union(terminals):
+        grammar = grammar.replace(symbol, f" {symbol} ")
+    return grammar, non_terminals, terminals
+
+
+class LR0GrammarSolver(QMainWindow):
     def __init__(self):
         super().__init__()
         # 创建一个选项卡窗口部件
         self.tabWidget = QtWidgets.QTabWidget(self)
-        self.setWindowTitle("LR分析")
+        self.setWindowTitle("LR0分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
+
+        # 控制选项的变量
+        self.chose_mode = '系统分词模式'
+
+        # LR1class实例化
+        self.LR = LR0_use_interface.CLRParser()
 
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
@@ -56,13 +84,13 @@ class LL1GrammarSolver(QMainWindow):
         self.tabWidget.addTab(self.tab4, "分析图")
 
         # 在分析图 tab 中添加 QLabel 和 QPixmap
-        label = QLabel(self.tab4)
-        pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
-        label.setPixmap(pixmap)
+        self.label = QLabel(self.tab4)
+        pixmap = QPixmap('LR0_Digraph\LR_Digraph.gv.png')
+        # label.setPixmap(pixmap)
 
         # 将 QLabel 放在 QVBoxLayout 中，并将 QVBoxLayout 设置为 self.tab4 的布局
         layout = QVBoxLayout(self.tab4)
-        layout.addWidget(label)
+        layout.addWidget(self.label)
 
         # 创建按钮，用于触发显示图片的操作
         button = QPushButton('显示图片', self.tab4)
@@ -119,6 +147,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText("显示状态信息")
+        self.pushButton_2.clicked.connect(self.get_state)
 
         # 显示LR文法的内容
         self.textEdit = QtWidgets.QTextEdit()
@@ -204,6 +233,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("LR分析表")
+        self.pushButton_3.clicked.connect(self.LR_Table)
 
         # 显示LR分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
@@ -211,8 +241,8 @@ class LL1GrammarSolver(QMainWindow):
         self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
 
         # 隐藏分析表的横纵表头
-        self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        self.tableAnalyze.horizontalHeader().setVisible(False)  # 隐藏水平表头
+        #self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
+        #self.tableAnalyze.horizontalHeader().setVisible(False)  # 隐藏水平表头
 
         self.pushButton_3__ = QtWidgets.QPushButton()
         self.pushButton_3__.setEnabled(True)
@@ -307,6 +337,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_4.setText("分析过程")
+        self.pushButton_4.clicked.connect(self.LR_Analyse)
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
@@ -338,10 +369,10 @@ class LL1GrammarSolver(QMainWindow):
         self.tableStack.setObjectName("tableStack")
         self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
 
-        self.tableStack.setColumnCount(3)
+        self.tableStack.setColumnCount(4)
 
         # 设置tablewidget 栈分析表的表头
-        self.tableStack.setHorizontalHeaderLabels(["符号栈", "产生式", "匹配字符"])
+        self.tableStack.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
         '''
         使用 QSizePolicy 控件来实现 QTableWidget 表格的大小随着界面的变化而自动调整
         如果表格中的数据量很大，自动调整表格大小可能会影响程序的性能
@@ -410,6 +441,7 @@ class LL1GrammarSolver(QMainWindow):
     def on_mode_changed(self, index):
         # 处理用户选择的模式
         mode = self.mode_combo.currentText()
+        self.chose_mode = mode
         print("当前模式：", mode)
 
     def show_image(self):
@@ -417,27 +449,44 @@ class LL1GrammarSolver(QMainWindow):
         :return:显示图片
         '''
          # 创建 QDialog，并将它设置为模态对话框
-        dialog = QDialog(self)
+        '''dialog = QDialog(self)
         dialog.setModal(True)
-
         # 在 QDialog 中添加 QLabel 和 QPixmap
-        label = QLabel(dialog)
-        pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
-        label.setPixmap(pixmap)
-
+        label = QLabel(dialog)'''
+        grammar = self.textEdit.toPlainText()
+        if len(grammar) != 0:
+            try:
+                grammar = grammar.replace('->', ':')
+                if self.chose_mode == '系统分词模式':
+                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                self.LR.input(grammar)
+                self.LR.Action_and_GoTo_Table()
+                self.LR.draw_graphic()
+                pixmap = QPixmap('LR0_Digraph\LR_Digraph.gv.png')
+                self.label.setPixmap(pixmap)
+            except Exception as e:
+                QMessageBox.warning(self, '警告', '系统出错')
+                print("Error: ", e)
         # 调整 QDialog 的大小，并显示它
-        dialog.setWindowTitle('分析图')
+        '''dialog.setWindowTitle('分析图')
         dialog.resize(pixmap.width(), pixmap.height())
-        dialog.show()
+        dialog.show()'''
 
     def save_image(self, pixmap):
         # 弹出文件对话框，让用户选择保存的文件名和路径
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(self, "保存图片", "", "JPEG (*.jpg);;PNG (*.png)", options=options)
-
+        file_name, selected_filter = QFileDialog.getSaveFileName(self, "保存图片", "", "JPEG (*.jpg);;PNG (*.png)", options=options)
         # 如果用户选择了文件名和路径，则保存图片到本地
         if file_name:
+            # 从过滤器中获取文件类型后缀
+            file_types = ('JPEG (*.jpg)', 'PNG (*.png)')
+            file_exts = ('.jpg', '.png')
+            idx = file_types.index(selected_filter)
+            file_ext = file_exts[idx]
+            if not file_name.endswith(file_ext):
+                file_name += file_ext
+
             pixmap.save(file_name)
 
     def check_charset(self, file_path):
@@ -474,9 +523,112 @@ class LL1GrammarSolver(QMainWindow):
         except Exception as e:
             print("Error: ", e)
 
+    def LR_image(self):  # 画图
+        grammar = self.textEdit.toPlainText()
+        if len(grammar) != 0:
+            try:
+                grammar = grammar.replace('->', ':')
+                if self.chose_mode == '系统分词模式':
+                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                self.LR.input(grammar)
+                self.LR.Action_and_GoTo_Table()
+                self.LR.draw_graphic()
+            except Exception as e:
+                QMessageBox.warning(self, '警告', '系统出错')
+                print("Error: ", e)
 
-if __name__ == '__main__':
+    def LR_Table(self):
+        self.tableAnalyze.clear()
+        grammar = self.textEdit.toPlainText()
+        if len(grammar) != 0:
+            try:
+                grammar = grammar.replace('->', ':')
+                if self.chose_mode == '系统分词模式':
+                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                self.LR.input(grammar)
+                is_lr = self.LR.Action_and_GoTo_Table()
+                if not is_lr:
+                    QMessageBox.warning(self, '警告', '该文法不为lr(0)文法，请谨慎使用')
+                row_count = len(self.LR.parsing_table)
+                # 非终结符
+                non_terminal = list(self.LR.first.keys())
+                # 终结符
+                terminal = set()
+                for i in self.LR.direction:
+                    if i[1] not in non_terminal:
+                        terminal.add(i[1])
+                terminal = list(terminal)
+                terminal.append('#')
+                terminal.extend(non_terminal)  # 融合
+                print(terminal)
+                self.tableAnalyze.setColumnCount(len(terminal))  # 设置列数
+                self.tableAnalyze.setRowCount(row_count)  # 设置行数
+                idx = {item: index for index, item in enumerate(terminal)}
+                self.tableAnalyze.setHorizontalHeaderLabels(terminal)
+                print(self.LR.parsing_table)
+                for i in range(row_count):
+                    item1 = QtWidgets.QTableWidgetItem(str(i))
+                    self.tableAnalyze.setVerticalHeaderItem(i, item1)
+                    for j in self.LR.parsing_table[i]:
+                        item = QtWidgets.QTableWidgetItem(self.LR.parsing_table[i][j])
+                        self.tableAnalyze.setItem(i, idx[j], item)
+                s = ''
+                for i in range(0, len(self.LR.reduction)):
+                    s += 'r' + str(i) + '->' + self.LR.reduction[i] + '\n'
+                self.tableStatutory.setText(s)
+            except Exception as e:
+                QMessageBox.warning(self, '警告', '系统出错')
+                print("Error: ", e)
+
+    def LR_Analyse(self):
+        self.tableStack.clear()
+        self.tableStack.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
+        grammar = self.textEdit.toPlainText()
+        text = self.textEdit_1.toPlainText()
+        if len(self.LR.parsing_table) != 0:
+            try:
+                grammar = grammar.replace('->', ':')
+                if self.chose_mode == '系统分词模式':
+                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    for symbol in non_terminals.union(terminals):
+                        text = text.replace(symbol, f" {symbol} ")
+                self.LR.input(grammar)
+                is_lr, lab = self.LR.Action_and_GoTo_Table()
+                if not is_lr:
+                    QMessageBox.warning(self, '警告', '该文法不为lr(0)文法，请谨慎使用')
+                t = [[], [], [], []]
+                t[0], t[1], t[2], t[3], result = self.LR.ControlProgram(text.split())
+                self.tableStack.setRowCount(len(t[0])+1)  # 设置行数
+                self.tableStack.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
+                for i in range(len(t[0])):
+                    for j in range(4):
+                        if len(t[j]) == i:
+                            item = QtWidgets.QTableWidgetItem('错误')
+                            self.tableStack.setItem(len(t[0]), 0, item)
+                            break
+                        p = str(t[j][i])
+                        if j == 3 and str(t[j][i]).isdigit():
+                            p = 'goto ' + p
+                        item = QtWidgets.QTableWidgetItem(p)
+                        self.tableStack.setItem(i, j, item)
+            except Exception as e:
+                QMessageBox.warning(self, '警告', '系统出错')
+                print("Error: ", e)
+
+    def get_state(self):
+        grammar = self.textEdit.toPlainText()
+        grammar = grammar.replace('->', ':')
+        if self.chose_mode == '系统分词模式':
+            grammar, non_terminals, terminals = grammar_cut(grammar)
+        self.LR.input(grammar)
+        is_lr, lab = self.LR.Action_and_GoTo_Table()
+        if not is_lr:
+            QMessageBox.warning(self, '警告', '该文法不为lr(0)文法，请谨慎使用')
+        self.textEdit_state.setText(lab)
+
+
+'''if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = LL1GrammarSolver()
+    window = LR0GrammarSolver()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())'''
