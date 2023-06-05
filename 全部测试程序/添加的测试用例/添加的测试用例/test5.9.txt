@@ -1,0 +1,51 @@
+//快速排序
+void quicksort(int a[],int,int);  //函数的声明
+
+int main()
+{
+       int arr[10] = {9,5,3,8,1,2,6,7,4,10};
+       write("排序前的数组元素为:");
+       for(int i = 0; i < 10;i++)    {
+            write(arr[i]);
+            write("   ");
+        }
+        write("\n");
+        quicksort(arr,0,9);  //调用函数
+        write("排序后的数组元素为:");
+        for(int i = 0; i < 10;i++)    {
+            write(arr[i]);
+            write("   ");
+        }
+    return 0;
+}
+ 
+void quicksort(int a[10],int first,int end)
+{
+    if(first > end)  //递归结束条件
+    {
+        return;
+    }
+    int i = first, j = end, flag = a[i], exchange = 0;
+
+    while(i != j)      {
+        while(i < j && a[j] > flag)  
+        {
+            j--;
+        }
+ 
+        while(i < j && a[i] <= flag)
+        {
+            i++;
+        }
+        if(j > i)
+        {
+            exchange = a[i];
+            a[i] = a[j];
+            a[j] = exchange;
+        }
+    }
+    a[first] = a[i];
+    a[i] = flag;
+    quicksort(a,first,i - 1);
+    quicksort(a,i + 1,end);
+}

@@ -78,6 +78,12 @@ def is_in_DAG(DAG, elem, son = None, left = None, right = None):# elem +-*/
                 return True
     return False
 
+#('=', ' 3.14', ' ', ' T0') 3.14是否为结点中
+def is_in_DAG2(DAG, elem, son = None, left = None, right = None):# elem +-*/
+    for e in DAG:
+        if elem == e['label']:
+            return True
+    return False
 def index_of_DAG(DAG, x):
     if x not in ['+', '-', '/', '*','&&','||','!','@','>','<','>=','<=','!=','==']:
         for i, e in enumerate(DAG):
@@ -107,7 +113,7 @@ def create_DAG(codes: list): #start
             if is_in_DAG(DAG, code[3]):
                 delete(DAG, code[3])
                 pass
-            if not is_in_DAG(DAG, code[1]):
+            if not is_in_DAG2(DAG, code[1]):
                 DAG.append({'label': code[1], 'node_label': [code[3]]})
             else:
                 append_node_label(DAG, code[1], code[3])
@@ -122,18 +128,19 @@ def create_DAG(codes: list): #start
                     pass
                 DAG.append(father)
         elif code[1] != '' and code[2] != '': # x = y op z
-            if not is_in_DAG(DAG, code[1]):
-                DAG.append({'label': code[1], 'node_label': []})
-            if not is_in_DAG(DAG, code[2]):
-                DAG.append({'label': code[2], 'node_label': []})
             if not is_in_DAG(DAG, code[0], left = code[1], right = code[2]):
                 father = {'label': code[0], 'node_label': [code[3]]}
-                link(DAG, father, left = code[1], right = code[2])
-                if is_in_DAG(DAG, code[3]):
-                    delete(DAG, code[3])
-                    pass
                 DAG.append(father)
+                if not is_in_DAG(DAG, code[1]):
+                    DAG.append({'label': code[1], 'node_label': []})
+                if not is_in_DAG(DAG, code[2]):
+                    DAG.append({'label': code[2], 'node_label': []})
+                link(DAG, father, left = code[1], right = code[2])
             else:
+                if not is_in_DAG(DAG, code[1]):
+                    DAG.append({'label': code[1], 'node_label': []})
+                if not is_in_DAG(DAG, code[2]):
+                    DAG.append({'label': code[2], 'node_label': []})
                 if is_in_DAG(DAG, code[3]):
                     delete(DAG, code[3])
                     pass
@@ -177,7 +184,7 @@ def link(DAG, father, son = None, left = None, right = None):
 def optimize(DAG_node):
     print('DAG_node:',DAG_node)
     global Active_variable
-    print('111optimize',Active_variable)
+    print('Active_variable:',Active_variable)
     id = 1
     for e in DAG_node:
         new_label = []
@@ -266,7 +273,7 @@ def Partition_Basic_Block(codes):
     basic_number = 0
 
     for code in basic_blocks:
-        if code[-1][0] in ['jnz','j<','j>','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
+        if code[-1][0] in ['jnz','j<','j>','j>=','j<=','j==','j!=']: # 对跳转语句做处理 下一条 及跳转到的
             id = int(code[-1][3])
             basic_idx = flag.index(id)
             dot.edge(str(basic_number), str(basic_idx))
@@ -326,10 +333,11 @@ def all_basic_optimize(basic_blocks):
             for c2 in c1:
                 if c2[0][0] == 'j':
                     l = list(c2)
-                    if int(c2[3]) >= number:
+                    if int(c2[3]) > number:
                         c2[3] = int(c2[3]) - count
-        number+=len(code)
-        print('number:',number)
+        count2 = len(code) - count
+        number+=count2
+
 
     #返回优化后的四元式列表
     return optimize_quaternion
@@ -351,8 +359,7 @@ def test1():#基本块内优化
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes = [['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'N'], ['=', '0', '_', 'count'], ['=', '0', '_', 'nprime'], ['=', '2', '_', 'i'], ['j<=', 'i', 'N', 8], ['j', '_', '_', 29], ['=', '0', '_', 'nprime'], ['=', '2', '_', 'j'], ['j<', 'j', 'i', 12], ['j', '_', '_', 20], ['%', 'i', 'j', 'T3'], ['j==', 'T3', '0', 15], ['j', '_', '_', 17], ['+', 'nprime', '1', 'T4'], ['=', 'T4', '_', 'nprime'], ['+', 'j', '1', 'T2'], ['=', 'T2', '_', 'j'], ['j', '_', '_', 10], ['j==', 'nprime', '0', 22], ['j', '_', '_', 26], ['para', 'i', '_', '_'], ['call', 'write', '_', '_'], ['+', 'count', '1', 'T5'], ['=', 'T5', '_', 'count'], ['+', 'i', '1', 'T1'], ['=', 'T1', '_', 'i'], ['j', '_', '_', 6], ['sys', '_', '_', '_']]
-
+    codes=[['=', 'a', '_', 't'], ['=', 'b', '_', 'a'], ['=', 't', '_', 'b'], ['j', '_', '_', 14]]
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])
@@ -371,4 +378,4 @@ def test3():
     print('cc:',cc)
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
-test2()
+# test2()
