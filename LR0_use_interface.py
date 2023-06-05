@@ -1,7 +1,16 @@
 from collection import FirstAndFollow
 from graphviz import Digraph
 from Analyzer import AnalyzerLex
+from anytree import Node as AnyTreeNode, RenderTree
 # 此LR0只用于自定义语法分析，不带有语义分析、错误修复以及中间代码生成
+
+class Node(AnyTreeNode):
+    def __init__(self, value, symbol_info=None, **kwargs):
+        super().__init__(value, **kwargs)
+        self.symbol_info = symbol_info
+        self.type = None
+        self.value = None
+        self.parameters = 0
 
 
 class CLRParser:
@@ -46,6 +55,7 @@ class CLRParser:
             terminal.update(self.first[i])
         for i in self.follow:
             terminal.update(self.follow[i])
+        terminal.discard('ε')
         terminal = list(terminal)
         self.Formula[self.begin+"'"] = self.begin
         state = []
@@ -116,8 +126,11 @@ class CLRParser:
                     if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
                         reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
                         number += 1
-                    for q in terminal:
-                        reduction_table.append([father, q, reduction[i[0] + ':' + ' '.join(i[1][:-1])]])
+                    if i[0] + ':' + ' '.join(i[1][:-1]) == self.begin + "'" + ":" + self.Formula[self.begin + "'"]:
+                        reduction_table.append([father, '#', reduction[i[0] + ':' + ' '.join(i[1][:-1])]])
+                    else:
+                        for q in terminal:
+                            reduction_table.append([father, q, reduction[i[0] + ':' + ' '.join(i[1][:-1])]])
                     continue
                 if i[1][idx+1] in behind:
                     behind[i[1][idx+1]].append(l)
@@ -200,7 +213,16 @@ class CLRParser:
         self.prod_state = prod_state
         self.status_include_num = status_include_num
         self.direction = direction
-        return is_LR
+
+        lab = ''
+        prod_state_exchange = {v: k for k, v in self.prod_state.items()}
+        for i in range(len(self.status_include_num)):
+            lab += 'I' + str(i) + ':\n'
+            for j in self.status_include_num[i]:
+                lab += prod_state_exchange[j] + '\n'
+            lab += '\n'
+
+        return is_LR, lab
 
     def draw_graphic(self):
         print(self.Final_State)
@@ -216,7 +238,7 @@ class CLRParser:
                 dot.node(str(i), lab, fontname="SimHei", shape='doublecircle')
         for i in self.direction:
             dot.edge(str(i[0]), str(i[2]), i[1], fontname="SimHei")
-        dot.render('LR_Digraph.gv', view=True, format='png', directory='LR0_Digraph')
+        dot.render('LR_Digraph.gv', view=False, format='png', directory='LR0_Digraph')
 
     def ControlProgram(self, token):
         self.dot.clear()
@@ -234,14 +256,8 @@ class CLRParser:
         information3 = []  # 动作信息
         information4 = []  # 剩余符号
 
-        for i in token:
-            if i[0] == 'keyword' or i[0] == 'Boundary' or i[0] == 'operator' or i[0] == 'identifier':
-                name = i[1]
-            else:
-                name = i[0]
-            if name == '||':
-                name = 'or'
-            sign_list.append(name)
+        sign_list.extend(token)
+        sign_list.append('#')
 
         # 语法树栈
         stack_node = []
@@ -287,12 +303,13 @@ class CLRParser:
                 break
             else:
                 stack_node.append(Node(name, symbol_info=token[index]))
-                self.dot.node(str(node_index), token[index][1])
+                self.dot.node(str(node_index), token[index])
                 stack_num.append(node_index)
                 node_index += 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
+            print(stack_symbol)
             # information1.append(stack_symbol.copy())
             # information2.append(stack_state.copy())
 
@@ -304,11 +321,11 @@ class CLRParser:
 
 
 
-lr1 = CLRParser()
+'''lr1 = CLRParser()
 lr1.input('E:a A|b B\nA:c A|d\nB:c B|d')
 t = lr1.Action_and_GoTo_Table()
 print(t)
-lr1.draw_graphic()
+lr1.draw_graphic()'''
 '''tokens = []
 lex = AnalyzerLex()
 lex.input('a b c')'''

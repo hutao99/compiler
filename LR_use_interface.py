@@ -253,6 +253,15 @@ class CLRParser:
         self.status_include_num = status_include_num
         self.direction = direction
 
+        lab = ''
+        prod_state_exchange = {v: k for k, v in self.prod_state.items()}
+        for i in range(len(self.status_include_num)):
+            lab += 'I' + str(i) + ':\n'
+            for j in self.status_include_num[i]:
+                lab += prod_state_exchange[j] + '\n'
+            lab += '\n'
+        return lab
+
     def draw_graphic(self):
         print(self.Final_State)
         prod_state_exchange = {v: k for k, v in self.prod_state.items()}
@@ -267,7 +276,7 @@ class CLRParser:
                 dot.node(str(i), lab, fontname="SimHei", shape='doublecircle')
         for i in self.direction:
             dot.edge(str(i[0]), str(i[2]), i[1], fontname="SimHei")
-        dot.render('LR_Digraph.gv', view=True, format='png', directory='LR_Digraph')
+        dot.render('LR_Digraph.gv', view=False, format='png', directory='LR_Digraph')
 
     def ControlProgram(self, token):
         self.dot.clear()
@@ -285,14 +294,8 @@ class CLRParser:
         information3 = []  # 动作信息
         information4 = []  # 剩余符号
 
-        for i in token:
-            if i[0] == 'keyword' or i[0] == 'Boundary' or i[0] == 'operator' or i[0] == 'identifier':
-                name = i[1]
-            else:
-                name = i[0]
-            if name == '||':
-                name = 'or'
-            sign_list.append(name)
+        sign_list.extend(token)
+        sign_list.append('#')
 
         # 语法树栈
         stack_node = []
@@ -338,7 +341,7 @@ class CLRParser:
                 break
             else:
                 stack_node.append(Node(name, symbol_info=token[index]))
-                self.dot.node(str(node_index), token[index][1])
+                self.dot.node(str(node_index), token[index])
                 stack_num.append(node_index)
                 node_index += 1
                 index += 1
@@ -357,17 +360,6 @@ class CLRParser:
 
 #f = open('test.txt', 'r', encoding='utf-8')
 '''lr1 = CLRParser()
-lr1.input('S:a S|b S|c ')
+lr1.input('S:a S|b S|c | B\nB:ε')
 lr1.Action_and_GoTo_Table()
-tokens = []
-lex = AnalyzerLex()
-lex.input('a b c')
-while True:
-    tok = lex.token()
-    if not tok:
-        break
-    tokens.append([tok.type, tok.value, tok.lineno,lex.find_column(tok.lexer.lexdata, tok)])
-tokens.append(['keyword', '#'])
-t1,t2,t3,t4 = lr1.ControlProgram(tokens)
-lr1.draw_graphic()
-print(t4)'''
+print(lr1.parsing_table)'''
