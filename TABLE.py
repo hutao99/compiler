@@ -273,7 +273,6 @@ class Predictive_Analysis:
                     for fk in self.last[k]:
                         self.predict_table[k][fk] = next_grammar
 
-
     def get_predict_table_(self, data):
         for item in self.grammars:
             self.predict_table_[item] = {}
