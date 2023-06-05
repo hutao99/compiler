@@ -117,6 +117,7 @@ class OPGGrammarSolver(QMainWindow):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText("保存FirstVT内容")
+        self.pushButton_2.clicked.connect(self.save_first)
 
         # 显示LL1文法的内容
         self.textEdit = QtWidgets.QTextEdit()
@@ -160,6 +161,7 @@ class OPGGrammarSolver(QMainWindow):
         self.pushButton_3_.setFont(font)
         self.pushButton_3_.setObjectName("pushButton_2")
         self.pushButton_3_.setText("保存LastVT内容")
+        self.pushButton_3_.clicked.connect(self.save_follow)
 
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -247,7 +249,7 @@ class OPGGrammarSolver(QMainWindow):
         #显示算符优先分析表
         self.pushButton_3.clicked.connect(self.analyze_table)
         #保存算符优先分析表
-        # self.pushButton_3__.clicked.connect(self.save_analyze_table)
+        self.pushButton_3__.clicked.connect(self.save_analyze_table)
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
 
@@ -341,7 +343,7 @@ class OPGGrammarSolver(QMainWindow):
         # self.pushButton_4.clicked.connect(self.onClick_analyze_stack)
         self.pushButton_5.clicked.connect(self.open_sample)
         # 保存预测分析过程
-        # self.pushButton_5_.clicked.connect(self.save_analyze_process)
+        self.pushButton_5_.clicked.connect(self.save_analyze_process)
 
     def on_mode_changed(self, index):
         # 处理用户选择的模式
@@ -526,6 +528,66 @@ class OPGGrammarSolver(QMainWindow):
             QMessageBox.warning(self, '警告', '句子中可能存在文法中没有的终结符')
             print("Error: ", e)
 
+    def save_first(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存FirstVT集合', '', 'Text Files (*.txt)')
+        if filename1:
+            with open(filename1, 'w') as f:
+                for row in range(self.table_FIRST.rowCount()):
+                    f.write(self.table_FIRST.verticalHeaderItem(row).text() + '\t')
+                    for col in range(self.table_FIRST.columnCount()):
+                        item = self.table_FIRST.item(row, col)
+                        if item is not None:
+                            f.write(item.text() + '\t')
+                        else:
+                            f.write('\t')
+                    f.write('\n')
+
+    def save_follow(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存LastVT集合', '', 'Text Files (*.txt)')
+        if filename1:
+            with open(filename1, 'w') as f:
+                for row in range(self.table_FIRST.rowCount()):
+                    f.write(self.table_FIRST.verticalHeaderItem(row).text() + '\t')
+                    for col in range(self.table_FOLLOW.columnCount()):
+                        item = self.table_FOLLOW.item(row, col)
+                        if item is not None:
+                            f.write(item.text() + '\t')
+                        else:
+                            f.write('\t')
+                    f.write('\n')
+
+    def save_analyze_table(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存算符优先分析表', '', 'Text Files (*.txt)')
+        if filename1:
+            with open(filename1, 'w') as f:
+                for row in range(self.tableAnalyze.rowCount()):
+                    for col in range(self.tableAnalyze.columnCount()):
+                        item = self.tableAnalyze.item(row, col)
+                        if item is not None:
+                            f.write(item.text() + '\t')
+                        else:
+                            f.write('\t')
+                    f.write('\n')
+
+    def save_analyze_process(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存分析过程', '', 'Text Files (*.txt)')
+        if filename1:
+            with open(filename1, 'w') as f:
+                for col in range(self.tableStack.columnCount()):
+                    header_item = self.tableStack.horizontalHeaderItem(col)
+                    if header_item is not None:
+                        f.write(header_item.text() + '\t')
+                    else:
+                        f.write('\t')
+                f.write('\n')
+                for row in range(self.tableStack.rowCount()):
+                    for col in range(self.tableStack.columnCount()):
+                        item = self.tableStack.item(row, col)
+                        if item is not None:
+                            f.write(item.text() + '\t')
+                        else:
+                            f.write('\t')
+                    f.write('\n')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
