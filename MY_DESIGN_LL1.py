@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QComboBox
 
 import Analyzer
 from TABLE import Predictive_Analysis, ASTNode
@@ -15,13 +15,34 @@ class LL1GrammarSolver(QMainWindow):
         super().__init__()
         # 创建一个选项卡窗口部件
         self.tabWidget = QtWidgets.QTabWidget(self)
+        self.tabWidget.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.setWindowTitle("LL1预测分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
 
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
+        self.tab1.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab1, "FIRST和FOLLOW集合")
+
+        # 创建下拉框，用于选择模式
+        self.mode_combo = QComboBox(self.tab1)
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(15)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.mode_combo.setFont(font)
+
+        self.mode_combo.setWindowTitle('模式选择')
+        self.mode_combo.setObjectName('模式选择')
+        self.mode_combo.addItem("系统分词模式")
+        self.mode_combo.addItem("用户分词模式")
+        self.mode_combo.currentIndexChanged.connect(self.on_mode_changed)
+        self.mode_combo.setStyleSheet(
+            "#模式选择 {text-align:center;} QComboBox::drop-down {subcontrol-origin: padding; subcontrol-position: top right; width: 20px;}")
 
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
@@ -45,7 +66,9 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.setText("导入LL1简单文法")
+        self.pushButton.setText("LL1文法分析")
+        self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 导入LL1文法的按钮
         self.pushButton_ = QtWidgets.QPushButton()
@@ -59,7 +82,9 @@ class LL1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_.setFont(font)
         self.pushButton_.setObjectName("pushButton")
-        self.pushButton_.setText("导入LL1复杂文法")
+        self.pushButton_.setText("导入LL1文法")
+        self.pushButton_.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 求解FIRST集合的按钮
         # 求解FOLLOW集合的按钮
@@ -75,6 +100,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText("保存FIRST集合内容")
+        self.pushButton_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示LL1文法的内容
         self.textEdit = QtWidgets.QTextEdit()
@@ -87,11 +113,12 @@ class LL1GrammarSolver(QMainWindow):
         font.setUnderline(False)
         self.textEdit.setFont(font)
         self.textEdit.setObjectName("textEdit")
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 显示FIRST集合的内容
         self.table_FIRST = QtWidgets.QTableWidget()
         self.table_FIRST.setObjectName("tableAnalyze")
-        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         # self.table_FIRST.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -100,7 +127,7 @@ class LL1GrammarSolver(QMainWindow):
         # 显示FOLLOW集合的内容
         self.table_FOLLOW = QtWidgets.QTableWidget()
         self.table_FOLLOW.setObjectName("tableAnalyze")
-        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         # self.table_FOLLOW.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -118,12 +145,14 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3_.setFont(font)
         self.pushButton_3_.setObjectName("pushButton_2")
         self.pushButton_3_.setText("保存FOLLOW集合内容")
+        self.pushButton_3_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-        buttonSplitter.addWidget(self.pushButton)
+        buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
+        buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
         textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -144,10 +173,11 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton.setFixedHeight(size.height())
         self.pushButton_.setFixedHeight(size.height())
 
-        self.pushButton.clicked.connect(self.open_text)
+        self.pushButton.clicked.connect(self.onClick_create_first_follow)
         self.pushButton_.clicked.connect(self.open_text)
         self.pushButton_2.clicked.connect(self.save_first)
         self.pushButton_3_.clicked.connect(self.save_follow)
+        self.mode_combo.setFixedHeight(size.height())
 
         layout2 = QtWidgets.QGridLayout()
 
@@ -163,11 +193,12 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("预测分析表")
+        self.pushButton_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示预测分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
-        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -199,6 +230,7 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3__.setFixedHeight(size.height())
         self.pushButton_3.clicked.connect(self.analyze_table)
         self.pushButton_3__.clicked.connect(self.save_analyze_table)
+        self.pushButton_3__.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
 
@@ -214,10 +246,11 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_4.setText("分析过程")
+        self.pushButton_4.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
-        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(13)
@@ -239,11 +272,12 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_5.setFont(font)
         self.pushButton_5.setObjectName("pushButton_5")
         self.pushButton_5.setText("打开测试案例或手动输入")
+        self.pushButton_5.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 显示分析过程
         self.tableStack = QtWidgets.QTableWidget()
         self.tableStack.setObjectName("tableStack")
-        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.tableStack.setColumnCount(3)
 
@@ -291,6 +325,12 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_5.clicked.connect(self.open_sample)
         self.pushButton_5_.clicked.connect(self.save_analyze_process)
 
+
+    def on_mode_changed(self, index):
+        # 处理用户选择的模式
+        mode = self.mode_combo.currentText()
+        print("当前模式：", mode)
+
     def onItemChanged(self, item):
         # 自动调整表格大小
         self.tableStack.resizeColumnsToContents()
@@ -330,7 +370,6 @@ class LL1GrammarSolver(QMainWindow):
                     str = f.read()
                     print(str)
                     self.textEdit.setText(str)
-                    self.onClick_create_first_follow()
         except Exception as e:
             print("Error: ", e)
 
