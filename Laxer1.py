@@ -24,6 +24,12 @@ class LexicalAnalysis():
         self.check_Middle_brackets = 0
         self.check_Curly_brackets = 0
         self.readFile("keyword.txt", "c语言种别码.txt")
+        self.Type = {"int", "float", "char", "double", "void", "long", "unsigned", "string"}
+        self.other_token = ['{', '}', ';', ',', '(', ')', '[',
+                            ']', '!', '*', '/', '%', '+', '-',
+                            '<', '<=', '>', '>=', '==', '!=', '&&',
+                            '||', '=', '.', '&', '|', '*=', '/=',
+                            '+=', '-=', '++', '--']
         self.jielist = ['\n', '\b', '\t', ' ', ',', ';', ']', '}', ')', '=']
         self.textCheck()
 
@@ -442,8 +448,9 @@ class LexicalAnalysis():
             elif state == 7:
                 self.save_word(start, pre + pre + '=')
                 return
+
     def check_parentheses(self, text):
-        stack=[]
+        stack = []
         for char in text:
             if char == '(':
                 stack.append(char)
@@ -454,7 +461,7 @@ class LexicalAnalysis():
         return not stack
 
     def check_Middle_brackets__(self, text):
-        stack=[]
+        stack = []
         for char in text:
             if char == '[':
                 stack.append(char)
@@ -465,7 +472,7 @@ class LexicalAnalysis():
         return not stack
 
     def check_Curly_brackets__(self, text):
-        stack=[]
+        stack = []
         for char in text:
             if char == '{':
                 stack.append(char)
@@ -474,7 +481,6 @@ class LexicalAnalysis():
                     return False
                 stack.pop()
         return not stack
-
 
     def yunandjie_Check(self):
         start = self.idx
@@ -500,7 +506,6 @@ class LexicalAnalysis():
             if not ts:
                 st = "Error: 大括号不匹配\n"
                 self.errorlist += st
-
 
         self.idx += 1
         self.save_word(start, ch)
@@ -549,11 +554,12 @@ def check_charset(file_path):
     return charset
 
 
-filename = r'全部测试程序\00编译阶段 部分错误测试用例\词法分析用例.txt'
-with open(filename, encoding=check_charset(filename)) as f:
-    text = f.read()
-    a = LexicalAnalysis(text)  # 读入文章
-    c, d, e = a.print_out()
-    print(c)
-    print(d)
-    print(e)
+# filename = r'全部测试程序\00编译阶段 部分错误测试用例\词法分析用例.txt'
+# with open(filename, encoding=check_charset(filename)) as f:
+#     text = f.read()
+#     a = LexicalAnalysis(text)  # 读入文章
+#     c, d, e = a.print_out()
+#     print(c)
+#     print(d)
+#     print(e)
+
