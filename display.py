@@ -646,6 +646,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 中间代码
     def middle_analysis(self):
+        self.yh_flag = 0
         if self.recursive_or_lr_flag == 0:
             QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
