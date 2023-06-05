@@ -93,7 +93,6 @@ class Ui_MainWindow_DAG(object):
         self.pushButton_2.setObjectName("pushButton_1")
         self.pushButton_2.setText("查看DAG优化图")
 
-
         self.textEdit_3 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_3.setGeometry(QtCore.QRect(0, 240, 256, 192))
         font = QtGui.QFont()
