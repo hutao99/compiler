@@ -549,7 +549,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
                             self.lbword)
                         text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
-                        all_text = self.text1 + '\n' + self.text2 + '\n' + text1
+                        all_text = text1 + self.text1 + '\n' + self.text2 + '\n'
                         self.textEdit_2.setText(all_text)
                         # 设置图片路径
                         self.textEdit_3.clear()
