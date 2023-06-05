@@ -175,38 +175,41 @@ def link(DAG, father, son = None, left = None, right = None):
 
 
 def optimize(DAG_node):
+    print('DAG_node:',DAG_node)
     global Active_variable
-    print('optimize',Active_variable)
+    print('111optimize',Active_variable)
     id = 1
     for e in DAG_node:
+        new_label = []
         if e['node_label']:
-            flag=0
             for i in e['node_label']:
                 if i in Active_variable:
-                    e['node_label'] = i
-                    flag=1
-                    break
-            if not flag:
-                e['node_label'] = e['node_label'][0]
+                    new_label.append(i)
+            if len(new_label) == 0:
+                new_label.append(e['node_label'][0])
         else:
-            if not isleaf(e):
-                e['node_label'] = ('t_'+str(id))
+            if not isleaf(e): # 如果不是叶子节点 新增变量进行标记
+                new_label.append('t_'+str(id))
                 id+=1
+        e['node_label'] = new_label
     code = []
     for e in DAG_node:
         if 'son' in e:
             son = DAG_node[e['son'][0]]
-            la = (e['label'], son['label'], '_', e['node_label'] ) if not son['node_label'] \
-                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'] )
+            la = (e['label'], son['label'], '_', e['node_label'][0] ) if not son['node_label'] \
+                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'][0] )
             code.append(la)
         elif 'left' in e and 'right' in e:
             left = DAG_node[e['left']]
             right = DAG_node[e['right']]
-            fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label']
-            fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label']
-            code.append((e['label'], fun1, fun2, e['node_label']))
-        elif len(e['node_label']) == 1 and e['node_label'][0] in Active_variable:
-            code.append(('=', e['label'], '_', e['node_label'][0]))
+            fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label'][0]
+            fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label'][0]
+            code.append((e['label'], fun1, fun2, e['node_label'][0]))
+        elif len(e['node_label']) >= 1:
+            for i in e['node_label']:
+                if i in Active_variable:
+                    code.append(('=', e['label'], '_', i))
+    print('code:',code)
     return code
 
 #切分基本块
@@ -345,23 +348,11 @@ def test1():#基本块内优化
     # print('optcodes:',codes)
 
 def test2(): # 将程序划分为基本块，得到DAG优化代码
+    global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes=[['main', '_', '_', '_'], ['=', '2', '_', 'x'], ['=', '3', '_', 'y'], ['&&', 'x', 'y', 'T0'], ['=', 'T0', '_',
-                                                                                                         'a'], ['&&',
-                                                                                                                'x',
-                                                                                                                '0',
-                                                                                                                'T1'], [
-               '=', 'T1', '_', 'b'], ['||', 'x', 'y', 'T2'], ['=', 'T2', '_', 'c'], ['||', 'x', '0', 'T3'], ['=', 'T3',
-                                                                                                             '_',
-                                                                                                             'd'], [
-               'para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['para', 'b', '_', '_'], ['call', 'write', '_',
-                                                                                               'T5'], ['para', 'c', '_',
-                                                                                                       '_'], ['call',
-                                                                                                              'write',
-                                                                                                              '_',
-                                                                                                              'T6'], [
-               'para', 'd', '_', '_'], ['call', 'write', '_', 'T7'], ['sys', '_', '_', '_']]
+    codes=[[['main', '_', '_', '_'], ['=', '0', '_', 'a'], ['=', '0', '_', 'max'], ['=', '0', '_', 'min'], ['=', '0', '_', 'sum'], ['=', '0', '_', 'i']], [['<', 'i', '5', 'T0'], ['jnz', 'T0', '_', 9]], [['jz', 'T0', '_', 32]], [['call', 'read', '_', 'T1'], ['=', 'T1', '_', 'a'], ['==', 'i', '0', 'T2'], ['jnz', 'T2', '_', 14]], [['jz', 'T2', '_', 17]], [['=', 'a', '_', 'max'], ['=', 'a', '_', 'min'], ['j', '_', '_', 27]], [['>', 'a', 'max', 'T3'], ['jnz', 'T3', '_', 20]], [['jz', 'T3', '_', 22]], [['=', 'a', '_', 'max'], ['j', '_', '_', 22]], [['<', 'a', 'min', 'T4'], ['jnz', 'T4', '_', 25]], [['jz', 'T4', '_', 27]], [['=', 'a', '_', 'min'], ['j', '_', '_', 27]], [['+', 'sum', 'a', 'T5'], ['=', 'T5', '_', 'sum'], ['+', 'i', '1', 'T6'], ['=', 'T6', '_', 'i'], ['j', '_', '_', 6]], [['para', 'max', '_', '_'], ['call', 'write', '_', 'T7'], ['para', 'min', '_', '_'], ['call', 'write', '_', 'T8'], ['/', 'sum', '5', 'T9'], ['=', 'T9', '_', 'sum'], ['para', 'sum', '_', '_'], ['call', 'write', '_', 'T10'], ['sys', '_', '_', '_']]]
 
+    Active_variable=['a', 'max', 'min', 'sum', 'i']
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])
