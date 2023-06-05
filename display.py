@@ -819,6 +819,12 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.suanfu_window.show()
 
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
+        # 对全局变量进行初始化
+        self.split_flag = 0
+        self.yh_flag = 0
+        self.siyuanshi = None
+        self.basic_blocks = None
+
         self.recursive_or_lr_flag = 2
         text = self.textEdit.toPlainText()
         lex = AnalyzerLex()
