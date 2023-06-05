@@ -1,12 +1,30 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QDialog, QLabel
 
 from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
 
+class MyDialog(QDialog):
+    def __init__(self, parent=None):
+        super(MyDialog, self).__init__(parent)
+        self.label = QLabel(self)
+        self.pixmap = QPixmap('./DAG/visible.gv.png')
+        self.label.setPixmap(self.pixmap)
+        self.setWindowTitle('分析图')
+        self.resize(self.pixmap.width(), self.pixmap.height())
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, '保存图片', '是否要保存图片？',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            file_name, _ = QFileDialog.getSaveFileName(self, '保存图片', '', 'Images (*.png *.xpm *.jpg)')
+            if file_name:
+                self.pixmap.save(file_name)
+        event.accept()
 
 class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
     def __init__(self, parent=None):
@@ -16,6 +34,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         # 设置响应槽
         self.pushButton.clicked.connect(self.open_text)
         self.pushButton_1.clicked.connect(self.DAG_optimal)
+        self.pushButton_2.clicked.connect(self.show_image)
 
     def DAG_optimal(self):
         s = self.textEdit.toPlainText()
@@ -41,7 +60,6 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             self.textEdit_2.clear()
             cursor = self.textEdit_2.textCursor()
             cursor.insertImage(image_format)
-
             self.textEdit_2.show()
         except:
             QMessageBox.warning(self, '警告', '系统无法处理！')
@@ -63,10 +81,17 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             f.close()
             self.textEdit.clear()
             self.textEdit.setText(text)
+    def show_image(self):
+        '''
+        :return:显示图片
+        '''
+        dialog = MyDialog(self)
+        dialog.setModal(True)
+        dialog.exec_()
 
 
 #
-# app = QApplication(sys.argv)
-# LL_window = MyDesiger_DAG()
-# LL_window.show()
-# sys.exit(app.exec_())
+app = QApplication(sys.argv)
+LL_window = MyDesiger_DAG()
+LL_window.show()
+sys.exit(app.exec_())
