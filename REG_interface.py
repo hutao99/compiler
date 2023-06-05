@@ -160,8 +160,11 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "REG正则表达式转换"))
-        self.plainTextEdit.setPlainText(_translate("MainWindow", "输入正规式:(输入前请删除此行)"))
-        self.plainTextEdit_2.setPlainText(_translate("MainWindow", "输入待识别的符号串:"))
+        # self.plainTextEdit.setPlainText(_translate("MainWindow", "输入正规式:(输入前请删除此行)"))
+        self.plainTextEdit.setPlaceholderText("输入正规式或导入正规式文件")
+        self.plainTextEdit_2.setPlaceholderText("输入待识别的符号串或导入文件")
+        # self.plainTextEdit_2.setPlainText(_translate("MainWindow", "输入待识别的符号串:"))
+
         self.pushButton.setText(_translate("MainWindow", "NFA"))
         self.pushButton_2.setText(_translate("MainWindow", "DFA"))
         self.pushButton_3.setText(_translate("MainWindow", "MFA"))
