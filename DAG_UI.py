@@ -48,6 +48,7 @@ class Ui_MainWindow_DAG(object):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("打开四元式文件")
 
+
         self.pushButton_1 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_1.setEnabled(True)
         self.pushButton_1.setGeometry(QtCore.QRect(510, 190, 521, 51))
