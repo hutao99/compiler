@@ -33,7 +33,6 @@ class Ui_MainWindow_DAG(object):
         self.textEdit.setFont(font)
         self.textEdit.setObjectName("textEdit")
 
-
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setEnabled(True)
         self.pushButton.setGeometry(QtCore.QRect(510, 190, 521, 51))
