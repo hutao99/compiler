@@ -96,6 +96,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             f.close()
             self.textEdit.clear()
             self.textEdit.setText(text)
+
     def show_image(self):
         '''
         :return:显示图片
