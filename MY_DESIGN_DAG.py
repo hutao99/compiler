@@ -110,6 +110,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         except Exception as e:
             print('发生了异常：', e)
 
+
 # app = QApplication(sys.argv)
 # LL_window = MyDesiger_DAG()
 # LL_window.show()
