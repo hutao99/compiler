@@ -1,27 +1,29 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QComboBox, QDialog, QPushButton, \
-    QHBoxLayout
+from PyQt5.QtGui import QColor, QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QPushButton, QLabel, QDialog, \
+    QHBoxLayout, QScrollArea, QSizePolicy, QComboBox
 
 import Analyzer
-from collection import FirstVTAndLastVT
+from TABLE import Predictive_Analysis, ASTNode
+
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
 
 
-class OPGGrammarSolver(QMainWindow):
+class LL1GrammarSolver(QMainWindow):
     def __init__(self):
         super().__init__()
         # 创建一个选项卡窗口部件
         self.tabWidget = QtWidgets.QTabWidget(self)
-        self.setWindowTitle("算符优先分析")
+        self.setWindowTitle("LR分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
 
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
-        self.tabWidget.addTab(self.tab1, "FirstVT和LastVT")
+        self.tabWidget.addTab(self.tab1, "LR状态信息")
+
         # 创建下拉框，用于选择模式
         self.mode_combo = QComboBox(self.tab1)
         font = QtGui.QFont()
@@ -38,20 +40,42 @@ class OPGGrammarSolver(QMainWindow):
         self.mode_combo.addItem("系统分词模式")
         self.mode_combo.addItem("用户分词模式")
         self.mode_combo.currentIndexChanged.connect(self.on_mode_changed)
-        self.mode_combo.setStyleSheet("#模式选择 {text-align:center;} QComboBox::drop-down {subcontrol-origin: padding; subcontrol-position: top right; width: 20px;}")
-
+        self.mode_combo.setStyleSheet(
+            "#模式选择 {text-align:center;} QComboBox::drop-down {subcontrol-origin: padding; subcontrol-position: top right; width: 20px;}")
 
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
-        self.tabWidget.addTab(self.tab2, "算符优先关系表")
+        self.tabWidget.addTab(self.tab2, "LR分析表")
 
         # 创建第三个选项卡
         self.tab3 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab3, "测试案例")
 
+        # 创建第四个选项卡
+        self.tab4 = QtWidgets.QWidget()
+        self.tabWidget.addTab(self.tab4, "分析图")
+
+        # 在分析图 tab 中添加 QLabel 和 QPixmap
+        label = QLabel(self.tab4)
+        pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
+        label.setPixmap(pixmap)
+
+        # 将 QLabel 放在 QVBoxLayout 中，并将 QVBoxLayout 设置为 self.tab4 的布局
+        layout = QVBoxLayout(self.tab4)
+        layout.addWidget(label)
+
+        # 创建按钮，用于触发显示图片的操作
+        button = QPushButton('显示图片', self.tab4)
+        button_save = QPushButton('保存图片', self.tab4)
+        button.clicked.connect(self.show_image)
+        layout.addWidget(button)
+        layout.addWidget(button_save)
+        button_save.clicked.connect(lambda: self.save_image(pixmap))
+
+
         layout1 = QtWidgets.QGridLayout()
 
-        # 导入LL1文法的按钮
+        # 导入LR文法的按钮
         self.pushButton = QtWidgets.QPushButton()
         self.pushButton.setEnabled(True)
         font = QtGui.QFont()
@@ -63,10 +87,10 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.setText("算符优先文法分析")
+        self.pushButton.setText("LR文法分析")
         self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
 
-        # 导入LL1文法的按钮
+        # 导入LR复杂文法的按钮
         self.pushButton_ = QtWidgets.QPushButton()
         self.pushButton_.setEnabled(True)
         font = QtGui.QFont()
@@ -78,7 +102,7 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_.setFont(font)
         self.pushButton_.setObjectName("pushButton")
-        self.pushButton_.setText("导入算符优先文法")
+        self.pushButton_.setText("导入LR文法")
         self.pushButton_.setStyleSheet("QPushButton {text-align:left;}")
 
         # 求解FIRST集合的按钮
@@ -94,9 +118,9 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.setText("保存FirstVT内容")
+        self.pushButton_2.setText("显示状态信息")
 
-        # 显示LL1文法的内容
+        # 显示LR文法的内容
         self.textEdit = QtWidgets.QTextEdit()
         self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
         font = QtGui.QFont()
@@ -108,23 +132,17 @@ class OPGGrammarSolver(QMainWindow):
         self.textEdit.setFont(font)
         self.textEdit.setObjectName("textEdit")
 
-        # 显示FIRST集合的内容
-        self.table_FIRST = QtWidgets.QTableWidget()
-        self.table_FIRST.setObjectName("tableAnalyze")
-        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
-
-        # 隐藏分析表的横纵表头
-        # self.table_FIRST.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        # self.table_FIRST.horizontalHeader().setVisible(False)  # 隐藏水平表头
-
-        # 显示FOLLOW集合的内容
-        self.table_FOLLOW = QtWidgets.QTableWidget()
-        self.table_FOLLOW.setObjectName("tableAnalyze")
-        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
-
-        # 隐藏分析表的横纵表头
-        # self.table_FOLLOW.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        # self.table_FOLLOW.horizontalHeader().setVisible(False)  # 隐藏水平表头
+        # 显示状态信息
+        self.textEdit_state = QtWidgets.QTextEdit()
+        self.textEdit_state.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(13)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        self.textEdit_state.setFont(font)
+        self.textEdit_state.setObjectName("textEdit")
 
         self.pushButton_3_ = QtWidgets.QPushButton()
         self.pushButton_3_.setEnabled(True)
@@ -137,7 +155,7 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3_.setFont(font)
         self.pushButton_3_.setObjectName("pushButton_2")
-        self.pushButton_3_.setText("保存LastVT内容")
+        self.pushButton_3_.setText("保存状态信息")
 
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -148,16 +166,13 @@ class OPGGrammarSolver(QMainWindow):
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
         textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-        textEditSplitter.addWidget(self.table_FIRST)
         textEditSplitter.addWidget(self.pushButton_2)
-        textEditSplitter.addWidget(self.table_FOLLOW)
+        textEditSplitter.addWidget(self.textEdit_state)
         textEditSplitter.addWidget(self.pushButton_3_)
 
         self.splitter1 = QSplitter(Qt.Horizontal)
         self.splitter1.addWidget(buttonSplitter)
         self.splitter1.addWidget(textEditSplitter)
-
-
 
         # 将两个水平布局添加到垂直布局中
         layout1.addWidget(self.splitter1)
@@ -170,9 +185,9 @@ class OPGGrammarSolver(QMainWindow):
 
         self.pushButton.clicked.connect(self.open_text)
         self.pushButton_.clicked.connect(self.open_text)
-        #保存FirstVT
+        # 显示状态信息
         # self.pushButton_2.clicked.connect(self.save_first)
-        #保存LastVT
+        # 保存状态信息
         # self.pushButton_3_.clicked.connect(self.save_follow)
 
         layout2 = QtWidgets.QGridLayout()
@@ -188,9 +203,9 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_3.setText("算符优先关系表")
+        self.pushButton_3.setText("LR分析表")
 
-        # 显示预测分析表的内容
+        # 显示LR分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
         self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
@@ -210,23 +225,73 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3__.setFont(font)
         self.pushButton_3__.setObjectName("pushButton_3__")
-        self.pushButton_3__.setText("保存算符优先关系表")
+        self.pushButton_3__.setText("保存LR分析表")
+
+        # 规约式
+        self.pushButton_3__Statutory = QtWidgets.QPushButton()
+        self.pushButton_3__Statutory.setEnabled(True)
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(15)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.pushButton_3__Statutory.setFont(font)
+        self.pushButton_3__Statutory.setObjectName("pushButton_3")
+        self.pushButton_3__Statutory.setText("规约式")
+
+        # 显示规约式的内容
+        self.tableStatutory = QtWidgets.QTextEdit()
+        self.tableStatutory.setObjectName("tableStatutory")
+        self.tableStatutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+
+        # 保存规约式
+        self.pushButton_3__Statutory_ = QtWidgets.QPushButton()
+        self.pushButton_3__Statutory_.setEnabled(True)
+        font = QtGui.QFont()
+        font.setFamily("仿宋")
+        font.setPointSize(15)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(50)
+        self.pushButton_3__Statutory_.setFont(font)
+        self.pushButton_3__Statutory_.setObjectName("pushButton_3__Statutory_")
+        self.pushButton_3__Statutory_.setText("保存规约式")
 
         self.splitter2 = QSplitter(Qt.Vertical)
         self.splitter2.addWidget(self.pushButton_3)
         self.splitter2.addWidget(self.tableAnalyze)
         self.splitter2.addWidget(self.pushButton_3__)
 
-        layout2.addWidget(self.splitter2)
+        self.splitter2_ = QSplitter(Qt.Vertical)
+        self.splitter2_.addWidget(self.pushButton_3__Statutory)
+        self.splitter2_.addWidget(self.tableStatutory)
+        self.splitter2_.addWidget(self.pushButton_3__Statutory_)
+
+        self.splitter2__ = QSplitter(Qt.Horizontal)
+        self.splitter2__.addWidget(self.splitter2)
+        self.splitter2__.addWidget(self.splitter2_)
+
+        layout2.addWidget(self.splitter2__)
 
         self.tab2.setLayout(layout2)
         size = self.pushButton_2.minimumSizeHint()
         self.pushButton_3.setFixedHeight(size.height())
         self.pushButton_3__.setFixedHeight(size.height())
-        #显示算符优先分析表
-        self.pushButton_3.clicked.connect(self.analyze_table)
-        #保存算符优先分析表
+        self.pushButton_3__Statutory.setFixedHeight(size.height())
+        self.pushButton_3__Statutory_.setFixedHeight(size.height())
+
+        # 显示LR分析表
+        # self.pushButton_3.clicked.connect(self.analyze_table)
+        # 保存LR分析表
         # self.pushButton_3__.clicked.connect(self.save_analyze_table)
+        # 显示规约式
+        # self.pushButton_3__Statutory.clicked.connect(self.analyze_table)
+        # 保存规约式
+        # self.pushButton_3__Statutory_.clicked.connect(self.save_analyze_table)
+
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
 
@@ -298,7 +363,7 @@ class OPGGrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_5_.setFont(font)
         self.pushButton_5_.setObjectName("pushButton_5")
-        self.pushButton_5_.setText("保存算符优先分析过程")
+        self.pushButton_5_.setText("保存LR分析过程")
 
         # 连接信号和槽
         self.tableStack.itemChanged.connect(self.onItemChanged)
@@ -318,34 +383,13 @@ class OPGGrammarSolver(QMainWindow):
         # 按钮显示分析栈的分析过程
         # self.pushButton_4.clicked.connect(self.onClick_analyze_stack)
         self.pushButton_5.clicked.connect(self.open_sample)
-        # 保存预测分析过程
+        # 保存LR分析过程
         # self.pushButton_5_.clicked.connect(self.save_analyze_process)
-
-    def on_mode_changed(self, index):
-        # 处理用户选择的模式
-        mode = self.mode_combo.currentText()
-        print("当前模式：", mode)
 
     def onItemChanged(self, item):
         # 自动调整表格大小
         self.tableStack.resizeColumnsToContents()
         self.tableStack.resizeRowsToContents()
-
-    def select_mode(self):
-        # 弹出 QDialog，并在其中添加 QComboBox 和 QPushButton
-        dialog = QDialog(self.tab1)
-        dialog.setModal(True)
-
-        combo = QComboBox(dialog)
-        combo.addItem("模式1")
-        combo.addItem("模式2")
-
-        button = QPushButton("确定", dialog)
-        button.clicked.connect(lambda: self.on_mode_changed(combo.currentText()))
-
-        hbox = QHBoxLayout(dialog)
-        hbox.addWidget(combo)
-        hbox.addWidget(button)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -363,6 +407,38 @@ class OPGGrammarSolver(QMainWindow):
             event.accept()
         else:
             event.ignore()
+    def on_mode_changed(self, index):
+        # 处理用户选择的模式
+        mode = self.mode_combo.currentText()
+        print("当前模式：", mode)
+
+    def show_image(self):
+        '''
+        :return:显示图片
+        '''
+         # 创建 QDialog，并将它设置为模态对话框
+        dialog = QDialog(self)
+        dialog.setModal(True)
+
+        # 在 QDialog 中添加 QLabel 和 QPixmap
+        label = QLabel(dialog)
+        pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
+        label.setPixmap(pixmap)
+
+        # 调整 QDialog 的大小，并显示它
+        dialog.setWindowTitle('分析图')
+        dialog.resize(pixmap.width(), pixmap.height())
+        dialog.show()
+
+    def save_image(self, pixmap):
+        # 弹出文件对话框，让用户选择保存的文件名和路径
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "保存图片", "", "JPEG (*.jpg);;PNG (*.png)", options=options)
+
+        # 如果用户选择了文件名和路径，则保存图片到本地
+        if file_name:
+            pixmap.save(file_name)
 
     def check_charset(self, file_path):
         import chardet
@@ -381,7 +457,7 @@ class OPGGrammarSolver(QMainWindow):
                     str = f.read()
                     print(str)
                     self.textEdit.setText(str)
-                    self.get_VT()
+                    # self.onClick_create_first_follow()
         except Exception as e:
             print("Error: ", e)
 
@@ -398,76 +474,9 @@ class OPGGrammarSolver(QMainWindow):
         except Exception as e:
             print("Error: ", e)
 
-    def get_VT(self):
-        grammar = self.textEdit.toPlainText()
-        grammar = grammar.replace('->', ':')
-        op = FirstVTAndLastVT()
-        op.input(grammar)
-        terminal = set()
-        for i in op.first:
-            terminal.update(op.first[i])
-        for i in op.last:
-            terminal.update(op.last[i])
-        del op.first[op.begin+"'"]
-        del op.last[op.begin + "'"]
-        self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
-        self.table_FIRST.setRowCount(len(op.first))  # 设置行数
-        self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
-        self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
-        idx = 0
-        print(op.first)
-        print(op.last)
-        for i in op.first:
-            item1 = QtWidgets.QTableWidgetItem(i)
-            self.table_FIRST.setVerticalHeaderItem(idx, item1)
-            print(op.first[i])
-            for j in range(len(op.first[i])):
-                item = QtWidgets.QTableWidgetItem(op.first[i][j])
-                self.table_FIRST.setItem(idx, j, item)
-            idx += 1
-        idx = 0
-        for i in op.last:
-            item1 = QtWidgets.QTableWidgetItem(i)
-            self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
-            for j in range(len(op.last[i])):
-                item = QtWidgets.QTableWidgetItem(op.last[i][j])
-                self.table_FOLLOW.setItem(idx, j, item)
-            idx += 1
-
-    def analyze_table(self):
-        try:
-            grammar = self.textEdit.toPlainText()
-            grammar = grammar.replace('->', ':')
-            op = FirstVTAndLastVT()
-            op.input(grammar)
-            sequence1, precedence_table1, is_opg = op.Table()
-            if not is_opg:
-                QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎使用')
-            self.tableAnalyze.setColumnCount(len(sequence1)+1)  # 设置列数
-            self.tableAnalyze.setRowCount(len(sequence1)+1)  # 设置行
-            idx = 1
-            for i in sequence1:
-                item = QtWidgets.QTableWidgetItem(i)
-                self.tableAnalyze.setItem(0, idx, item)
-                idx += 1
-            idx = 1
-            for i in sequence1:
-                item = QtWidgets.QTableWidgetItem(i)
-                self.tableAnalyze.setItem(idx, 0, item)
-                idx += 1
-            idx = 1
-            for i in sequence1:
-                for j in range(len(sequence1)):
-                    item = QtWidgets.QTableWidgetItem(precedence_table1[sequence1[i]][j])
-                    self.tableAnalyze.setItem(idx, j+1, item)
-                idx += 1
-            print(precedence_table1)
-        except Exception as e:
-            print("Error: ", e)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = OPGGrammarSolver()
+    window = LL1GrammarSolver()
     window.show()
     sys.exit(app.exec_())
