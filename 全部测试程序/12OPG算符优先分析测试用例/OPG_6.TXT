@@ -1,3 +1,2 @@
-G: # S #
-S: a | b | ( A )
-A: S d A | S
+S->a | b | ( A )
+A->S d A | S

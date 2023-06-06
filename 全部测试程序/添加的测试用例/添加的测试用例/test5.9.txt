@@ -1,51 +1,56 @@
-//¿ìËÙÅÅÐò
-void quicksort(int a[],int,int);  //º¯ÊýµÄÉùÃ÷
-
-int main()
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void quicksort(int,int);  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+int arr[10];
+main()
 {
-       int arr[10] = {9,5,3,8,1,2,6,7,4,10};
-       write("ÅÅÐòÇ°µÄÊý×éÔªËØÎª:");
-       for(int i = 0; i < 10;i++)    {
+       //int arr[10] = {9,5,3,8,1,2,6,7,4,10};
+	arr[0]=9;
+	arr[1]=5;
+	arr[2]=3;
+	arr[3]=8;
+	arr[4]=1;
+	arr[5]=2;
+	arr[6]=6;
+	arr[7]=7;
+	arr[8]=4;
+	arr[9]=10;
+	int i=0;
+       for(i = 0; i < 10;i=i+1)    {
             write(arr[i]);
-            write("   ");
         }
-        write("\n");
-        quicksort(arr,0,9);  //µ÷ÓÃº¯Êý
-        write("ÅÅÐòºóµÄÊý×éÔªËØÎª:");
-        for(int i = 0; i < 10;i++)    {
+        quicksort(0,9);  //ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½
+        for(i = 0; i < 10;i=i+1)    {
             write(arr[i]);
-            write("   ");
         }
-    return 0;
 }
  
-void quicksort(int a[10],int first,int end)
+void quicksort(int first,int end)
 {
-    if(first > end)  //µÝ¹é½áÊøÌõ¼þ
+    if(first > end)  //ï¿½Ý¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     {
         return;
     }
-    int i = first, j = end, flag = a[i], exchange = 0;
+    int i = first, j = end, flag = arr[i], exchange = 0;
 
     while(i != j)      {
-        while(i < j && a[j] > flag)  
+        while(i < j && arr[j] > flag)  
         {
-            j--;
+            j=j-1;
         }
  
-        while(i < j && a[i] <= flag)
+        while(i < j && arr[i] <= flag)
         {
-            i++;
+            i=i+1;
         }
         if(j > i)
         {
-            exchange = a[i];
-            a[i] = a[j];
-            a[j] = exchange;
+            exchange = arr[i];
+            arr[i] = arr[j];
+            arr[j] = exchange;
         }
     }
-    a[first] = a[i];
-    a[i] = flag;
-    quicksort(a,first,i - 1);
-    quicksort(a,i + 1,end);
+    arr[first] = arr[i];
+    arr[i] = flag;
+    quicksort(first,i - 1);
+    quicksort(i + 1,end);
 }

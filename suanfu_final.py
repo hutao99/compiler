@@ -461,6 +461,7 @@ class OPGGrammarSolver(QMainWindow):
             idx += 1
 
     def analyze_table(self):
+        self.tableAnalyze.clear()
         try:
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
@@ -494,39 +495,39 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def analyze_sentence(self):
-        try:
-            grammar = self.textEdit.toPlainText()
-            grammar = grammar.replace('->', ':')
-            text = self.textEdit_1.toPlainText()
-            if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
-                for symbol in non_terminals.union(terminals):
-                    text = text.replace(symbol, f" {symbol} ")
-            op = FirstVTAndLastVT()
-            op.input(grammar)
-            sequence1, precedence_table1, is_opg = op.Table()
-            if not is_opg:
-                QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎分析语句')
-            expression = ['#']
-            expression.extend(text.split())
-            expression.append('#')
-            t = [[], [], [], []]
-            t[0], info, t[3], t[1], t[2] = op.OP(sequence1, precedence_table1, expression)
-            # stack, info, action, remainder, priority
-            # self.tableStack.setColumnCount(4)  # 设置列数
-            self.tableStack.setRowCount(len(t[0]) + 1)  # 设置行数
-            for i in range(len(t[0])):
-                for j in range(4):
-                    if len(t[j]) == i:
-                        item = QtWidgets.QTableWidgetItem(info)
-                        self.tableStack.setItem(len(t[0]), 0, item)
-                        break
-                    p = str(t[j][i])
-                    item = QtWidgets.QTableWidgetItem(p)
-                    self.tableStack.setItem(i, j, item)
-        except Exception as e:
+
+        grammar = self.textEdit.toPlainText()
+        grammar = grammar.replace('->', ':')
+        text = self.textEdit_1.toPlainText()
+        if self.chose_mode == '系统分词模式':
+            grammar, non_terminals, terminals = grammar_cut(grammar)
+            for symbol in non_terminals.union(terminals):
+                text = text.replace(symbol, f" {symbol} ")
+        op = FirstVTAndLastVT()
+        op.input(grammar)
+        sequence1, precedence_table1, is_opg = op.Table()
+        if not is_opg:
+            QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎分析语句')
+        expression = ['#']
+        expression.extend(text.split())
+        expression.append('#')
+        t = [[], [], [], []]
+        t[0], info, t[3], t[1], t[2] = op.OP(sequence1, precedence_table1, expression)
+        # stack, info, action, remainder, priority
+        # self.tableStack.setColumnCount(4)  # 设置列数
+        self.tableStack.setRowCount(len(t[0]) + 1)  # 设置行数
+        for i in range(len(t[0])):
+            for j in range(4):
+                if len(t[j]) == i:
+                    item = QtWidgets.QTableWidgetItem(info)
+                    self.tableStack.setItem(len(t[0]), 0, item)
+                    break
+                p = str(t[j][i])
+                item = QtWidgets.QTableWidgetItem(p)
+                self.tableStack.setItem(i, j, item)
+        '''except Exception as e:
             QMessageBox.warning(self, '警告', '句子中可能存在文法中没有的终结符')
-            print("Error: ", e)
+            print("Error: ", e)'''
 
     def save_first(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存FirstVT集合', '', 'Text Files (*.txt)')
@@ -570,6 +571,8 @@ class OPGGrammarSolver(QMainWindow):
                     f.write('\n')
 
     def save_analyze_process(self):
+        self.tableStack.clear()
+        self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
         filename1, _ = QFileDialog.getSaveFileName(self, '保存分析过程', '', 'Text Files (*.txt)')
         if filename1:
             with open(filename1, 'w') as f:
@@ -589,8 +592,9 @@ class OPGGrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-if __name__ == '__main__':
+
+'''if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = OPGGrammarSolver()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())'''

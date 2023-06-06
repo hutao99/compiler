@@ -1,3 +1,2 @@
-S: # T #
-T: t | e | ( F )
-F: T + F | T
+T->t | e | ( F )
+F->T + F | T
