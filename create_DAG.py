@@ -79,11 +79,11 @@ def is_in_DAG(DAG, elem, son = None, left = None, right = None):# elem +-*/
     return False
 
 #('=', ' 3.14', ' ', ' T0') 3.14是否为结点中
-def is_in_DAG2(DAG, elem, son = None, left = None, right = None):# elem +-*/
-    for e in DAG:
-        if elem == e['label']:
-            return True
-    return False
+# def is_in_DAG2(DAG, elem, son = None, left = None, right = None):# elem +-*/
+#     for e in DAG:
+#         if elem == e['label']:
+#             return True
+#     return False
 def index_of_DAG(DAG, x):
     if x not in ['+', '-', '/', '*','&&','||','!','@','>','<','>=','<=','!=','==']:
         for i, e in enumerate(DAG):
@@ -113,7 +113,7 @@ def create_DAG(codes: list): #start
             if is_in_DAG(DAG, code[3]):
                 delete(DAG, code[3])
                 pass
-            if not is_in_DAG2(DAG, code[1]):
+            if not is_in_DAG(DAG, code[1]):
                 DAG.append({'label': code[1], 'node_label': [code[3]]})
             else:
                 append_node_label(DAG, code[1], code[3])
@@ -379,3 +379,5 @@ def test3():
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
 # test2()
+
+#
