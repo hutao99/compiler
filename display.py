@@ -28,6 +28,7 @@ from create_DAG import create_DAG, optimize, Partition_Basic_Block, all_basic_op
 # REG
 from REG_control import REG_MainWindow
 
+
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super(DetailUI, self).__init__()
