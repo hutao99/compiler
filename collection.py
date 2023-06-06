@@ -14,9 +14,12 @@ class FirstAndFollow:
         self.begin = begin.replace(" ", "")
         for i in carve:
             index = i.find(':')
-            self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
-            self.first[i[0:index].replace(" ", "")] = []
-            self.last[i[0:index].replace(" ", "")] = []
+            if i[0:index].replace(" ", "") not in self.Formula:
+                self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
+                self.first[i[0:index].replace(" ", "")] = []
+                self.last[i[0:index].replace(" ", "")] = []
+            else:
+                self.Formula[i[0:index].replace(" ", "")] = self.Formula[i[0:index].replace(" ", "")] + '|' + i[index + 1:]
         self.last[self.begin].append('#')
         self.First_()
         self.Last_()
@@ -121,9 +124,12 @@ class FirstVTAndLastVT:
         # 处理文法
         for i in list(filter(None, data.split('\n'))):
             index = i.find(':')
-            self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
-            self.first[i[0:index].replace(" ", "")] = []
-            self.last[i[0:index].replace(" ", "")] = []
+            if i[0:index].replace(" ", "") not in self.Formula:
+                self.Formula[i[0:index].replace(" ", "")] = i[index+1:]
+                self.first[i[0:index].replace(" ", "")] = []
+                self.last[i[0:index].replace(" ", "")] = []
+            else:
+                self.Formula[i[0:index].replace(" ", "")] = self.Formula[i[0:index].replace(" ", "")] + '|' + i[index + 1:]
         self.FirstVT()
         self.LastVT()
 
