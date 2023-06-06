@@ -986,6 +986,10 @@ class CLRParser:
         bool_true = []
         # 布尔假出口
         bool_false = []
+        # 是否在main函数内
+        is_in_main = False
+        # main内的return语句返回
+        main_return = []
         while index < len(sign_list):
             name = sign_list[index]
             # print(token[index])
@@ -1328,7 +1332,7 @@ class CLRParser:
                                 self.code.append(['jnz', father.children[1].value, '', 0])
                                 bool_true.append(index_code)
                                 index_code += 1
-                            q = stack_for.pop()
+                            stack_for.pop()
                             loop_count -= 1
                             if len(stack_break) > 0 and stack_break[-1][1] == loop_count:
                                 self.code[stack_break[-1][0]][3] = index_code
@@ -1359,7 +1363,10 @@ class CLRParser:
                         self.code.append(['para', father.children[0].value, '', ''])
                         index_code += 1
                     elif father.name == 'return语句':
-                        if father.children[1].value is None:
+                        if is_in_main:
+                            self.code.append(['j', '', '', 0])
+                            main_return.append(index_code)
+                        elif father.children[1].value is None:
                             self.code.append(['ret', '', '', ''])
                         else:
                             self.code.append(['ret', father.children[1].value, '', ''])
@@ -1394,9 +1401,13 @@ class CLRParser:
                         para.append(father.children[-2].symbol_info[1])
                         # index_code += 1
                     elif father.name == '主函数':
+                        is_in_main = True
                         self.code.append(['main', '', '', ''])
                         index_code += 1
                     elif father.name == '程序(1)' or father.name == '程序(2)':
+                        is_in_main = False
+                        for i in main_return:
+                            self.code[i][3] = index_code
                         self.code.append(['sys', '', '', ''])
                         index_code += 1
                     # elif father
