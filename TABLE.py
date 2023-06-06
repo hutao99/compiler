@@ -1,7 +1,5 @@
 import re
 
-import Analyzer
-
 
 class ASTNode:
     def __init__(self, Type, content=None):
@@ -67,7 +65,7 @@ class Predictive_Analysis:
         # self.FOLLOW()
         for i in self.first:
             if '$' in self.first[i]:
-               self.kong.append(i)
+                self.kong.append(i)
         print('kong', self.kong)
         self.Last_()
         self.get_predict_table_(data)
@@ -105,7 +103,7 @@ class Predictive_Analysis:
                 self.nonterminals.append(left)
             for symbols in symbols_list:
                 self.productions[left].append(symbols.split())
-        self.nonterminals=list(set(self.nonterminals))
+        self.nonterminals = list(set(self.nonterminals))
         self.grammars = grammar_list
         for i in self.grammars:
             print(i, self.grammars[i])
@@ -282,10 +280,9 @@ class Predictive_Analysis:
                     out = self.first_dict[next_value]
                     for i in out:
                         if i != '$':
-
                             self.predict_table_[item][i] = item + '->' + next_t
                 else:
-                    if(next_value=='{'):
+                    if (next_value == '{'):
                         print('---------------------------12222222222222222222')
                         print(item + '->' + next_t)
                     self.predict_table_[item][next_value] = item + '->' + next_t
@@ -306,36 +303,39 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
+# if __name__ == "__main__":
+#     test = Predictive_Analysis()
+#     path = "全部测试程序\\11LL(1)测试用例\文法.TXT"
+#     grammar = str(open(path).read())
+#     grammar = grammar.replace('->', ':')
+#     test.input(grammar)
+#     con = 'i+i*i'
+#     # con+='#'
+#     # con = ""
+#     # Filepath = "D:\pythonProject\compiler\全部测试程序\\02已测试正确的编译器用例\\test2.2.txt"
+#     # for line in open(Filepath, 'r', encoding=check_charset(Filepath)):
+#     #     con += line
+#     lex = Analyzer.AnalyzerLex()
+#     lex.input(con)
+#     expression = []
+#
+#     while True:
+#         tok = lex.token()
+#         if not tok:
+#             break
+#         s1 = ['operator', 'keyword', 'Boundary']
+#         s2 = ['integer', 'character', 'string', 'identifier', 'float']
+#         if tok.type in s1:
+#             expression.append([tok.value, tok.value])
+#         elif tok.type in s2:
+#             expression.append([tok.type, tok.value])
+#     expression.append(['#', '#'])
+#     print(expression)
+#     print(test.first_dict)
+#     print(test.last)
+#     print(test.predict_table_['A1'])
 
-if __name__ == "__main__":
-    test = Predictive_Analysis()
-    path = "全部测试程序\\11LL(1)测试用例\文法.TXT"
-    grammar = str(open(path).read())
-    grammar = grammar.replace('->', ':')
-    test.input(grammar)
-    con = 'i+i*i'
-    # con+='#'
-    # con = ""
-    # Filepath = "D:\pythonProject\compiler\全部测试程序\\02已测试正确的编译器用例\\test2.2.txt"
-    # for line in open(Filepath, 'r', encoding=check_charset(Filepath)):
-    #     con += line
-    lex = Analyzer.AnalyzerLex()
-    lex.input(con)
-    expression = []
-
-    while True:
-        tok = lex.token()
-        if not tok:
-            break
-        s1 = ['operator', 'keyword', 'Boundary']
-        s2 = ['integer', 'character', 'string', 'identifier', 'float']
-        if tok.type in s1:
-            expression.append([tok.value, tok.value])
-        elif tok.type in s2:
-            expression.append([tok.type, tok.value])
-    expression.append(['#', '#'])
-    print(expression)
-    print(test.first_dict)
-    print(test.last)
-    print(test.predict_table_['A1'])
-
+# 做成一个库
+# 调用库里的函数
+#.lib文件
+#行号

@@ -1,12 +1,12 @@
-// 杈撳叆鏁板瓧num锛屽垽鏂槸涓嶆槸绱犳暟
-// 娴嬭瘯鍑芥暟璋冪敤锛屽熀鏈垎鏀紝寰幆缁撴瀯
+// 输入数字num，判断是不是素数
+// 测试函数调用，基本分支，循环结构
 int isPrime(int);
 
 main()
 {
     int num;
     int res;
-    read(num);
+    num = read();
     if(isPrime(num) == 1)
     {
         res = 1;

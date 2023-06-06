@@ -28,6 +28,7 @@ from create_DAG import create_DAG, optimize, Partition_Basic_Block, all_basic_op
 # REG
 from REG_control import REG_MainWindow
 
+
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
         super(DetailUI, self).__init__()
@@ -127,8 +128,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionLR1.triggered.connect(self.LR1_analyze)
         # LR0语法分析
         self.actionLR0.triggered.connect(self.LR0_analyze)
-        # lr是否进行语法分析
-        self.LR_flag = False
         '''
         图片导出
         '''
@@ -526,7 +525,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):
         self.recursive_or_lr_flag = 1
-        self.LR_flag = False
         text = self.textEdit.toPlainText()
         if text == '':
             QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
@@ -602,7 +600,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         cursor = self.textEdit_3.textCursor()
                         cursor.insertImage(image_format)
                         self.textEdit_3.show()  # 语法树
-                        self.LR_flag = True
+                        self.siyuanshi = [['main', '', '', '']]
                         errors = []
                         errors.extend(lex.error)
                         errors.extend(self.LR.errors)
@@ -643,16 +641,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         if self.recursive_or_lr_flag == 0:
             QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
-            if self.LR_flag:
-                try:
-                    dialog = MyDialog('./Syntax_Tree/tree.gv.png', self)
-                    dialog.setModal(True)
-                    dialog.exec_()
-                except FileNotFoundError as e:
-                    print('文件不存在：', e.filename)
-                except Exception as e:
-                    print('发生了异常：', e)
-            elif self.siyuanshi == None or self.siyuanshi == []:
+            if self.siyuanshi == None or self.siyuanshi == []:
                 QMessageBox.warning(self, '警告', '请先进行语法分析！')
             else:
                 try:
