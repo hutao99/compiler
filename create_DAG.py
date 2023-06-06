@@ -78,7 +78,7 @@ def is_in_DAG(DAG, elem, son = None, left = None, right = None):# elem +-*/
                 return True
     return False
 
-#('=', ' 3.14', ' ', ' T0') 3.14是否为结点中
+# #('=', ' 3.14', ' ', ' T0') 3.14是否为结点中
 # def is_in_DAG2(DAG, elem, son = None, left = None, right = None):# elem +-*/
 #     for e in DAG:
 #         if elem == e['label']:
@@ -90,7 +90,11 @@ def index_of_DAG(DAG, x):
             if x in e['node_label'] or x == e['label']:
                 return i
     return None
-
+def is_in_label(DAG, elem):
+    for e in DAG:
+        if elem == e['label'] :
+            return True
+    return False
 def create_DAG(codes: list): #start
     DAG = []
     global Active_variable
@@ -113,9 +117,11 @@ def create_DAG(codes: list): #start
             if is_in_DAG(DAG, code[3]):
                 delete(DAG, code[3])
                 pass
-            if not is_in_DAG(DAG, code[1]):
+            if not is_in_DAG(DAG, code[1]):# code[1]不在DAG
                 DAG.append({'label': code[1], 'node_label': [code[3]]})
-            else:
+            elif code[1] in Active_variable and not is_in_label(DAG,code[1]): # 如果code【1】是活跃变量 且在DAG 且不在DAG label中
+                DAG.append({'label': code[1], 'node_label': [code[3]]})
+            else:# 如果不为活跃变量 或为活跃变量 且在DAGlabel中
                 append_node_label(DAG, code[1], code[3])
         elif code[0] == '@' or (code[0] == '-' and  (code[2] == '' or code[2] == '_')): # x = @ y
             if not is_in_DAG(DAG, code[1]):
@@ -359,7 +365,8 @@ def test1():#基本块内优化
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes=[['=', 'a', '_', 't'], ['=', 'b', '_', 'a'], ['=', 't', '_', 'b'], ['j', '_', '_', 14]]
+    codes =  [['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'a'], ['call', 'read', '_', 'T1'], ['=', 'T1', '_', 'b'], ['call', 'read', '_', 'T2'], ['=', 'T2', '_', 'c'], ['>', 'a', 'b', 'T3'], ['jnz', 'T3', '_', 10], ['jz', 'T3', '_', 14], ['=', 'a', '_', 't'], ['=', 'b', '_', 'a'], ['=', 't', '_', 'b'], ['j', '_', '_', 14], ['>', 'a', 'c', 'T4'], ['jnz', 'T4', '_', 17], ['jz', 'T4', '_', 21], ['=', 'a', '_', 't'], ['=', 'c', '_', 'a'], ['=', 't', '_', 'c'], ['j', '_', '_', 21], ['>', 'b', 'c', 'T5'], ['jnz', 'T5', '_', 24], ['jz', 'T5', '_', 28], ['=', 'b', '_', 't'], ['=', 'c', '_', 'b'], ['=', 't', '_', 'c'], ['j', '_', '_', 28], ['para', 'a', '_', '_'], ['call', 'write', '_', 'T6'], ['para', 'b', '_', '_'], ['call', 'write', '_', 'T7'], ['para', 'c', '_', '_'], ['call', 'write', '_', 'T8'], ['ret', '0', '_', '_'], ['sys', '_', '_', '_']]
+
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])
@@ -379,5 +386,3 @@ def test3():
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
 # test2()
-
-#
