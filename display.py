@@ -7,8 +7,9 @@ from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_DAG import MyDesiger_DAG, MyDialog
 from MY_DESIGN_LL1 import LL1GrammarSolver
-from MyDesign_suanfu import MyDesiger_suanfu
-from MY_DESIGN_LR import MyDesiger_LR
+from suanfu_final import OPGGrammarSolver
+from LR1_surface import LR1GrammarSolver
+from LR0_surface import LR0GrammarSolver
 
 from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
@@ -124,7 +125,10 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         # LR1自定义语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
-
+        # LR0语法分析
+        self.actionLR0.triggered.connect(self.LR0_analyze)
+        # lr是否进行语法分析
+        self.LR_flag = False
         '''
         图片导出
         '''
@@ -511,12 +515,18 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.DAG_window.show()
 
     def LR1_analyze(self):
-        self.LR_window = MyDesiger_LR()
+        self.LR_window = LR1GrammarSolver()
         self.LR_window.show()
+
+    def LR0_analyze(self):
+        self.LR0_window = LR0GrammarSolver()
+        self.LR0_window.show()
+
 
     # 递归下降手动词法分析
     def Manual_lexical_analysis(self):
         self.recursive_or_lr_flag = 1
+        self.LR_flag = False
         text = self.textEdit.toPlainText()
         if text == '':
             QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
@@ -567,72 +577,82 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:
-                # LR语法分析
-                text = self.textEdit.toPlainText()
-                if len(text) != 0:
-                    lex = AnalyzerLex()
-                    lex.input(text)
-                    tokens = []
-                    while True:
-                        tok = lex.token()
-                        if not tok:
-                            break
-                        tokens.append([tok.type, tok.value, tok.lineno,
-                                       lex.find_column(tok.lexer.lexdata, tok)])
-                    tokens.append(['keyword', '#'])
-                    # print(tokens)
-                    self.LR.ControlProgram(tokens)
-                    # self.display1.append(self.LR.PrintParseTree())
-                    self.LR.PrintParseTree()  # 画语法树图
-                    # 设置图片路径
-                    image_format = QtGui.QTextImageFormat()
-                    image_format.setName('./Syntax_Tree/tree.gv.png')
+                try:
+                    # LR语法分析
+                    text = self.textEdit.toPlainText()
+                    if len(text) != 0:
+                        lex = AnalyzerLex()
+                        lex.input(text)
+                        tokens = []
+                        while True:
+                            tok = lex.token()
+                            if not tok:
+                                break
+                            tokens.append([tok.type, tok.value, tok.lineno,
+                                           lex.find_column(tok.lexer.lexdata, tok)])
+                        tokens.append(['keyword', '#'])
+                        self.LR.ControlProgram(tokens)
+                        self.LR.PrintParseTree()  # 画语法树图
+                        # 设置图片路径
+                        image_format = QtGui.QTextImageFormat()
+                        image_format.setName('./Syntax_Tree/tree.gv.png')
 
-                    # 在QTextEdit中插入图片
-                    self.textEdit_3.setText('')
-                    cursor = self.textEdit_3.textCursor()
-                    cursor.insertImage(image_format)
-                    self.textEdit_3.show()  # 语法树
+                        # 在QTextEdit中插入图片
+                        self.textEdit_3.setText('')
+                        cursor = self.textEdit_3.textCursor()
+                        cursor.insertImage(image_format)
+                        self.textEdit_3.show()  # 语法树
+                        self.LR_flag = True
+                        errors = []
+                        errors.extend(lex.error)
+                        errors.extend(self.LR.errors)
+                        errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                        s = ''
+                        s += '常量表:\n'
+                        for i in self.LR.ConstantTable:
+                            s += i + ": "
+                            for j in self.LR.ConstantTable[i]:
+                                s += str(vars(j)) + '\n'
 
-                    errors = []
-                    errors.extend(lex.error)
-                    errors.extend(self.LR.errors)
-                    errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                    s = ''
-                    s += '常量表:\n'
-                    for i in self.LR.ConstantTable:
-                        s += i + ": "
-                        for j in self.LR.ConstantTable[i]:
-                            s += str(vars(j)) + '\n'
+                        s += '变量表:\n'
+                        for i in self.LR.VariableTable:
+                            s += i + ": "
+                            for j in self.LR.VariableTable[i]:
+                                s += str(vars(j)) + '\n'
 
-                    s += '变量表:\n'
-                    for i in self.LR.VariableTable:
-                        s += i + ": "
-                        for j in self.LR.VariableTable[i]:
-                            s += str(vars(j)) + '\n'
+                        s += '数组表:\n'
+                        for i in self.LR.ArrayTable:
+                            s += i + ": "
+                            for j in self.LR.ArrayTable[i]:
+                                s += str(vars(j)) + '\n'
 
-                    s += '数组表:\n'
-                    for i in self.LR.ArrayTable:
-                        s += i + ": "
-                        for j in self.LR.ArrayTable[i]:
-                            s += str(vars(j)) + '\n'
-
-                    s += '函数表:\n'
-                    for i in self.LR.FunctionTable:
-                        s += i + ": "
-                        s += str(vars(self.LR.FunctionTable[i])) + '\n'
-                    s += '\nerror %d\n' % len(errors)
-                    for i in errors:  # 语法和语义错误
-                        s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-                    for i in self.LR.warning:
-                        s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-                    self.textEdit_2.setText(s)
+                        s += '函数表:\n'
+                        for i in self.LR.FunctionTable:
+                            s += i + ": "
+                            s += str(vars(self.LR.FunctionTable[i])) + '\n'
+                        s += '\nerror %d\n' % len(errors)
+                        for i in errors:  # 语法和语义错误
+                            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
+                        for i in self.LR.warning:
+                            s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
+                        self.textEdit_2.setText(s)
+                except Exception as e:
+                    QMessageBox.warning(self, '警告', '系统无法处理！')
 
     def save_tree(self):
         if self.recursive_or_lr_flag == 0:
             QMessageBox.warning(self, '警告', '请先进行词法分析！')
         else:
-            if self.siyuanshi == None or self.siyuanshi == []:
+            if self.LR_flag:
+                try:
+                    dialog = MyDialog('./Syntax_Tree/tree.gv.png', self)
+                    dialog.setModal(True)
+                    dialog.exec_()
+                except FileNotFoundError as e:
+                    print('文件不存在：', e.filename)
+                except Exception as e:
+                    print('发生了异常：', e)
+            elif self.siyuanshi == None or self.siyuanshi == []:
                 QMessageBox.warning(self, '警告', '请先进行语法分析！')
             else:
                 try:
@@ -662,34 +682,37 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     print(text)
                     self.textEdit_3.setText(text)
             else:  # LR中间代码
-                text = self.textEdit.toPlainText()
-                if len(text) != 0:
-                    lex = AnalyzerLex()
-                    lex.input(text)
-                    tokens = []
-                    while True:
-                        tok = lex.token()
-                        if not tok:
-                            break
-                        tokens.append([tok.type, tok.value, tok.lineno,
-                                       lex.find_column(tok.lexer.lexdata, tok)])
-                    tokens.append(['keyword', '#'])
-                    self.LR.ControlProgram(tokens)
-                    s = ''
-                    if len(self.LR.errors) == 0 and len(lex.error) == 0:
-                        self.LR.IntermediateCodeGenerator(tokens)
-                        getcode = self.LR.code
-                        for i in range(len(getcode)):
-                            s += str(i) + ':' + str(getcode[i]) + '\n'
-                        self.textEdit_3.setText(s)
-                    else:
-                        errors = []
-                        errors.extend(lex.error)
-                        errors.extend(self.LR.errors)
-                        errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                        for i in errors:
-                            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
-                        self.textEdit_2.setText(s)
+                try:
+                    text = self.textEdit.toPlainText()
+                    if len(text) != 0:
+                        lex = AnalyzerLex()
+                        lex.input(text)
+                        tokens = []
+                        while True:
+                            tok = lex.token()
+                            if not tok:
+                                break
+                            tokens.append([tok.type, tok.value, tok.lineno,
+                                           lex.find_column(tok.lexer.lexdata, tok)])
+                        tokens.append(['keyword', '#'])
+                        self.LR.ControlProgram(tokens)
+                        s = ''
+                        if len(self.LR.errors) == 0 and len(lex.error) == 0:
+                            self.LR.IntermediateCodeGenerator(tokens)
+                            getcode = self.LR.code
+                            for i in range(len(getcode)):
+                                s += str(i) + ':' + str(getcode[i]) + '\n'
+                            self.textEdit_3.setText(s)
+                        else:
+                            errors = []
+                            errors.extend(lex.error)
+                            errors.extend(self.LR.errors)
+                            errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                            for i in errors:
+                                s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
+                            self.textEdit_2.setText(s)
+                except Exception as e:
+                    QMessageBox.warning(self, '警告', '系统无法处理！')
 
     # 基本块划分
     def Basic_Block(self):
@@ -814,7 +837,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.reg_window.show()
 
     def suanfu(self):
-        self.suanfu_window = MyDesiger_suanfu()
+        self.suanfu_window = OPGGrammarSolver()
         self.suanfu_window.show()
 
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
@@ -842,65 +865,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
         self.textEdit_2.setText(s)
 
-    # def SyntaxAndSemanticAnalyzer(self):  # LR语法分析和语义分析
-    #     lex = AnalyzerLex()
-    #     text = self.textEdit.toPlainText()
-    #     lex.input(text)
-    #     tokens = []
-    #     while True:
-    #         tok = lex.token()
-    #         if not tok:
-    #             break
-    #         tokens.append([tok.type, tok.value, tok.lineno,
-    #                       lex.find_column(tok.lexer.lexdata, tok)])
-    #     tokens.append(['keyword', '#'])
-    #     # print(tokens)
-    #     self.LR.ControlProgram(tokens)
-    #     # self.display1.append(self.LR.PrintParseTree())
-    #     self.LR.PrintParseTree()  # 画语法树图
-    #     # 设置图片路径
-    #     image_format = QtGui.QTextImageFormat()
-    #     image_format.setName('./Syntax_Tree/tree.gv.png')
-    #
-    #     # 在QTextEdit中插入图片
-    #     self.textEdit_3.setText('')
-    #     cursor = self.textEdit_3.textCursor()
-    #     cursor.insertImage(image_format)
-    #     self.textEdit_3.show()  # 语法树
-    #
-    #     errors = []
-    #     errors.extend(lex.error)
-    #     errors.extend(self.LR.errors)
-    #     errors = sorted(errors, key=lambda x: (x[0], x[1]))
-    #     s = ''
-    #     s += '常量表:\n'
-    #     for i in self.LR.ConstantTable:
-    #         s += i + ": "
-    #         for j in self.LR.ConstantTable[i]:
-    #             s += str(vars(j)) + '\n'
-    #
-    #     s += '变量表:\n'
-    #     for i in self.LR.VariableTable:
-    #         s += i + ": "
-    #         for j in self.LR.VariableTable[i]:
-    #             s += str(vars(j)) + '\n'
-    #
-    #     s += '数组表:\n'
-    #     for i in self.LR.ArrayTable:
-    #         s += i + ": "
-    #         for j in self.LR.ArrayTable[i]:
-    #             s += str(vars(j)) + '\n'
-    #
-    #     s += '函数表:\n'
-    #     for i in self.LR.FunctionTable:
-    #         s += i + ": "
-    #         s += str(vars(self.LR.FunctionTable[i])) + '\n'
-    #     s += '\nerror %d\n' % len(errors)
-    #     for i in errors:  # 语法和语义错误
-    #         s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2]))
-    #     for i in self.LR.warning:
-    #         s += ("行:{:<5}列:{:<5}warnings:{:<20}\n".format(i[0], i[1], i[2]))
-    #     self.textEdit_2.setText(s)
 
     # 将文本框中的四元式转换
     def format_conversion(self, s):

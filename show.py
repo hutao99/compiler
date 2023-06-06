@@ -235,6 +235,8 @@ class Ui_MainWindow(object):
         self.actionDAG.setObjectName("actionDAG")
         self.actionLR1 = QtWidgets.QAction(MainWindow)
         self.actionLR1.setObjectName("actionLR1")
+        self.actionLR0 = QtWidgets.QAction(MainWindow)
+        self.actionLR0.setObjectName("actionLR0")
         ##############
 
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
@@ -276,6 +278,7 @@ class Ui_MainWindow(object):
         self.menu_yufa.addAction(self.actionLL1)
         self.menu_yufa.addAction(self.actionsuanfu_first)
         self.menu_yufa.addAction(self.actionLR1)
+        self.menu_yufa.addAction(self.actionLR0)
         self.menu_Quaternion.addAction(self.action_middle_code)
         self.menu_Quaternion.addAction(self.action_basic_block)
         self.menu_Quaternion.addAction(self.actionDAG)
@@ -386,7 +389,8 @@ class Ui_MainWindow(object):
         self.actionblue_font.setText(_translate("MainWindow", "蓝色字体"))
         self.actionNFA_DFA.setText(_translate("MainWindow", "REG正则表达式转换"))
         self.actionLL1.setText(_translate("MainWindow", "LL1预测分析"))
-        self.actionLR1.setText(_translate("MainWindow", "LR1自定义语法分析"))
+        self.actionLR0.setText(_translate("MainWindow", "LR0语法分析"))
+        self.actionLR1.setText(_translate("MainWindow", "LR1语法分析"))
         self.actionsuanfu_first.setText(_translate("MainWindow", "算符优先分析"))
         self.actionDAG.setText(_translate("MainWindow", "DAG优化"))
         self.actionDAG_.setText(_translate("MainWindow", "DAG优化(基本块)"))
