@@ -114,6 +114,7 @@ class Predictive_Analysis:
                     if temp not in self.vt and temp not in self.vn and temp != '$':
                         self.vt.append(temp)
         self.vt.append('#')
+        self.vt.append('$')
         self.vt = list(set(self.vt))
         self.vn = list(set(self.vn))
         print('\n\n--------- 文法的非终结符为 ----------\n', self.vn,
