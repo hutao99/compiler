@@ -40,9 +40,9 @@ class LL1GrammarSolver(QMainWindow):
         self.mode_combo.setObjectName('模式选择')
         self.mode_combo.addItem("系统分词模式")
         self.mode_combo.addItem("用户分词模式")
-        #只有当前模式和上次不同时才会触发
+        # 只有当前模式和上次不同时才会触发
         # self.mode_combo.currentIndexChanged.connect(self.on_mode_changed)
-        #每次点击都会触发
+        # 每次点击都会触发
         self.mode_combo.activated.connect(self.on_mode_changed)
         self.mode_combo.setStyleSheet(
             "#模式选择 {text-align:center;} QComboBox::drop-down {subcontrol-origin: padding; subcontrol-position: top right; width: 20px;}")
@@ -124,18 +124,10 @@ class LL1GrammarSolver(QMainWindow):
         self.table_FIRST.setObjectName("tableAnalyze")
         self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
-        # 隐藏分析表的横纵表头
-        # self.table_FIRST.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        # self.table_FIRST.horizontalHeader().setVisible(False)  # 隐藏水平表头
-
         # 显示FOLLOW集合的内容
         self.table_FOLLOW = QtWidgets.QTableWidget()
         self.table_FOLLOW.setObjectName("tableAnalyze")
         self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
-
-        # 隐藏分析表的横纵表头
-        # self.table_FOLLOW.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        # self.table_FOLLOW.horizontalHeader().setVisible(False)  # 隐藏水平表头
 
         self.pushButton_3_ = QtWidgets.QPushButton()
         self.pushButton_3_.setEnabled(True)
@@ -183,7 +175,6 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3_.clicked.connect(self.save_follow)
         self.mode_combo.setFixedHeight(size.height())
 
-
         layout2 = QtWidgets.QGridLayout()
 
         self.pushButton_3 = QtWidgets.QPushButton()
@@ -204,10 +195,6 @@ class LL1GrammarSolver(QMainWindow):
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
         self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
-
-        # 隐藏分析表的横纵表头
-        self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        self.tableAnalyze.horizontalHeader().setVisible(False)  # 隐藏水平表头
 
         self.pushButton_3__ = QtWidgets.QPushButton()
         self.pushButton_3__.setEnabled(True)
@@ -326,28 +313,10 @@ class LL1GrammarSolver(QMainWindow):
         layout3.addWidget(self.splitter2_)
 
         self.tab3.setLayout(layout3)
-        # print('==========================11111111111111')
-        # print(self.chose_mode)
-        # if self.chose_mode == "系统分词模式":
-        #     print('==========================1-0000000000000000001')
-        #     print(self.chose_mode)
-        #     self.pushButton_4.clicked.connect(self.onClick_analyze_stack_2)
-        # if self.chose_mode == "用户分词模式":
-        #     print('==========================11111111111111')
-        #     print(self.chose_mode)
         self.pushButton_4.clicked.connect(self.choose_analyse_strategy)
         self.pushButton_5.clicked.connect(self.open_sample)
         self.pushButton_5_.clicked.connect(self.save_analyze_process)
 
-    '''
-    def on_mode_changed(self, index):
-        if index == 0:
-            self.choice = 0
-            print('用户选择了系统分词模式')
-        elif index == 1:
-            self.choice = 1
-            print('用户选择了用户分词模式')
-            '''
     def on_mode_changed(self, index):
 
         # 处理用户选择的模式
@@ -414,19 +383,29 @@ class LL1GrammarSolver(QMainWindow):
                     str = f.read()
                     print(str)
                     self.textEdit_1.setText(str)
-                    print('ppppppppppppppppppppppppppp')
-                    print(str)
+
 
         except Exception as e:
             print("Error: ", e)
 
     def choose_analyse_strategy(self):
+        self.show_message_box()
         if self.chose_mode == "系统分词模式":
             self.onClick_analyze_stack_2()
         if self.chose_mode == "用户分词模式":
             self.onClick_analyze_stack_1()
 
+    def show_message_box(self):
+        # 创建一个提示框
+        msg_box = QMessageBox()
+        msg_box.setText('请等待一段时间')
+        msg_box.setWindowTitle('提示')
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.exec_()
+
     def onClick_create_first_follow(self):
+        self.table_FIRST.clearContents()
+        self.table_FOLLOW.clearContents()
         test = Predictive_Analysis()
         grammar = ""
         if self.chose_mode == "系统分词模式":
@@ -463,60 +442,35 @@ class LL1GrammarSolver(QMainWindow):
         print("\nfollow集合如下\n")
         for j in test.last:
             print(j, test.last[j])
-
-        # 设置FIRST集合的列数
-        self.table_FIRST.setColumnCount(len(VT) + 1)
-        layer_analyze = 1
-        # 设置FIRST集合的行数
-        self.table_FIRST.setRowCount(layer_analyze)
-        VT_1 = VT[:]
-
-        for size in range(len(VT_1)):
-            self.table_FIRST.setColumnWidth(size, 70)
-            item1 = QtWidgets.QTableWidgetItem(VT_1[size])
-            item1.setTextAlignment(Qt.AlignCenter)
-            self.table_FIRST.setItem(0, size + 1, item1)
+        # 设置行数和列数
+        row_count = len(VN)
+        col_count = len(VT)
+        self.table_FIRST.setRowCount(row_count)
+        self.table_FIRST.setColumnCount(col_count)
+        self.table_FIRST.setHorizontalHeaderLabels(VT)
+        self.table_FIRST.setVerticalHeaderLabels(VN)
 
         for i in range(len(VN)):
-            # 每遍历一次增加一层
-            layer_analyze = layer_analyze + 1
-            self.table_FIRST.setRowCount(layer_analyze)
-            # 显示FIRST集合的第一列 非终结符
-            item1 = QtWidgets.QTableWidgetItem(VN[i])
-            item1.setTextAlignment(Qt.AlignCenter)
-            self.table_FIRST.setItem(i + 1, 0, item1)
             # 显示FIRST集合的每一行 动作
-            for size in range(len(VT_1)):
-                if VT_1[size] in FIRST[VN[i]]:
-                    item1 = QtWidgets.QTableWidgetItem(VT_1[size])
+            for size in range(len(VT)):
+                if VT[size] in FIRST[VN[i]]:
+                    item1 = QtWidgets.QTableWidgetItem(VT[size])
                     item1.setTextAlignment(Qt.AlignCenter)
-                    self.table_FIRST.setItem(i + 1, size + 1, item1)
+                    self.table_FIRST.setItem(i, size, item1)
 
         # FOLLOW
-        self.table_FOLLOW.setColumnCount(len(VT) + 1)
-        layer_analyze = 1
-        self.table_FOLLOW.setRowCount(layer_analyze)
-        VT_1 = VT[:]
-
-        for size in range(len(VT_1)):
-            self.table_FOLLOW.setColumnWidth(size, 70)
-            item1 = QtWidgets.QTableWidgetItem(VT_1[size])
-            item1.setTextAlignment(Qt.AlignCenter)
-            self.table_FOLLOW.setItem(0, size + 1, item1)
+        self.table_FOLLOW.setRowCount(row_count)
+        self.table_FOLLOW.setColumnCount(col_count)
+        self.table_FOLLOW.setHorizontalHeaderLabels(VT)
+        self.table_FOLLOW.setVerticalHeaderLabels(VN)
 
         for i in range(len(VN)):
-            # 没遍历一次增加一层
-            layer_analyze = layer_analyze + 1
-            self.table_FOLLOW.setRowCount(layer_analyze)
-            item1 = QtWidgets.QTableWidgetItem(VN[i])
-            item1.setTextAlignment(Qt.AlignCenter)
-            self.table_FOLLOW.setItem(i + 1, 0, item1)
             # 显示预测分析表的每一行 动作
-            for size in range(len(VT_1)):
-                if VT_1[size] in FOLLOW[VN[i]]:
-                    item1 = QtWidgets.QTableWidgetItem(VT_1[size])
+            for size in range(len(VT)):
+                if VT[size] in FOLLOW[VN[i]]:
+                    item1 = QtWidgets.QTableWidgetItem(VT[size])
                     item1.setTextAlignment(Qt.AlignCenter)
-                    self.table_FOLLOW.setItem(i + 1, size + 1, item1)
+                    self.table_FOLLOW.setItem(i, size, item1)
 
     def save_first(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存FIRST集合', '', 'Text Files (*.txt)')
@@ -577,34 +531,20 @@ class LL1GrammarSolver(QMainWindow):
         VN = test.vn
         VT = test.vt
         SELECT = test.predict_table_
-        # 设置预测分析表的列数 len(VT)+2 终结符的数量加2,2 为第一列非终结符占一列，最后#占一列
-        self.tableAnalyze.setColumnCount(len(VT) + 1)
-        layer_analyze = 1
-        # 设置预测分析表的层数
-        self.tableAnalyze.setRowCount(layer_analyze)
-        VT_1 = VT[:]
-
-        for size in range(len(VT_1)):
-            self.tableAnalyze.setColumnWidth(size, 70)
-            item1 = QtWidgets.QTableWidgetItem(VT_1[size])
-            item1.setTextAlignment(Qt.AlignCenter)
-            self.tableAnalyze.setItem(0, size + 1, item1)
+        # 设置行数和列数
+        row_count = len(VN)
+        col_count = len(VT)
+        self.tableAnalyze.setRowCount(row_count)
+        self.tableAnalyze.setColumnCount(col_count)
+        self.tableAnalyze.setHorizontalHeaderLabels(VT)
+        self.tableAnalyze.setVerticalHeaderLabels(VN)
 
         for i in range(len(VN)):
-            # 没遍历一次增加一层
-            layer_analyze = layer_analyze + 1
-            self.tableAnalyze.setRowCount(layer_analyze)
-            # 界面显示 预测分析表
-            # 显示预测分析表的第一列 非终结符
-            item1 = QtWidgets.QTableWidgetItem(VN[i])
-            item1.setTextAlignment(Qt.AlignCenter)
-            self.tableAnalyze.setItem(i + 1, 0, item1)
-            # 显示预测分析表的每一行 动作
-            for size in range(len(VT_1)):
-                if VT_1[size] in SELECT[VN[i]]:
-                    item1 = QtWidgets.QTableWidgetItem(SELECT[VN[i]][VT_1[size]])
+            for size in range(len(VT)):
+                if VT[size] in SELECT[VN[i]]:
+                    item1 = QtWidgets.QTableWidgetItem(SELECT[VN[i]][VT[size]])
                     item1.setTextAlignment(Qt.AlignCenter)
-                    self.tableAnalyze.setItem(i + 1, size + 1, item1)
+                    self.tableAnalyze.setItem(i, size, item1)
 
     def save_analyze_table(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存预测分析表', '', 'Text Files (*.txt)')
@@ -650,6 +590,8 @@ class LL1GrammarSolver(QMainWindow):
             s1 = ['operator', 'keyword', 'Boundary']
             s2 = ['integer', 'character', 'string', 'identifier', 'float']
             if tok.type in s1:
+                if tok.value == '||':
+                    tok.value = 'or'
                 word_table.append([tok.value, tok.value])
             elif tok.type in s2:
                 word_table.append([tok.type, tok.value])

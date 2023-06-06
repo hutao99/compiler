@@ -1,4 +1,4 @@
-D→TL
-T→i|r
-L→cR
-R→,cR|$
+D->TL
+T->i|r
+L->cR
+R->,cR|$
