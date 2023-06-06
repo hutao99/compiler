@@ -185,6 +185,7 @@ class LR1GrammarSolver(QMainWindow):
         self.pushButton_3_.setFont(font)
         self.pushButton_3_.setObjectName("pushButton_2")
         self.pushButton_3_.setText("保存状态信息")
+        self.pushButton_3_.clicked.connect(self.save_state)
 
         # 将文法导入按钮和显示文法的文本框垂直布局
         buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -316,11 +317,11 @@ class LR1GrammarSolver(QMainWindow):
         # 显示LR分析表
         # self.pushButton_3.clicked.connect(self.analyze_table)
         # 保存LR分析表
-        # self.pushButton_3__.clicked.connect(self.save_analyze_table)
+        self.pushButton_3__.clicked.connect(self.save_analyze_table)
         # 显示规约式
         # self.pushButton_3__Statutory.clicked.connect(self.analyze_table)
         # 保存规约式
-        # self.pushButton_3__Statutory_.clicked.connect(self.save_analyze_table)
+        self.pushButton_3__Statutory_.clicked.connect(self.save_reduction)
 
         # 测试案例布局
         layout3 = QtWidgets.QGridLayout()
@@ -415,7 +416,7 @@ class LR1GrammarSolver(QMainWindow):
         # self.pushButton_4.clicked.connect(self.onClick_analyze_stack)
         self.pushButton_5.clicked.connect(self.open_sample)
         # 保存LR分析过程
-        # self.pushButton_5_.clicked.connect(self.save_analyze_process)
+        self.pushButton_5_.clicked.connect(self.save_analyze_process)
 
     def onItemChanged(self, item):
         # 自动调整表格大小
@@ -612,14 +613,73 @@ class LR1GrammarSolver(QMainWindow):
                 print("Error: ", e)
 
     def get_state(self):
-        grammar = self.textEdit.toPlainText()
-        grammar = grammar.replace('->', ':')
-        if self.chose_mode == '系统分词模式':
-            grammar, non_terminals, terminals = grammar_cut(grammar)
-        self.LR.input(grammar)
-        lab = self.LR.Action_and_GoTo_Table()
-        self.textEdit_state.setText(lab)
+        try:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
+            self.LR.input(grammar)
+            lab = self.LR.Action_and_GoTo_Table()
+            self.textEdit_state.setText(lab)
+        except Exception as e:
+            QMessageBox.warning(self, '警告', '系统出错')
+            print("Error: ", e)
 
+    def save_state(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存状态集合', '', 'Text Files (*.txt)')
+        text = self.textEdit_state.toPlainText()
+        if filename1:
+            with open(filename1, 'w') as f:
+                f.write(text)
+
+    def save_analyze_table(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存LR1分析表', '', 'Text Files (*.txt)')
+        if filename1:
+            with open(filename1, 'w') as f:
+                f.write('\t')
+                for col in range(self.tableAnalyze.columnCount()):
+                    header_item = self.tableAnalyze.horizontalHeaderItem(col)
+                    if header_item is not None:
+                        f.write(header_item.text() + '\t')
+                    else:
+                        f.write('\t')
+                f.write('\n')
+                for row in range(self.tableAnalyze.rowCount()):
+                    f.write(self.tableAnalyze.verticalHeaderItem(row).text() + '\t')
+                    for col in range(self.tableAnalyze.columnCount()):
+                        item = self.tableAnalyze.item(row, col)
+                        if item is not None:
+                            f.write(item.text() + '\t')
+                        else:
+                            f.write('\t')
+                    f.write('\n')
+
+    def save_reduction(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存LR1分析表', '', 'Text Files (*.txt)')
+        if filename1:
+            text = self.tableStatutory.toPlainText()
+            with open(filename1, 'w') as f:
+                f.write(text)
+
+    def save_analyze_process(self):
+        filename1, _ = QFileDialog.getSaveFileName(self, '保存分析过程', '', 'Text Files (*.txt)')
+        if filename1:
+            with open(filename1, 'w') as f:
+                for col in range(self.tableStack.columnCount()):
+                    header_item = self.tableStack.horizontalHeaderItem(col)
+                    if header_item is not None:
+                        f.write(header_item.text() + '\t')
+                    else:
+                        f.write('\t')
+                f.write('\n')
+                for row in range(self.tableStack.rowCount()):
+                    for col in range(self.tableStack.columnCount()):
+                        item = self.tableStack.item(row, col)
+                        if item is not None:
+                            f.write(item.text() + '\t')
+                        else:
+                            f.write('\t')
+                    f.write('\n')
 
 '''if __name__ == '__main__':
     app = QApplication(sys.argv)
