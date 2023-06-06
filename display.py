@@ -1,6 +1,5 @@
 import os
 import sys
-import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
@@ -128,8 +127,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionLR1.triggered.connect(self.LR1_analyze)
         # LR0语法分析
         self.actionLR0.triggered.connect(self.LR0_analyze)
-
-        self.actionHELP_CHM.triggered.connect(self.searchHelp)
         '''
         图片导出
         '''
@@ -144,8 +141,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.split_flag = 0  # 是否划分四元式
         self.yh_flag = 0  # 是否进行优化
 
-    def searchHelp(self):
-        webbrowser.open('编译器.chm')
     def recent_folders(self):
         try:
             # 添加根节点
