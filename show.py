@@ -10,7 +10,8 @@ class QTextEditWithLineNum(QTextEdit):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        font = QFont('Consolas', 13, 2)
+        font = QFont("Times New Roman", 13)
+        font.setWeight(QFont.Bold)
         font_metrics = QFontMetrics(font)
         self.setFont(font)
         self.setLineWrapMode(QTextEdit.NoWrap)  # 不自动换行
