@@ -112,6 +112,7 @@ class FirstVTAndLastVT:
         # 非终结符和产生式
         self.Formula = dict()
         self.begin = ''
+        self.All_symbols = []
 
     def input(self, data):
         carve = list(filter(None, data.split('\n')))
@@ -192,10 +193,16 @@ class FirstVTAndLastVT:
         sequence = dict()
         # 去重
         operator = set()
-        for i in self.first.values():
-            operator.update(i)
-        for i in self.last.values():
-            operator.update(i)
+        for i in self.Formula:
+            production = self.Formula[i]
+            # 对产生式分割
+            for j in list(filter(None, production.split('|'))):
+                # 去除元素为空的字符
+                word = list(filter(None, j.split(' ')))
+                for k in word:
+                    if k not in self.Formula:
+                        operator.add(k)
+        print(operator)
         # 为每个符号构建下标
         p = 0
         for i in list(operator):
@@ -298,10 +305,14 @@ class FirstVTAndLastVT:
                 for j in range(length - 1, -1, -1):
                     if stack[j] == sign:
                         idx = j
-                for j in range(idx - 1, -1, -1):
-                    if stack[j] not in self.Formula and precedence_table[sequence[stack[j]]][sequence[sign]] == '<':
-                        lmp = stack[j + 1:]
                         break
+                symbol_previous = stack[idx]
+                for j in range(idx - 1, -1, -1):
+                    if stack[j] not in self.Formula and precedence_table[sequence[stack[j]]][sequence[symbol_previous]] == '<':
+                        lmp = stack[j+1:]
+                        break
+                    if stack[j] not in self.Formula:
+                        symbol_previous = stack[j]
                 # 检查最左素短语是否在产生式的右部
                 if self.is_in_Formula(lmp):
                     flag = False
@@ -321,3 +332,10 @@ class FirstVTAndLastVT:
                 info += "栈顶符号与输入符号无优先关系，分析失败"
                 break
         return stack_total, info, action, remainder, priority
+
+
+'''pp = FirstVTAndLastVT()
+pp.input('S: ( R ) | a | â ˆ §\nR: T\nT: S , T | S')
+print(pp.first)
+print(pp.last)
+pp.Table()'''

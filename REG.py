@@ -124,7 +124,8 @@ def nfa_associate(nfa_union):
 
 
 class NfaDfaMfa:
-    def __init__(self, text):
+    def __init__(self, text, dir1):
+        self.my_dir = dir1.copy()
         self.text = text  # 输入串 即输入的正规式
         self.index = 0  # 输入符号串的下标
         self.max = 0  # 即将用到的状态, max = 2表示状态0和状态1已经被使用
@@ -456,11 +457,30 @@ class NfaDfaMfa:
                 f.write(str(value) + "\t")
         with open('MFA.txt', 'a') as f:
             f.write("\n")
+
+        final_dfa1 = []
+        for index, value in enumerate(dfa):
+            for key, value2 in self.my_dir.items():
+                if value[1] in value2:  # 找到替代的键
+                    # 判断是否满足值里面的所有内容
+                    new_value = []
+                    for value3 in dfa:
+                        if value3[0] == value[0] and value3[2] == value[2]:
+                            if value3[1] not in new_value:
+                                new_value.append(value3[1])
+                    new_value.sort()
+                    if new_value == value2:
+                        new_value1 = [value[0], key, value[2]]
+                        if new_value1 not in final_dfa1:
+                            final_dfa1.append(new_value1)
+                    else:
+                        if value not in final_dfa1:
+                            final_dfa1.append(value)
         # 生成nfa的状态转换图
         filename = './Reg_Graph/DFA'
         dfa_graph = Digraph(filename, 'DFA_graph', None, None, 'png', None, "UTF-8")
         dfa_graph.attr(rankdir="LR")  # 图从左到右 L -> R
-        for value in dfa:
+        for value in final_dfa1:
             # 出发节点
             if value[0] == 0:  # 初始节点
                 if value[0] in final_states:  # 又是终结节点
@@ -657,11 +677,58 @@ class NfaDfaMfa:
                 f.write(str(value) + "\t")
         with open('MFA.txt', 'a') as f:
             f.write("\n")
-        # 生成nfa的状态转换图
+        final_mfa1 = []
+        for index, value in enumerate(final_mfa):
+            flag = 1
+            for key, value2 in self.my_dir.items():
+                if value[1] in value2:   # 找到替代的键
+                    # print(value[1])
+                    # 判断是否满足值里面的所有内容
+                    new_value = []
+                    for value3 in final_mfa:
+                        if value3[0] == value[0] and value3[2] == value[2]:
+                            if value3[1] not in new_value:
+                                new_value.append(value3[1])
+                    new_value.sort()
+                    flag2 = 1
+                    for value2_value in value2:
+                        if value2_value not in new_value:
+                            flag2 = 0
+                            break
+                    if new_value == value2:
+                        # print("满足")
+                        # print(new_value)
+                        # print(value2)
+                        new_value1 = [value[0], key, value[2]]
+                        for index4, value4 in enumerate(final_mfa1):
+                            if value4 == new_value1:
+                                continue
+                            elif value4[0] == new_value1[0] and value4[2] == new_value1[2]:
+                                final_mfa1.pop(index4)
+
+                        if new_value1 not in final_mfa1:
+                            final_mfa1.append(new_value1)
+                    elif flag2 == 1:
+                        new_value1 = [value[0], key, value[2]]
+                        if new_value1 not in final_mfa1:
+                            final_mfa1.append(new_value1)
+                    elif flag == 1:
+                        # print("不满足")
+                        # print(new_value)
+                        # print(value2)
+                        if value not in final_mfa1:
+                            final_mfa1.append(value)
+                    flag = 0
+            if flag == 1:
+                if value not in final_mfa1:
+                    final_mfa1.append(value)
+        print(final_mfa)
+        print(final_mfa1)
+        # # 生成nfa的状态转换图
         filename = './Reg_Graph/MFA'
         mfa_graph = Digraph(filename, 'MFA_graph', None, None, 'png', None, "UTF-8")
         mfa_graph.attr(rankdir="LR")  # 图从左到右 L -> R
-        for value in final_mfa:
+        for value in final_mfa1:
             # 出发节点
             if value[0] == 0:  # 初始节点
                 if value[0] in final_states:  # 又是终结节点

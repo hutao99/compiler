@@ -4,7 +4,7 @@ main(){
     x=read();
     write(x);
     for(i=2; i<=x; i=i+1){
-         while(x!=1)   //i=x时，循环结束
+         while(x!=i)   //i=x时，循环结束
           {
                 if(x%i==0)         //判断x%i是否能整除，如果能，则当做一个新数继续运算
                    {

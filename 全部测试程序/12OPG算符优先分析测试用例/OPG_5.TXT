@@ -1,3 +1,2 @@
-V: # S #
-S: ( T ) | a
-T: T , S | S 
+S-> ( T ) | a
+T->T , S | S 

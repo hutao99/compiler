@@ -1,17 +1,17 @@
 //编程打印直角杨辉三角
-int  main()
+main()
 {
    int i,j,a[6][6];
    for(i=0 ; i<=5 ; i=i+1){
-        a[i][i]-1;
+        a[i][i]=1;
         a[i][0]=1;
         }
-   for(i-2 ; i<=5;i=i+1)
+   for(i=2 ; i<=5;i=i+1)
        for(j=1;j<=i-1; j=j+1)
            a[i][j]=a[i-1][j]+a[i-1][j-1];
-   for( i=0 ;i<=5 ;i++) {
-       for(j=0;j<=i;j++)
+   for( i=0 ;i<=5 ;i=i+1) {
+       for(j=0;j<=i;j=j+1)
            write(a[i][j]);
-       write("\n");
+
       } 
 }
