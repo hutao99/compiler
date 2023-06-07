@@ -494,6 +494,8 @@ class CLRParser:
                             elif tag == 'delete':
                                 for i in range(len(s1_[i1:i2])):
                                     unnecessary = sign_list.pop(index_now)
+                                    if unnecessary == 'identifier':
+                                        unnecessary = token[index_now][1]
                                     self.errors.append([token[index_now][2], token[index_now][3],
                                                         ("多余符号%s" % unnecessary)])
                                     token.pop(index_now)
@@ -509,6 +511,8 @@ class CLRParser:
                             elif tag == 'replace':
                                 for i in range(len(s1_[i1:i2])):
                                     unnecessary = sign_list.pop(index_now)
+                                    if unnecessary == 'identifier':
+                                        unnecessary = token[index_now][1]
                                     self.errors.append([token[index_now][2], token[index_now][3],
                                                         ("多余符号%s" % unnecessary)])
                                     token.pop(index_now)
@@ -525,7 +529,6 @@ class CLRParser:
                         sign_list.insert(index, expected[0])
                         self.errors.append([token[index-1][2], token[index-1][3],
                                             ('%s后可能需要%s' % (sign_list[index - 1], expected[0]))])
-                        print('sda')
                         token.insert(index, ['', '', token[index-1][2], token[index-1][3]])
                         print('%s后可能需要%s' % (sign_list[index-1], expected[0]))
             name = sign_list[index]
