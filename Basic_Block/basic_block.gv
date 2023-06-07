@@ -1,72 +1,61 @@
 // Basic_Block
 digraph "./Basic_Block/basic_block" {
 	0 [label="0:['main', '_', '_', '_']
-1:['=', '1', '_', 'x']
-2:['=', '-2', '_', 'y']
-3:['j>', 'x', 'y', 5]
+1:['call', 'read', '_', 'T0']
+2:['=', 'T0', '_', 'x']
+3:['para', 'x', '_', '_']
+4:['call', 'write', '_', 'T1']
+5:['=', '2', '_', 'i']
 " fontname=SimHei shape=rectangle]
-	1 [label="4:['j', '_', '_', 7]
+	1 [label="6:['<=', 'i', 'x', 'T2']
+7:['jnz', 'T2', '_', 12]
 " fontname=SimHei shape=rectangle]
-	2 [label="5:['=', '1', '_', 'a']
-6:['j', '_', '_', 8]
+	2 [label="8:['jz', 'T2', '_', 27]
 " fontname=SimHei shape=rectangle]
-	3 [label="7:['=', '0', '_', 'a']
+	3 [label="9:['+', 'i', '1', 'T3']
+10:['=', 'T3', '_', 'i']
+11:['j', '_', '_', 6]
 " fontname=SimHei shape=rectangle]
-	4 [label="8:['j<', 'x', 'y', 10]
+	4 [label="12:['!=', 'x', '1', 'T4']
+13:['jnz', 'T4', '_', 15]
 " fontname=SimHei shape=rectangle]
-	5 [label="9:['j', '_', '_', 12]
+	5 [label="14:['jz', 'T4', '_', 26]
 " fontname=SimHei shape=rectangle]
-	6 [label="10:['=', '1', '_', 'b']
-11:['j', '_', '_', 13]
+	6 [label="15:['%', 'x', 'i', 'T5']
+16:['==', 'T5', '0', 'T6']
+17:['jnz', 'T6', '_', 19]
 " fontname=SimHei shape=rectangle]
-	7 [label="12:['=', '0', '_', 'b']
+	7 [label="18:['jz', 'T6', '_', 24]
 " fontname=SimHei shape=rectangle]
-	8 [label="13:['j==', 'x', 'y', 15]
+	8 [label="19:['para', 'i', '_', '_']
+20:['call', 'write', '_', 'T7']
+21:['/', 'x', 'i', 'T8']
+22:['=', 'T8', '_', 'x']
+23:['j', '_', '_', 25]
 " fontname=SimHei shape=rectangle]
-	9 [label="14:['j', '_', '_', 17]
+	9 [label="24:['j', '_', '_', 26]
 " fontname=SimHei shape=rectangle]
-	10 [label="15:['=', '1', '_', 'c']
-16:['j', '_', '_', 18]
+	10 [label="25:['j', '_', '_', 12]
 " fontname=SimHei shape=rectangle]
-	11 [label="17:['=', '0', '_', 'c']
+	11 [label="26:['j', '_', '_', 9]
 " fontname=SimHei shape=rectangle]
-	12 [label="18:['j!=', 'x', 'y', 20]
+	12 [label="27:['para', 'x', '_', '_']
+28:['call', 'write', '_', 'T9']
+29:['sys', '_', '_', '_']
 " fontname=SimHei shape=rectangle]
-	13 [label="19:['j', '_', '_', 22]
-" fontname=SimHei shape=rectangle]
-	14 [label="20:['=', '1', '_', 'd']
-21:['j', '_', '_', 23]
-" fontname=SimHei shape=rectangle]
-	15 [label="22:['=', '0', '_', 'd']
-" fontname=SimHei shape=rectangle]
-	16 [label="23:['para', 'a', '_', '_']
-24:['call', 'write', '_', '_']
-25:['para', 'b', '_', '_']
-26:['call', 'write', '_', '_']
-27:['para', 'c', '_', '_']
-28:['call', 'write', '_', '_']
-29:['para', 'd', '_', '_']
-30:['call', 'write', '_', '_']
-31:['sys', '_', '_', '_']
-" fontname=SimHei shape=rectangle]
-	0 -> 2
 	0 -> 1
-	1 -> 3
-	2 -> 4
-	3 -> 4
+	1 -> 4
+	1 -> 2
+	2 -> 12
+	3 -> 1
 	4 -> 6
 	4 -> 5
-	5 -> 7
+	5 -> 11
 	6 -> 8
-	7 -> 8
+	6 -> 7
+	7 -> 9
 	8 -> 10
-	8 -> 9
 	9 -> 11
-	10 -> 12
-	11 -> 12
-	12 -> 14
-	12 -> 13
-	13 -> 15
-	14 -> 16
-	15 -> 16
+	10 -> 4
+	11 -> 3
 }

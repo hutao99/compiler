@@ -1,4 +1,3 @@
-M: # S #
-S: T | S v T
-T: U | T * U
-U: identifier | - U
+S-> T | S v T
+T->U | T * U
+U->i | - U

@@ -1,0 +1,5 @@
+B->T B'
+B'->identifier T B'|$
+T->F T'
+T'->identifier F T'
+F->identifier F|(B)|identifier

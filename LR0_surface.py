@@ -212,7 +212,7 @@ class LR0GrammarSolver(QMainWindow):
         self.pushButton_.setFixedHeight(size.height())
         self.mode_combo.setFixedHeight(size.height())
 
-        self.pushButton.clicked.connect(self.open_text)
+        # self.pushButton.clicked.connect(self.open_text)
         self.pushButton_.clicked.connect(self.open_text)
         # 显示状态信息
         # self.pushButton_2.clicked.connect(self.save_first)
@@ -616,15 +616,18 @@ class LR0GrammarSolver(QMainWindow):
                 print("Error: ", e)
 
     def get_state(self):
-        grammar = self.textEdit.toPlainText()
-        grammar = grammar.replace('->', ':')
-        if self.chose_mode == '系统分词模式':
-            grammar, non_terminals, terminals = grammar_cut(grammar)
-        self.LR.input(grammar)
-        is_lr, lab = self.LR.Action_and_GoTo_Table()
-        if not is_lr:
-            QMessageBox.warning(self, '警告', '该文法不为lr(0)文法，请谨慎使用')
-        self.textEdit_state.setText(lab)
+        try:
+            grammar = self.textEdit.toPlainText()
+            grammar = grammar.replace('->', ':')
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
+            self.LR.input(grammar)
+            is_lr, lab = self.LR.Action_and_GoTo_Table()
+            if not is_lr:
+                QMessageBox.warning(self, '警告', '该文法不为lr(0)文法，请谨慎使用')
+            self.textEdit_state.setText(lab)
+        except Exception as e:
+            QMessageBox.warning(self, '警告', '系统出错')
 
     def save_state(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存状态集合', '', 'Text Files (*.txt)')

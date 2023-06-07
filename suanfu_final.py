@@ -425,42 +425,47 @@ class OPGGrammarSolver(QMainWindow):
     def get_VT(self):
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
-        if self.chose_mode == '系统分词模式':
-            grammar, non_terminals, terminals = grammar_cut(grammar)
-        op = FirstVTAndLastVT()
-        op.input(grammar)
-        terminal = set()
-        for i in op.first:
-            terminal.update(op.first[i])
-        for i in op.last:
-            terminal.update(op.last[i])
-        del op.first[op.begin+"'"]
-        del op.last[op.begin + "'"]
-        self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
-        self.table_FIRST.setRowCount(len(op.first))  # 设置行数
-        self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
-        self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
-        idx = 0
-        print(op.first)
-        print(op.last)
-        for i in op.first:
-            item1 = QtWidgets.QTableWidgetItem(i)
-            self.table_FIRST.setVerticalHeaderItem(idx, item1)
-            print(op.first[i])
-            for j in range(len(op.first[i])):
-                item = QtWidgets.QTableWidgetItem(op.first[i][j])
-                self.table_FIRST.setItem(idx, j, item)
-            idx += 1
-        idx = 0
-        for i in op.last:
-            item1 = QtWidgets.QTableWidgetItem(i)
-            self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
-            for j in range(len(op.last[i])):
-                item = QtWidgets.QTableWidgetItem(op.last[i][j])
-                self.table_FOLLOW.setItem(idx, j, item)
-            idx += 1
+        try:
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
+            op = FirstVTAndLastVT()
+            op.input(grammar)
+            terminal = set()
+            for i in op.first:
+                terminal.update(op.first[i])
+            for i in op.last:
+                terminal.update(op.last[i])
+            del op.first[op.begin+"'"]
+            del op.last[op.begin + "'"]
+            self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
+            self.table_FIRST.setRowCount(len(op.first))  # 设置行数
+            self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
+            self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
+            idx = 0
+            print(op.first)
+            print(op.last)
+            for i in op.first:
+                item1 = QtWidgets.QTableWidgetItem(i)
+                self.table_FIRST.setVerticalHeaderItem(idx, item1)
+                print(op.first[i])
+                for j in range(len(op.first[i])):
+                    item = QtWidgets.QTableWidgetItem(op.first[i][j])
+                    self.table_FIRST.setItem(idx, j, item)
+                idx += 1
+            idx = 0
+            for i in op.last:
+                item1 = QtWidgets.QTableWidgetItem(i)
+                self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
+                for j in range(len(op.last[i])):
+                    item = QtWidgets.QTableWidgetItem(op.last[i][j])
+                    self.table_FOLLOW.setItem(idx, j, item)
+                idx += 1
+        except Exception as e:
+            QMessageBox.warning(self, '错误', '系统出错')
+            print("Error: ", e)
 
     def analyze_table(self):
+        self.tableAnalyze.clear()
         try:
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
@@ -494,10 +499,11 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def analyze_sentence(self):
+
+        grammar = self.textEdit.toPlainText()
+        grammar = grammar.replace('->', ':')
+        text = self.textEdit_1.toPlainText()
         try:
-            grammar = self.textEdit.toPlainText()
-            grammar = grammar.replace('->', ':')
-            text = self.textEdit_1.toPlainText()
             if self.chose_mode == '系统分词模式':
                 grammar, non_terminals, terminals = grammar_cut(grammar)
                 for symbol in non_terminals.union(terminals):
@@ -525,7 +531,7 @@ class OPGGrammarSolver(QMainWindow):
                     item = QtWidgets.QTableWidgetItem(p)
                     self.tableStack.setItem(i, j, item)
         except Exception as e:
-            QMessageBox.warning(self, '警告', '句子中可能存在文法中没有的终结符')
+            QMessageBox.warning(self, '错误', '句子中可能存在文法中没有的终结符或系统错误')
             print("Error: ", e)
 
     def save_first(self):
@@ -570,6 +576,8 @@ class OPGGrammarSolver(QMainWindow):
                     f.write('\n')
 
     def save_analyze_process(self):
+        self.tableStack.clear()
+        self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
         filename1, _ = QFileDialog.getSaveFileName(self, '保存分析过程', '', 'Text Files (*.txt)')
         if filename1:
             with open(filename1, 'w') as f:
@@ -589,8 +597,9 @@ class OPGGrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-if __name__ == '__main__':
+
+'''if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = OPGGrammarSolver()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())'''
