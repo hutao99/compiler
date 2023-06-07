@@ -213,7 +213,7 @@ class LR1GrammarSolver(QMainWindow):
         self.pushButton_.setFixedHeight(size.height())
         self.mode_combo.setFixedHeight(size.height())
 
-        self.pushButton.clicked.connect(self.open_text)
+        # self.pushButton.clicked.connect(self.open_text)
         self.pushButton_.clicked.connect(self.open_text)
         # 显示状态信息
         # self.pushButton_2.clicked.connect(self.save_first)
