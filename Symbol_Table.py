@@ -284,7 +284,7 @@ class VariableSymbolTable():# 记录常量以及变量表
             self.check(item)
             item = item.n
         self.text1 += "变量符号表\n"
-        self.text1 += "入口\t类型名\t常量名\t值\t作用域\n"
+        self.text1 += "入口\t类型名\t变量名\t值\t作用域\n"
         print("变量符号表")
         print("入口\t类型名\t变量名\t值\t作用域")
         item = self.head
