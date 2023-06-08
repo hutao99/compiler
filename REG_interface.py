@@ -10,6 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QSplitter
 
 
@@ -43,6 +44,12 @@ class Ui_MainWindow(object):
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_3.setGeometry(QtCore.QRect(320, 270, 75, 23))
         self.pushButton_3.setObjectName("pushButton_3")
+
+        font = QFont()
+        font.setPointSize(10)
+        self.plainTextEdit.setFont(font)
+        self.plainTextEdit_2.setFont(font)
+        self.plainTextEdit_3.setFont(font)
 
         self.splitter1 = QSplitter()
         self.splitter1.addWidget(self.plainTextEdit)

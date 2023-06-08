@@ -425,40 +425,44 @@ class OPGGrammarSolver(QMainWindow):
     def get_VT(self):
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
-        if self.chose_mode == '系统分词模式':
-            grammar, non_terminals, terminals = grammar_cut(grammar)
-        op = FirstVTAndLastVT()
-        op.input(grammar)
-        terminal = set()
-        for i in op.first:
-            terminal.update(op.first[i])
-        for i in op.last:
-            terminal.update(op.last[i])
-        del op.first[op.begin+"'"]
-        del op.last[op.begin + "'"]
-        self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
-        self.table_FIRST.setRowCount(len(op.first))  # 设置行数
-        self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
-        self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
-        idx = 0
-        print(op.first)
-        print(op.last)
-        for i in op.first:
-            item1 = QtWidgets.QTableWidgetItem(i)
-            self.table_FIRST.setVerticalHeaderItem(idx, item1)
-            print(op.first[i])
-            for j in range(len(op.first[i])):
-                item = QtWidgets.QTableWidgetItem(op.first[i][j])
-                self.table_FIRST.setItem(idx, j, item)
-            idx += 1
-        idx = 0
-        for i in op.last:
-            item1 = QtWidgets.QTableWidgetItem(i)
-            self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
-            for j in range(len(op.last[i])):
-                item = QtWidgets.QTableWidgetItem(op.last[i][j])
-                self.table_FOLLOW.setItem(idx, j, item)
-            idx += 1
+        try:
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
+            op = FirstVTAndLastVT()
+            op.input(grammar)
+            terminal = set()
+            for i in op.first:
+                terminal.update(op.first[i])
+            for i in op.last:
+                terminal.update(op.last[i])
+            del op.first[op.begin+"'"]
+            del op.last[op.begin + "'"]
+            self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
+            self.table_FIRST.setRowCount(len(op.first))  # 设置行数
+            self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
+            self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
+            idx = 0
+            print(op.first)
+            print(op.last)
+            for i in op.first:
+                item1 = QtWidgets.QTableWidgetItem(i)
+                self.table_FIRST.setVerticalHeaderItem(idx, item1)
+                print(op.first[i])
+                for j in range(len(op.first[i])):
+                    item = QtWidgets.QTableWidgetItem(op.first[i][j])
+                    self.table_FIRST.setItem(idx, j, item)
+                idx += 1
+            idx = 0
+            for i in op.last:
+                item1 = QtWidgets.QTableWidgetItem(i)
+                self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
+                for j in range(len(op.last[i])):
+                    item = QtWidgets.QTableWidgetItem(op.last[i][j])
+                    self.table_FOLLOW.setItem(idx, j, item)
+                idx += 1
+        except Exception as e:
+            QMessageBox.warning(self, '错误', '系统出错')
+            print("Error: ", e)
 
     def analyze_table(self):
         self.tableAnalyze.clear()
@@ -499,35 +503,36 @@ class OPGGrammarSolver(QMainWindow):
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         text = self.textEdit_1.toPlainText()
-        if self.chose_mode == '系统分词模式':
-            grammar, non_terminals, terminals = grammar_cut(grammar)
-            for symbol in non_terminals.union(terminals):
-                text = text.replace(symbol, f" {symbol} ")
-        op = FirstVTAndLastVT()
-        op.input(grammar)
-        sequence1, precedence_table1, is_opg = op.Table()
-        if not is_opg:
-            QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎分析语句')
-        expression = ['#']
-        expression.extend(text.split())
-        expression.append('#')
-        t = [[], [], [], []]
-        t[0], info, t[3], t[1], t[2] = op.OP(sequence1, precedence_table1, expression)
-        # stack, info, action, remainder, priority
-        # self.tableStack.setColumnCount(4)  # 设置列数
-        self.tableStack.setRowCount(len(t[0]) + 1)  # 设置行数
-        for i in range(len(t[0])):
-            for j in range(4):
-                if len(t[j]) == i:
-                    item = QtWidgets.QTableWidgetItem(info)
-                    self.tableStack.setItem(len(t[0]), 0, item)
-                    break
-                p = str(t[j][i])
-                item = QtWidgets.QTableWidgetItem(p)
-                self.tableStack.setItem(i, j, item)
-        '''except Exception as e:
-            QMessageBox.warning(self, '警告', '句子中可能存在文法中没有的终结符')
-            print("Error: ", e)'''
+        try:
+            if self.chose_mode == '系统分词模式':
+                grammar, non_terminals, terminals = grammar_cut(grammar)
+                for symbol in non_terminals.union(terminals):
+                    text = text.replace(symbol, f" {symbol} ")
+            op = FirstVTAndLastVT()
+            op.input(grammar)
+            sequence1, precedence_table1, is_opg = op.Table()
+            if not is_opg:
+                QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎分析语句')
+            expression = ['#']
+            expression.extend(text.split())
+            expression.append('#')
+            t = [[], [], [], []]
+            t[0], info, t[3], t[1], t[2] = op.OP(sequence1, precedence_table1, expression)
+            # stack, info, action, remainder, priority
+            # self.tableStack.setColumnCount(4)  # 设置列数
+            self.tableStack.setRowCount(len(t[0]) + 1)  # 设置行数
+            for i in range(len(t[0])):
+                for j in range(4):
+                    if len(t[j]) == i:
+                        item = QtWidgets.QTableWidgetItem(info)
+                        self.tableStack.setItem(len(t[0]), 0, item)
+                        break
+                    p = str(t[j][i])
+                    item = QtWidgets.QTableWidgetItem(p)
+                    self.tableStack.setItem(i, j, item)
+        except Exception as e:
+            QMessageBox.warning(self, '错误', '句子中可能存在文法中没有的终结符或系统错误')
+            print("Error: ", e)
 
     def save_first(self):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存FirstVT集合', '', 'Text Files (*.txt)')

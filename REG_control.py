@@ -3,6 +3,7 @@ import sys
 
 import numpy as np
 from PIL.Image import Image
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyQt5 import QtGui, QtCore, QtWidgets
 import cv2
@@ -74,10 +75,28 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
         if reg == '':
             QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        elif '#' in reg:
+            QMessageBox.warning(self, '警告', '正规式中不能含有#')
         elif "状态" in reg or "节点" in reg:
             QMessageBox.warning(self, '警告', '请输入合法的正规式')
         else:
             try:
+                my_dir = {}
+                if '%' in reg:
+                    setting = reg[reg.find('%') + 2: reg.rfind('%') - 1]
+                    reg = reg[reg.rfind('%')+2:]
+                    while True:
+                        name = setting[0: setting.find('[')]
+                        value = setting[setting.find('[') + 1: setting.find(']')]
+                        value1 = []
+                        for char in value:
+                            if char != ',':
+                                value1.append(char)
+                        my_dir[name] = value1
+                        if '\n' in setting:
+                            setting = setting[setting.find('\n')+1: len(setting)]
+                        else:
+                            break
                 self.text = reg
                 if "\n" in reg:    # 多个正规式
                     text = reg.split("\n")
@@ -88,8 +107,19 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                             reg += "(" + value + ")|"
                         else:
                             reg += "(" + value + ")"
+                for key, value in my_dir.items():
+                    while key in reg:
+                        repalce = ""
+                        for value2 in my_dir[key]:
+                            repalce += value2 + "|"
+                        repalce = "(" + repalce[0: len(repalce) - 1] + ")"
+                        start = reg.find(key)
+                        final_reg = reg[0: start]
+                        final_reg += repalce
+                        final_reg += reg[start + len(key):]
+                        reg = final_reg
 
-                self.my_object = REG.NfaDfaMfa(reg)
+                self.my_object = REG.NfaDfaMfa(reg, my_dir)
                 self.nfa = self.my_object.reg_to_nfa()
                 self.plainTextEdit_3.clear()
                 f = open("NFA.txt")
