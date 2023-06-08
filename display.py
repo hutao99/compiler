@@ -1,5 +1,6 @@
 import os
 import sys
+import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
@@ -15,8 +16,7 @@ from show import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Laxer1 import LexicalAnalysis
-# import webbrowser
-# webbrowser.open(fname[0])  # 打开chm格式的文件
+
 from Grammar import recDesc_analysis
 from ObjectCode1 import solve
 import ObjectCode1
@@ -134,6 +134,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.action_tree_pic.triggered.connect(self.save_tree)
         self.action_baseblock_pic.triggered.connect(self.save_base_block)
         self.action_DAG_pic.triggered.connect(self.save_DAG)
+
         '''
         对一些变量进行初始化
         '''
@@ -141,6 +142,12 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.basic_blocks = None
         self.split_flag = 0  # 是否划分四元式
         self.yh_flag = 0  # 是否进行优化
+
+        '''
+        添加帮助文档和版权信息
+        '''
+        self.actionHELP_CHM.triggered.connect(self.searchHelp)
+        self.action.triggered.connect(self.show_copyright)
 
     def recent_folders(self):
         try:
@@ -456,7 +463,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         selected_text = self.textEdit.textCursor().selectedText()
         if selected_text:
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtCore.Qt.red))
+            format.setForeground(QtGui.QBrush(Qt.red))
             cursor = self.textEdit.textCursor()
             cursor.insertText(selected_text, format)
 
@@ -464,7 +471,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         selected_text = self.textEdit.textCursor().selectedText()
         if selected_text:
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtCore.Qt.green))
+            format.setForeground(QtGui.QBrush(Qt.green))
             cursor = self.textEdit.textCursor()
             cursor.insertText(selected_text, format)
 
@@ -472,7 +479,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         selected_text = self.textEdit.textCursor().selectedText()
         if selected_text:
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtCore.Qt.blue))
+            format.setForeground(QtGui.QBrush(Qt.blue))
             cursor = self.textEdit.textCursor()
             cursor.insertText(selected_text, format)
 
@@ -480,7 +487,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         selected_text = self.textEdit.textCursor().selectedText()
         if selected_text:
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtCore.Qt.darkYellow))
+            format.setForeground(QtGui.QBrush(Qt.darkYellow))
             cursor = self.textEdit.textCursor()
             cursor.insertText(selected_text, format)
 
@@ -488,7 +495,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         selected_text = self.textEdit.textCursor().selectedText()
         if selected_text:
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtCore.Qt.magenta))
+            format.setForeground(QtGui.QBrush(Qt.magenta))
             cursor = self.textEdit.textCursor()
             cursor.insertText(selected_text, format)
 
@@ -535,7 +542,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def change_keyword_color(self):
         text = self.textEdit.toPlainText()
         a = LexicalAnalysis(text)
-        keywords=[]
+        keywords = []
         for i in a.keyword_dist.keys():
             keywords.append(i)
         cursor = self.textEdit.textCursor()
@@ -885,6 +892,16 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 result.append(lst)
         print('result', result)
         return result
+
+    def searchHelp(self):
+        webbrowser.open('编译器_final.chm')
+
+    def show_copyright(self):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle('版权信息')
+        msg_box.setText('此版权归重庆理工大学2020级(陈瑞(12003990107)、郑伟(12003990615)、张世佳(12003990108)、谭舟行(12003990522))所有')
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.exec_()
 
 
 if __name__ == "__main__":
