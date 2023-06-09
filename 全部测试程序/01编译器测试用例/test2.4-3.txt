@@ -1,5 +1,7 @@
-//双重for嵌套，输入一个数n,输出前n列乘法表
+//鍙岄噸for宓屽锛岃緭鍏ヤ竴涓暟n,杈撳嚭鍓峮鍒椾箻娉曡〃
+
 int chengfabiao(int);
+
 main()
 {
    int n;
@@ -15,7 +17,7 @@ int chengfabiao(int n)
          for(j=1;j<=i;j=j+1)
         {
              s=i*j;
-           write(j);write(i);write(s);
+           write(j);write(i);write(s );
        }
     }
   return 0;

@@ -269,7 +269,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             print(fname[0])
             with open(fname[0], encoding=self.check_charset(fname[0])) as f:
                 str = f.read()
-                print(str)
+                # print(str)
                 self.textEdit.setText(str)
 
     def save_text(self):
@@ -570,7 +570,14 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         rda = recDesc_analysis(file_object)
                         self.fun_list, self.function_param_list, self.function_jubu_list, self.siyuanshi, self.yufa_Rrror, self.worrings_str, self.text1, self.text2 = rda.solve(
                             self.lbword)
-                        text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
+                        if self.yufa_Rrror == '' and self.worrings_str == '':
+                            text1 = ''
+                        elif self.yufa_Rrror == '':
+                            text1 = "语义错误：\n" + self.worrings_str
+                        elif self.worrings_str == '':
+                            text1 = "语法错误处理：\n" + self.yufa_Rrror
+                        else:
+                            text1 = "语法错误处理：\n" + self.yufa_Rrror + "语义错误：\n" + self.worrings_str
                         all_text = text1 + self.text1 + '\n' + self.text2 + '\n'
                         self.textEdit_2.setText(all_text)
                         # 设置图片路径
@@ -682,7 +689,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                     for quad in self.siyuanshi:
                         text += str(idx) + ':' + str(quad) + '\n'
                         idx += 1
-                    print(text)
                     self.textEdit_3.setText(text)
             else:  # LR中间代码
                 try:
@@ -726,7 +732,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             try:
                 codes = self.format_conversion(s)
                 self.basic_blocks = Partition_Basic_Block(codes)
-                print('basic_blocks', self.basic_blocks)
+                #print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
                 image_format = QtGui.QTextImageFormat()
                 image_format.setName('./Basic_Block/basic_block.gv.png')
@@ -767,7 +773,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 text += str(idx) + ':' + str(i) + '\n'
                 idx += 1
             self.textEdit_2.setText(text)
-            print('optimize_quaternion', self.optimize_quaternion)
+            #print('optimize_quaternion', self.optimize_quaternion)
             self.yh_flag = 1
         except:
             QMessageBox.warning(self, '警告', '系统错误！')
@@ -876,7 +882,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 将文本框中的四元式转换
     def format_conversion(self, s):
-        print('s', s)
+        #print('s', s)
         # 去掉末尾的换行符
         s = s.strip()
         # 按照换行符分割成多个行字符串
@@ -890,7 +896,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)
-        print('result', result)
+        #print('result', result)
         return result
 
     def searchHelp(self):
@@ -909,3 +915,4 @@ if __name__ == "__main__":
     ex = DetailUI()
     ex.show()
     sys.exit(app.exec_())
+

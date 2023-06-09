@@ -53,10 +53,10 @@ def function_get(quaternion_list):
     for i, line in enumerate(quaternion_list[0:sys+1]):  # i从0标号 line[1:]
         if line[0] not in ['jnz', 'para', 'call', 'j', 'jz', 'j<', 'j>', 'j<=', 'j>=', 'j==', 'j!=']:  # 如果不是跳转语句 不是函数调用
             for var in line[1:]:  # 全局变量表添加
-                print('line1',line[1:])
+                #print('line1',line[1:])
                 if is_var(var) and var not in global_main_symbol + ['_'] and var[0] != 'T':
                     global_main_symbol.append(var)
-    print(global_main_symbol)
+    #print(global_main_symbol)
 
     num = 0
     f_name = ''
@@ -77,8 +77,8 @@ def function_get(quaternion_list):
             function[i][1][j] = '_'
 
     for i, v in function.items():
-        print(len(function[i][0]))
-        print(len(function[i][1]))
+        #print(len(function[i][0]))
+        #print(len(function[i][1]))
         n = (len(function[i][0]) + len(function[i][1])) * \
             2 + 6  # BP+0:原BP的值 BP+2:返回地址 BP+4:返回值
         for s, vv in enumerate(function[i][0].keys()):
@@ -99,12 +99,12 @@ def function_get(quaternion_list):
    {'sum': [{'sum_x': 'ss:[bp+4]', 'sum_y': 'ss:[bp+6]'}, {'result': 'ss:[bp-2]'}], 
    'max': [{'m_x': 'ss:[bp+6]', 'm_y': 'ss:[bp+8]'}, {'result': 'ss:[bp-2]'}]}
     '''
-    print('function', function)
+    #print('function', function)
 
 
 def array_address1(fun_name1, name):
-    print(function_array_list)
-    print(function_array)
+    #print(function_array_list)
+    #print(function_array)
     if fun_name1 != '**':
         if '[' in name:
             match = re.findall(regex, name)
@@ -141,7 +141,7 @@ def target_code(four_table):
     global s
     global fun_name  # 根据中间代码来确定当前执行的函数名
     global global_array_list
-    print(function)
+    #print(function)
     fun_name = '**'
     f = open('./target/data_segment.txt', 'r')
     s = f.read()
@@ -187,7 +187,7 @@ def target_code(four_table):
             elif '[' in four:
                 four = '[si]'
             if fun_name != '**' and two in function[fun_name][0]:  # 当前为函数 使用的值在该函数栈里面 形参
-                print(function[fun_name][0])
+                #print(function[fun_name][0])
                 two = function[fun_name][0][two]
             elif fun_name != '**' and two in function[fun_name][1]:  # 函数内局部变量
                 two = function[fun_name][1][two]
@@ -219,8 +219,7 @@ def target_code(four_table):
                 four = 'es:[' + str(int(four[1:]) * 2) + ']'
             elif four[0] == 'T':
                 four = temporary_address[four]
-        print(2222222222222222222222222222222222,
-              one, two, three, four, fun_name)
+        #print(one, two, three, four, fun_name)
 
         if one == '=':
             s += '_%d:\t' % (i) + array_address1(fun_name,two1) +'MOV AX,' + two + \
@@ -344,7 +343,7 @@ def target_code(four_table):
             s += 'quit:\t' + 'mov ah,4ch\n\t' + 'int 21h\n'
         else:  # (fun_name,_,_,_) 进入函数定义
             fun_name = one
-            print(fun_name)
+            #print(fun_name)
             # s += one + ':\t' + 'PUSH BP\n\t' + 'MOV BP,SP\n\t' + 'SUB SP,' + 100 + '\n'
             '''
             PUSH BP:将BP原来指向的地址值压进栈，将BP保存起来 
@@ -360,11 +359,10 @@ def target_code(four_table):
                         length = int(i[1]) * int(i[2]) * 2
             s += one + ':\t' + 'PUSH BP\n\t' + 'MOV BP,SP\n\t' + 'SUB SP,' + \
                 str(len(function[fun_name][1]) * 2+length+len(temporary[fun_name])*2) + '\n'  # 根据局部变量的个数 确定栈顶位置
-            print('000000000000000000000000000000')
-            print(len(function[fun_name][1]) * 2)
-            print(length)
-            print(one + ':\t' + 'PUSH BP\n\t' + 'MOV BP,SP\n\t' +
-                  'SUB SP,' + str(len(function[fun_name][1]) * 2+length+len(temporary[fun_name])*2) + '\n')
+            #print(len(function[fun_name][1]) * 2)
+            #print(length)
+            #print(one + ':\t' + 'PUSH BP\n\t' + 'MOV BP,SP\n\t' +
+                  #'SUB SP,' + str(len(function[fun_name][1]) * 2+length+len(temporary[fun_name])*2) + '\n')
     return s + rear
 
 
@@ -375,8 +373,7 @@ def get_target_code(mid_result):
     function = {}
     function_get(quaternion_list)
     target_code_list = target_code(quaternion_list)
-    print('-------------------------')
-    print(function)
+    #print(function)
     return target_code_list
 
 
@@ -389,19 +386,18 @@ def solve(function_param_list1, function_jubu_list1, siyuanshi1, function_array_
     function_param_list = function_param_list1
     function_jubu_list = function_jubu_list1
     function_array_list = function_array_list1
-    print('99999999999999999')
-    print(function_array_list)
+    #print(function_array_list)
     global_array_list = global_array_list1
-    print("function_param_list", function_param_list)
-    print("function_jubu_list", function_jubu_list)
+    #print("function_param_list", function_param_list)
+    #print("function_jubu_list", function_jubu_list)
     quaternion_list = siyuanshi1
-    print(quaternion_list)
+    #print(quaternion_list)
     symbol_variable_list = []
     function_get(quaternion_list)
     target_code_list = target_code(quaternion_list)
-    print('-------------------------')
-    print(function)
-    print(target_code_list)
+    #print('-------------------------')
+    #print(function)
+    #print(target_code_list)
     return target_code_list
 
     # Filepath = "D:\pythonProject\pythonProject\新版编译器测试用例\\test1.txt"
@@ -420,7 +416,7 @@ def solve(function_param_list1, function_jubu_list1, siyuanshi1, function_array_
     # function_param_list=test.function_param_table
     # c = []
 
-# a=[['main', '_', '_', '_'], ['=', '0', '_', 'a'], ['=', '0', '_', 'max'], ['=', '0', '_', 'min'], ['=', '0', '_', 'sum'], ['=', '0', '_', 'i'], ['<', 'i', '5', 'T0'], ['jnz', 'T0', '_', 9], ['jz', 'T0', '_', 29], ['call', 'read', '_', 'T1'], ['==', 'i', '0', 'T2'], ['jnz', 'T2', '_', 13], ['jz', 'T2', '_', 16], ['=', 'a', '_', 'max'], ['=', 'a', '_', 'min'], ['j', '_', '_', 26], ['>', 'a', 'max', 'T3'], ['jnz', 'T3', '_', 19], ['jz', 'T3', '_', 21], ['=', 'a', '_', 'max'], ['j', '_', '_', 21], ['<', 'a', 'min', 'T4'], ['jnz', 'T4', '_', 24], ['jz', 'T4', '_', 26], ['=', 'a', '_', 'min'], ['j', '_', '_', 26], ['+', 'sum', 'a', ['sum']], ['+', 'i', '1', ['i']], ['j', '_', '_', 6], ['para', 'max', '_', '_'], ['call', 'write', '_', 'T7'], ['para', 'min', '_', '_'], ['call', 'write', '_', 'T8'], ['/', 'sum', '5', ['sum']], ['para', 'sum', '_', '_'], ['call', 'write', '_', 'T10'], ['sys', '_', '_', '_']]
+# a = [['main', '_', '_', '_'], ['=', '2', '_', 'x'], ['=', '3', '_', 'y'], ['&&', 'x', 'y', 'T0'], ['=', 'T0', '_', 'a'], ['&&', 'x', '0', 'T1'], ['=', 'T1', '_', 'b'], ['||', 'x', 'y', 'T2'], ['=', 'T2', '_', 'c'], ['||', 'x', '0', 'T3'], ['=', 'T3', '_', 'd'], ['para', 'a', '_', '_'], ['call', 'write', '_', 'T4'], ['para', 'b', '_', '_'], ['call', 'write', '_', 'T5'], ['para', 'c', '_', '_'], ['call', 'write', '_', 'T6'], ['para', 'd', '_', '_'], ['call', 'write', '_', 'T7']]
 # for i in a:
 #     c.append(i[1:])
 # solve({},{},a,[],{})

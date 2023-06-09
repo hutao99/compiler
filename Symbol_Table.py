@@ -29,25 +29,25 @@ class CreateTableFlag:
         self.Func_type_list = []
 
 class node1: # 变量结点
-    def __init__(self, type=None, name = None, value = None, scope = None,line = 0):# 入口 变量类型 变量名 值 作用域
+    def __init__(self, type=None, name = None, value = None, scope = None,line = None):# 入口 变量类型 变量名 值 作用域
         self.address = None # 入口
         self.type = type
         self.name = name
         self.value = value
         self.scope = scope
-        self.line = 0
+        self.line = line
         self.n = None #下一个
 
 #函数名是否先声明后定义
 class node2:# 函数结点
-    def __init__(self,type=None,name=None,paralist = None,line = 0,paralist_name = None):#函数参数 返回类型 函数名  参数类型表
+    def __init__(self,type=None,name=None,paralist = None,line = None,paralist_name = None):#函数参数 返回类型 函数名  参数类型表
         self.address = None  # 函数入口
         self.parameter = 0 # 参数个数
         self.type = type # 函数类型
         self.name = name # 函数名字
         self.paralist = paralist # 参数列表
         self.paralist_name = paralist_name
-        self.line = 0
+        self.line = line
         self.n = None  # 下一个
 
 # 链表实现函数符号表
@@ -111,10 +111,12 @@ class FunctionSymbolTable:
                 break
             item = item.n
         if item == None:
-            erro_information+='Warning:未声明 %s 函数！\n' % (funcname)
+            erro_information+='Warning: 未声明 %s 函数！\n' % (funcname)
         return erro_information
     #　插入操作:先进行查找 如果链表中有该变量且作用域相同 则报错 反之 进行添加操作
     def put(self, node):
+        if node.name in ['read','write']:
+            return "Warning: 第 %s 行 函数名 %s 已声明函数！\n" % (node.line,node.name)
         item = self.head
         while item is not None:
             if item.name == node.name and item.paralist == node.paralist:# 参数列表是佛相同
@@ -131,23 +133,23 @@ class FunctionSymbolTable:
         return ""
     def lookAll(self):
         self.text = "函数符号表\n入口\t形参个数\t返回类型\t函数名\t形参类型列表\n"
-        print("函数符号表")
-        print("入口\t形参个数\t返回类型\t函数名\t形参类型列表")
+        #print("函数符号表")
+        #print("入口\t形参个数\t返回类型\t函数名\t形参类型列表")
         item = self.head
         while item is not None:  # 变量名相同 作用域在其之上或者与其相同(长度小于或等于当前变量)
             self.check(item)
             item = item.n
         return self.text
     def check(self,node):
-        if node == None:
-            print(None)
+        #if node == None:
+            #print(None)
         # if isinstance(node, node1):
         #     print(node.address,node.parameter,node.type,node.name,node.value)
         # else:
         s = None
         if node.parameter != 0:
             s = ','.join(map(str, node.paralist))
-        print("%s\t%s\t%s\t%s\t%s" % (node.address, node.parameter, node.type, node.name, s))
+        #print("%s\t%s\t%s\t%s\t%s" % (node.address, node.parameter, node.type, node.name, s))
         self.text+="%s\t%s\t%s\t%s\t%s\n" % (node.address, node.parameter, node.type, node.name, s)
 
     def __iter__(self):
@@ -266,7 +268,7 @@ class VariableSymbolTable():# 记录常量以及变量表
 
                 if item.name == name and item.scope == scope:
                     item.value = value
-                    print(self.check(item))
+                    #print(self.check(item))
                     return True
                 item = item.n
 
@@ -274,7 +276,7 @@ class VariableSymbolTable():# 记录常量以及变量表
                 scope = scope[0:-2]
                 item = self.head # 重新指向头结点
             else:
-                print("变量未声明!")
+                #print("变量未声明!")
                 return False
     def lookAll(self):
         self.text1 = "常量符号表\n"
@@ -285,8 +287,8 @@ class VariableSymbolTable():# 记录常量以及变量表
             item = item.n
         self.text1 += "变量符号表\n"
         self.text1 += "入口\t类型名\t变量名\t值\t作用域\n"
-        print("变量符号表")
-        print("入口\t类型名\t变量名\t值\t作用域")
+        #print("变量符号表")
+        #print("入口\t类型名\t变量名\t值\t作用域")
         item = self.head
         while item is not None:  # 变量名相同 作用域在其之上或者与其相同(长度小于或等于当前变量)
             self.check(item)
@@ -296,7 +298,7 @@ class VariableSymbolTable():# 记录常量以及变量表
     def check(self,node):
         if node == None:
             return None
-        print("%s\t%s\t%s\t%s\t%s" % (node.address, node.type, node.name, node.value,node.scope))
+        #print("%s\t%s\t%s\t%s\t%s" % (node.address, node.type, node.name, node.value,node.scope))
         self.text1+="%s\t%s\t%s\t%s\t%s\n" % (node.address, node.type, node.name, node.value,node.scope)
 
     def __iter__(self):
