@@ -65,7 +65,10 @@ class recDesc_analysis:
         self.function_jubu_list = {}
         self.function_parameter_defines = ['', '', [], [], '']  # 函数定义 函数名 函数类型 函数形参类型 函数形参名字 函数定义行号
         self.repetition_type = 0
-
+        self.return_exp = False # 表达式返回值
+        self.main_return_id = [] #main中return回填
+        self.is_main = False # 当前是否在main函数中
+        self.cur_func_type = [None,None] #当前的函数及其返回类型
         for line in file.readlines():
             div_list = line.strip('\n').split('->')
             # print('===============')
@@ -117,6 +120,8 @@ class recDesc_analysis:
             self.func_define_flag = 1
         if ch == 'I5' and self.goal_list[self.p][1] == 'return':  # return 语句
             self.return_flag = 1
+            if self.p+1 < self.len and self.goal_list[self.p+1][1]!=';':
+                self.return_exp = True
         # print(self.goal_list[self.p][1], '----', ch,'-----',self.grammer[ch])
         for i in range(len(self.grammer[ch])):
             # 如果当前token在self.grammer[ch][i] first中，则递归。如无，则continue;
@@ -208,11 +213,13 @@ class recDesc_analysis:
                     if ch == 'A5':  # 函数定义
                         if item == 'A6':  # 函数类型
                             function_type = self.goal_list[self.p][1]
+                            self.cur_func_type[0] = function_type
                             self.function_parameter_defines[0] = function_type
                             self.function_parameter_defines[4] = self.goal_list[self.p][0]
                         elif item == 'A7':  # 标识符
                             self.func_define_flag = 1  # 函数定义标志 记录函数体形参及变量
                             function_name = self.goal_list[self.p][1]
+                            self.cur_func_type[1] = function_name
                             self.function_jubu_list[function_name] = []
                             self.function_param_list[function_name] = []
                             self.fun_list.append(function_name)
@@ -328,6 +335,10 @@ class recDesc_analysis:
                     if item in self.vn:
                         # print(ch,'[]',item)
                         if ch == 'A1' and item == 'A4':
+                            self.is_main = False
+                            for i in self.main_return_id:
+                                self.quaternions[i][4] = self.count # 回填return
+                            self.main_return_id = []
                             self.quaternions.append([self.count, 'sys', '_', '_', '_'])
                             self.count += 1
                         self.node_number += 1
@@ -398,6 +409,7 @@ class recDesc_analysis:
                             elif item == '=':
                                 self.sym_flag.Equal_Flag = 1
                         if item == 'main':
+                            self.is_main = True
                             self.quaternions.append([self.count, 'main', '_', '_', '_'])
                             self.count += 1
                             self.main_flag = 1
@@ -520,13 +532,27 @@ class recDesc_analysis:
 
                 if ch == 'A5':  # 函数定义
                     self.func_define_flag = 0
-                    if self.return_flag != 1:
+                    if self.return_flag != 1:# 函数中无return语句 返回调用函数 生成ret语句
+                        if self.cur_func_type[0]!='void':
+                            self.warnings_str += ("Warning: 第%s行 %s函数应该有返回值!\n" % (
+                                self.goal_list[self.p][0], self.cur_func_type[1]))
                         self.quaternions.append([self.count, 'ret', '_', '_', '_'])
                         self.count += 1
                     self.return_flag = 0
                 if ch == 'I5':  # return 语句
-                    self.quaternions.append([self.count, 'ret', self.expression_list.gettop()[1], '_', '_'])
-                    self.expression_list.pop()
+                    #语义错误处理
+                    if self.cur_func_type[0] == 'void':
+                        self.warnings_str += ("Warning: 第%s行 %s函数无返回值，不能有return语句!\n" % (
+                            self.goal_list[self.p-2][0], self.cur_func_type[1]))
+                    if self.is_main == True: # main函数中的return语句
+                        self.quaternions.append([self.count, 'j', '_', '_', '0'])
+                        self.main_return_id.append(self.count)
+                    elif self.return_exp == True:
+                        self.quaternions.append([self.count, 'ret', self.expression_list.gettop()[1], '_', '_'])
+                        self.expression_list.pop()
+                    else:
+                        self.quaternions.append([self.count, 'ret', '_', '_', '_']) # 无返回值的return 语句
+                    self.return_exp = False
                     self.count += 1
                     self.return_flag = 1
                 if ch == 'H2':  # 实参
@@ -678,10 +704,6 @@ class recDesc_analysis:
             for i in self.quaternions:
                 if i[0] == '@':
                     i[0] = '-'
-            # print(self.warnings_str)
-            # print(self.quaternions)
-            # print(self.function_param_list)
-            # print(self.function_jubu_list)
             """打印符号表"""
             tree.render()
             # print(tree.source)

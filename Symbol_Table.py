@@ -29,25 +29,25 @@ class CreateTableFlag:
         self.Func_type_list = []
 
 class node1: # 变量结点
-    def __init__(self, type=None, name = None, value = None, scope = None,line = 0):# 入口 变量类型 变量名 值 作用域
+    def __init__(self, type=None, name = None, value = None, scope = None,line = None):# 入口 变量类型 变量名 值 作用域
         self.address = None # 入口
         self.type = type
         self.name = name
         self.value = value
         self.scope = scope
-        self.line = 0
+        self.line = line
         self.n = None #下一个
 
 #函数名是否先声明后定义
 class node2:# 函数结点
-    def __init__(self,type=None,name=None,paralist = None,line = 0,paralist_name = None):#函数参数 返回类型 函数名  参数类型表
+    def __init__(self,type=None,name=None,paralist = None,line = None,paralist_name = None):#函数参数 返回类型 函数名  参数类型表
         self.address = None  # 函数入口
         self.parameter = 0 # 参数个数
         self.type = type # 函数类型
         self.name = name # 函数名字
         self.paralist = paralist # 参数列表
         self.paralist_name = paralist_name
-        self.line = 0
+        self.line = line
         self.n = None  # 下一个
 
 # 链表实现函数符号表
@@ -115,6 +115,8 @@ class FunctionSymbolTable:
         return erro_information
     #　插入操作:先进行查找 如果链表中有该变量且作用域相同 则报错 反之 进行添加操作
     def put(self, node):
+        if node.name in ['read','write']:
+            return "Warning: 第 %s 行 函数名 %s 已声明函数！\n" % (node.line,node.name)
         item = self.head
         while item is not None:
             if item.name == node.name and item.paralist == node.paralist:# 参数列表是佛相同

@@ -187,7 +187,7 @@ def target_code(four_table):
             elif '[' in four:
                 four = '[si]'
             if fun_name != '**' and two in function[fun_name][0]:  # 当前为函数 使用的值在该函数栈里面 形参
-                print(function[fun_name][0])
+                #print(function[fun_name][0])
                 two = function[fun_name][0][two]
             elif fun_name != '**' and two in function[fun_name][1]:  # 函数内局部变量
                 two = function[fun_name][1][two]
