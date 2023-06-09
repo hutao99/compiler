@@ -1,6 +1,6 @@
 //双重for嵌套，输入一个数n,输出前n列乘法表
 
-int chengfabiao(int)；
+int chengfabiao(int);
 
 main()
 {

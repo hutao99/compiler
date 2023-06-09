@@ -1,6 +1,5 @@
 // break，continue跳转(1:break,2:continue,3:exit):
-int read();
-void write(int);
+
 main()
 {
     int a;
