@@ -35,7 +35,6 @@ class LL1GrammarSolver(QMainWindow):
         font.setUnderline(False)
         font.setWeight(50)
         self.mode_combo.setFont(font)
-
         self.chose_mode = '系统分词模式'
         self.mode_combo.setWindowTitle('模式选择')
         self.mode_combo.setObjectName('模式选择')
