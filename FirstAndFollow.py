@@ -16,9 +16,9 @@ with open('文法.txt', 'r') as f:
             nonterminals.append(left)
         for symbols in symbols_list:
             productions[left].append(symbols.split())
-print(productions)
-print(nonterminals)
-print(len(nonterminals))
+# print(productions)
+# print(nonterminals)
+# print(len(nonterminals))
 
 
 def compute_first(productions):
@@ -78,7 +78,7 @@ def compute_first(productions):
     return first
 
 first = compute_first(productions)
-print('first',first)
+# print('first',first)
 
 def compute_first_set(symbols):
     first_set = set()
@@ -108,13 +108,13 @@ for nonter, production in productions.items():
     for rhs in production:
         first_set = compute_first_set(rhs)
         first_dict[nonter].append(list(first_set))
-print('first_dict',first_dict)
+# print('first_dict',first_dict)
 
 kong = []
 for i in first:
     if 'r' in first[i]:
         kong.append(i)
-print('kong',kong)
+# print('kong',kong)
 def compute_follow( start_symbol):
     follow_sets = {symbol: set() for symbol in nonterminals}
     follow_sets[start_symbol].add('eof')
@@ -166,7 +166,7 @@ def compute_follow( start_symbol):
 follow_dict = compute_follow('A1')
 for i in follow_dict:
     follow_dict[i] = list(follow_dict[i])
-print('follow_dict',follow_dict)
+# print('follow_dict',follow_dict)
 print_dic = {'A1':"程序",'A2':'声明语句','A3':'复合语句','A4':'函数块','A5':'函数定义','A6':'函数类型','A7':'标识符','A8':'函数定义形参列表',
              'B1':'函数定义形参','B2':'变量类型','C1':'语句','C2':'执行语句','C3':'值声明','C4':'函数声明','C5':'常量声明','C6':'变量声明','C7':'常量类型','C8':'常量声明表','C9':'常量',
              'D1':'变量声明表','D2':'单变量声明','D3':'变量','D4':'表达式','D5':'函数声明形参列表','D6':'函数声明形参','D7':'数据处理语句','D8':'控制语句',

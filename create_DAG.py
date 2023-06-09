@@ -24,10 +24,10 @@ def DAG_draw(codes):
     #codes [{'label': '3.14', 'node_label': 'T0'}, {'label': '2', 'node_label': []}, {'label': '*', 'node_label': ' T1', 'left': 1, 'right': 0}
     for code in codes:# label|node_label
         s = code['label'] + '|' + ''.join(code['node_label'])
-        print('s',s)
+        # print('s',s)
         dot.node(str(idx), s) #编号  标签
         idx += 1
-    print('codes',codes)
+    # print('codes',codes)
     for i, code in enumerate(codes):
         if 'right' in code:
             dot.edge(str(i+1), str(code['right'] + 1))
@@ -188,9 +188,9 @@ def link(DAG, father, son = None, left = None, right = None):
 
 
 def optimize(DAG_node):
-    print('DAG_node:',DAG_node)
+    # print('DAG_node:',DAG_node)
     global Active_variable
-    print('Active_variable:',Active_variable)
+    # print('Active_variable:',Active_variable)
     id = 1
     for e in DAG_node:
         new_label = []
@@ -222,12 +222,12 @@ def optimize(DAG_node):
             for i in e['node_label']:
                 if i in Active_variable:
                     code.append(('=', e['label'], '_', i))
-    print('code:',code)
+    # print('code:',code)
     return code
 
 #切分基本块
 def Partition_Basic_Block(codes):
-    print(codes)
+    # print(codes)
     # 转化成列表形式
     new_codes = []
     for i in codes:
@@ -246,9 +246,9 @@ def Partition_Basic_Block(codes):
             if (i + 1) < len(codes) and (i + 1) not in flag:  # 跳转语句的下一条语句也是入口
                 flag.append(i + 1)
     flag.append(len(codes))
-    print(flag)
+    # print(flag)
     flag.sort()  # 对列表进行排序
-    print('基本块切分序号列表',flag)
+    # print('基本块切分序号列表',flag)
 
     j = 1
     # 当前基本块

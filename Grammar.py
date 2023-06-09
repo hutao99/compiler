@@ -117,14 +117,14 @@ class recDesc_analysis:
             self.func_define_flag = 1
         if ch == 'I5' and self.goal_list[self.p][1] == 'return':  # return 语句
             self.return_flag = 1
-        print(self.goal_list[self.p][1], '----', ch,'-----',self.grammer[ch])
+        # print(self.goal_list[self.p][1], '----', ch,'-----',self.grammer[ch])
         for i in range(len(self.grammer[ch])):
             # 如果当前token在self.grammer[ch][i] first中，则递归。如无，则continue;
             if self.goal_list[self.p][1] in first_dict[ch][i] or self.goal_list[self.p][2] in first_dict[ch][i]:
                 rule = self.grammer[ch][i]
                 record_p = self.p  # 记录指针位置，方便回溯
                 for item in rule:
-                    print(item,'-----------------',self.goal_list[self.p][1],self.goal_list[self.p][2])
+                    # print(item,'-----------------',self.goal_list[self.p][1],self.goal_list[self.p][2],self.shengmingflag)
                     if ch == 'I1':  # if语句处理
                         if item == ')':  # if表达式真假出口表示
                             self.quaternions.append(
@@ -325,9 +325,7 @@ class recDesc_analysis:
                             self.func_call_namelist.pop()
                             self.func_call_argulist.pop()
                             self.func_call_flag = 0
-                    if self.p >= len(self.goal_list):
-                        return 1
-                    elif item in self.vn:
+                    if item in self.vn:
                         # print(ch,'[]',item)
                         if ch == 'A1' and item == 'A4':
                             self.quaternions.append([self.count, 'sys', '_', '_', '_'])
@@ -339,6 +337,8 @@ class recDesc_analysis:
                             tree.node(str(self.node_number), item, fontname="SimHei")
                         tree.edge(str(fabian), str(self.node_number))
                         self.match(ch=item, fabian=self.node_number)  # 如果碰到了非终结符，直接递归非终结符的子程序
+                    elif self.p >= len(self.goal_list):
+                        return 1
                     elif self.p < len(self.goal_list) and item == self.goal_list[self.p][2]:
                         if self.func_define_flag:
                             if item == '700':
@@ -371,8 +371,8 @@ class recDesc_analysis:
                                     if self.func_define_flag != 2:
                                         self.warnings_str += ("Warning: 第%s行 变量%s未声明\n" % (
                                             self.goal_list[self.p][0], self.goal_list[self.p][1]))
-                                else:
-                                    print(self.warnings_str)
+                                # else:
+                                #     print(self.warnings_str)
                         self.node_number += 1
                         tree.node(str(self.node_number), self.goal_list[self.p][1])
                         tree.edge(str(fabian), str(self.node_number))
@@ -558,6 +558,8 @@ class recDesc_analysis:
                 return 1
         # 如果不在任意一个first(Ui)中，空 属于 first(Ui)，则判断当前符号是否在Follow集中
         if ch in kong and self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]:
+            if ch == 'A2':
+                self.shengmingflag = 0
             self.node_number += 1
             tree.node(str(self.node_number),'ε', fontname="SimHei")
             tree.edge(str(fabian), str(self.node_number))
@@ -570,8 +572,8 @@ class recDesc_analysis:
             while self.p < self.len and (
                     self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]):
                 self.p += 1
-                print(self.p)
-            print("出错啦！！！")
+                #print(self.p)
+            #print("出错啦！！！")
             return 1
 
     # 等号两边格式是否匹配
@@ -601,7 +603,7 @@ class recDesc_analysis:
             return 'bool'
 
     def add_sym(self):
-        print('add-----', self.sym_flag.name, self.sym_flag.type, self.shengmingflag)
+        #print('add-----', self.sym_flag.name, self.sym_flag.type, self.shengmingflag)
         if self.func_define_flag != 2 and (self.shengmingflag == 1 or self.shengmingflag == 2):
             # 常量表添加
             node = node1(self.sym_flag.type, self.sym_flag.name, self.sym_flag.value, self.scope, self.sym_flag.line)
@@ -646,23 +648,23 @@ class recDesc_analysis:
             tree = Digraph(filename, 'Syntax Tree', None, None, 'png', None, "UTF-8")
             """ 文法字典预处理 """
             self.goal_list = wordlist
-            print(wordlist)
+            #print(wordlist)
             for i in self.grammer:
                 list1 = str(self.grammer[i][0]).split('|')
                 list2 = []
                 for j in list1:
                     list2.append(j.split())
                 self.grammer[i] = list2
-            print('==========', self.grammer, '+++++++', self.vn)
+            #print('==========', self.grammer, '+++++++', self.vn)
 
             """ 递归下降分析 """
             tree.node(str(self.node_number), print_dic[self.vn[0]], fontname="SimHei")
             self.p = 0  # 字符串指针
             self.len = len(self.goal_list)
             flag = (self.match(self.vn[0], self.node_number) & (self.p == len(self.goal_list)))  # 必须要遍历完测试字符串
-            print(self.p)
+            #print(self.p)
             if flag:
-                print(self.quaternions)
+                #print(self.quaternions)
                 print(' 分析成功')
             else:
                 print(' 分析失败')
@@ -676,10 +678,10 @@ class recDesc_analysis:
             for i in self.quaternions:
                 if i[0] == '@':
                     i[0] = '-'
-            print(self.warnings_str)
-            print(self.quaternions)
-            print(self.function_param_list)
-            print(self.function_jubu_list)
+            # print(self.warnings_str)
+            # print(self.quaternions)
+            # print(self.function_param_list)
+            # print(self.function_jubu_list)
             """打印符号表"""
             tree.render()
             # print(tree.source)
