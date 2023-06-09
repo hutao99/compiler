@@ -35,7 +35,7 @@ class LL1GrammarSolver(QMainWindow):
         font.setUnderline(False)
         font.setWeight(50)
         self.mode_combo.setFont(font)
-
+        self.chose_mode = '系统分词模式'
         self.mode_combo.setWindowTitle('模式选择')
         self.mode_combo.setObjectName('模式选择')
         self.mode_combo.addItem("系统分词模式")
@@ -404,6 +404,7 @@ class LL1GrammarSolver(QMainWindow):
         msg_box.exec_()
 
     def onClick_create_first_follow(self):
+        print(self.chose_mode)
         self.table_FIRST.clearContents()
         self.table_FOLLOW.clearContents()
         test = Predictive_Analysis()
