@@ -111,7 +111,7 @@ class FunctionSymbolTable:
                 break
             item = item.n
         if item == None:
-            erro_information+='Warning:未声明 %s 函数！\n' % (funcname)
+            erro_information+='Warning: 未声明 %s 函数！\n' % (funcname)
         return erro_information
     #　插入操作:先进行查找 如果链表中有该变量且作用域相同 则报错 反之 进行添加操作
     def put(self, node):
