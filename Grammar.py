@@ -65,7 +65,10 @@ class recDesc_analysis:
         self.function_jubu_list = {}
         self.function_parameter_defines = ['', '', [], [], '']  # 函数定义 函数名 函数类型 函数形参类型 函数形参名字 函数定义行号
         self.repetition_type = 0
-
+        self.return_exp = False # 表达式返回值
+        self.main_return_id = [] #main中return回填
+        self.is_main = False # 当前是否在main函数中
+        self.cur_func_type = [None,None] #当前的函数及其返回类型
         for line in file.readlines():
             div_list = line.strip('\n').split('->')
             # print('===============')
@@ -117,6 +120,8 @@ class recDesc_analysis:
             self.func_define_flag = 1
         if ch == 'I5' and self.goal_list[self.p][1] == 'return':  # return 语句
             self.return_flag = 1
+            if self.p+1 < self.len and self.goal_list[self.p+1][1]!=';':
+                self.return_exp = True
         # print(self.goal_list[self.p][1], '----', ch,'-----',self.grammer[ch])
         for i in range(len(self.grammer[ch])):
             # 如果当前token在self.grammer[ch][i] first中，则递归。如无，则continue;
@@ -124,7 +129,7 @@ class recDesc_analysis:
                 rule = self.grammer[ch][i]
                 record_p = self.p  # 记录指针位置，方便回溯
                 for item in rule:
-                    #print(item,'-----------------',self.goal_list[self.p][1],self.goal_list[self.p][2])
+                    # print(item,'-----------------',self.goal_list[self.p][1],self.goal_list[self.p][2],self.shengmingflag)
                     if ch == 'I1':  # if语句处理
                         if item == ')':  # if表达式真假出口表示
                             self.quaternions.append(
@@ -208,11 +213,13 @@ class recDesc_analysis:
                     if ch == 'A5':  # 函数定义
                         if item == 'A6':  # 函数类型
                             function_type = self.goal_list[self.p][1]
+                            self.cur_func_type[0] = function_type
                             self.function_parameter_defines[0] = function_type
                             self.function_parameter_defines[4] = self.goal_list[self.p][0]
                         elif item == 'A7':  # 标识符
                             self.func_define_flag = 1  # 函数定义标志 记录函数体形参及变量
                             function_name = self.goal_list[self.p][1]
+                            self.cur_func_type[1] = function_name
                             self.function_jubu_list[function_name] = []
                             self.function_param_list[function_name] = []
                             self.fun_list.append(function_name)
@@ -325,11 +332,13 @@ class recDesc_analysis:
                             self.func_call_namelist.pop()
                             self.func_call_argulist.pop()
                             self.func_call_flag = 0
-                    if self.p >= len(self.goal_list):
-                        return 1
-                    elif item in self.vn:
+                    if item in self.vn:
                         # print(ch,'[]',item)
                         if ch == 'A1' and item == 'A4':
+                            self.is_main = False
+                            for i in self.main_return_id:
+                                self.quaternions[i][4] = self.count # 回填return
+                            self.main_return_id = []
                             self.quaternions.append([self.count, 'sys', '_', '_', '_'])
                             self.count += 1
                         self.node_number += 1
@@ -339,6 +348,8 @@ class recDesc_analysis:
                             tree.node(str(self.node_number), item, fontname="SimHei")
                         tree.edge(str(fabian), str(self.node_number))
                         self.match(ch=item, fabian=self.node_number)  # 如果碰到了非终结符，直接递归非终结符的子程序
+                    elif self.p >= len(self.goal_list):
+                        return 1
                     elif self.p < len(self.goal_list) and item == self.goal_list[self.p][2]:
                         if self.func_define_flag:
                             if item == '700':
@@ -371,8 +382,8 @@ class recDesc_analysis:
                                     if self.func_define_flag != 2:
                                         self.warnings_str += ("Warning: 第%s行 变量%s未声明\n" % (
                                             self.goal_list[self.p][0], self.goal_list[self.p][1]))
-                                else:
-                                    print(self.warnings_str)
+                                # else:
+                                #     print(self.warnings_str)
                         self.node_number += 1
                         tree.node(str(self.node_number), self.goal_list[self.p][1])
                         tree.edge(str(fabian), str(self.node_number))
@@ -398,6 +409,7 @@ class recDesc_analysis:
                             elif item == '=':
                                 self.sym_flag.Equal_Flag = 1
                         if item == 'main':
+                            self.is_main = True
                             self.quaternions.append([self.count, 'main', '_', '_', '_'])
                             self.count += 1
                             self.main_flag = 1
@@ -520,13 +532,27 @@ class recDesc_analysis:
 
                 if ch == 'A5':  # 函数定义
                     self.func_define_flag = 0
-                    if self.return_flag != 1:
+                    if self.return_flag != 1:# 函数中无return语句 返回调用函数 生成ret语句
+                        if self.cur_func_type[0]!='void':
+                            self.warnings_str += ("Warning: 第%s行 %s函数应该有返回值!\n" % (
+                                self.goal_list[self.p][0], self.cur_func_type[1]))
                         self.quaternions.append([self.count, 'ret', '_', '_', '_'])
                         self.count += 1
                     self.return_flag = 0
                 if ch == 'I5':  # return 语句
-                    self.quaternions.append([self.count, 'ret', self.expression_list.gettop()[1], '_', '_'])
-                    self.expression_list.pop()
+                    #语义错误处理
+                    if self.cur_func_type[0] == 'void':
+                        self.warnings_str += ("Warning: 第%s行 %s函数无返回值，不能有return语句!\n" % (
+                            self.goal_list[self.p-2][0], self.cur_func_type[1]))
+                    if self.is_main == True: # main函数中的return语句
+                        self.quaternions.append([self.count, 'j', '_', '_', '0'])
+                        self.main_return_id.append(self.count)
+                    elif self.return_exp == True:
+                        self.quaternions.append([self.count, 'ret', self.expression_list.gettop()[1], '_', '_'])
+                        self.expression_list.pop()
+                    else:
+                        self.quaternions.append([self.count, 'ret', '_', '_', '_']) # 无返回值的return 语句
+                    self.return_exp = False
                     self.count += 1
                     self.return_flag = 1
                 if ch == 'H2':  # 实参
@@ -558,6 +584,8 @@ class recDesc_analysis:
                 return 1
         # 如果不在任意一个first(Ui)中，空 属于 first(Ui)，则判断当前符号是否在Follow集中
         if ch in kong and self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]:
+            if ch == 'A2':
+                self.shengmingflag = 0
             self.node_number += 1
             tree.node(str(self.node_number),'ε', fontname="SimHei")
             tree.edge(str(fabian), str(self.node_number))
@@ -570,8 +598,8 @@ class recDesc_analysis:
             while self.p < self.len and (
                     self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]):
                 self.p += 1
-                print(self.p)
-            print("出错啦！！！")
+                #print(self.p)
+            #print("出错啦！！！")
             return 1
 
     # 等号两边格式是否匹配
@@ -601,7 +629,7 @@ class recDesc_analysis:
             return 'bool'
 
     def add_sym(self):
-        print('add-----', self.sym_flag.name, self.sym_flag.type, self.shengmingflag)
+        #print('add-----', self.sym_flag.name, self.sym_flag.type, self.shengmingflag)
         if self.func_define_flag != 2 and (self.shengmingflag == 1 or self.shengmingflag == 2):
             # 常量表添加
             node = node1(self.sym_flag.type, self.sym_flag.name, self.sym_flag.value, self.scope, self.sym_flag.line)
@@ -639,53 +667,50 @@ class recDesc_analysis:
         self.text2 = self.sym2.lookAll()
 
     def solve(self, wordlist):
-        # 语法树
-        global tree
-        filename = './Syntax_Tree/tree'
-        tree = Digraph(filename, 'Syntax Tree', None, None, 'png', None, "UTF-8")
-        """ 文法字典预处理 """
-        self.goal_list = wordlist
-        print(wordlist)
-        for i in self.grammer:
-            list1 = str(self.grammer[i][0]).split('|')
-            list2 = []
-            for j in list1:
-                list2.append(j.split())
-            self.grammer[i] = list2
-        print('==========', self.grammer, '+++++++', self.vn)
+        try:
+            # 语法树
+            global tree
+            filename = './Syntax_Tree/tree'
+            tree = Digraph(filename, 'Syntax Tree', None, None, 'png', None, "UTF-8")
+            """ 文法字典预处理 """
+            self.goal_list = wordlist
+            #print(wordlist)
+            for i in self.grammer:
+                list1 = str(self.grammer[i][0]).split('|')
+                list2 = []
+                for j in list1:
+                    list2.append(j.split())
+                self.grammer[i] = list2
+            #print('==========', self.grammer, '+++++++', self.vn)
 
-        """ 递归下降分析 """
-        tree.node(str(self.node_number), print_dic[self.vn[0]], fontname="SimHei")
-        self.p = 0  # 字符串指针
-        self.len = len(self.goal_list)
-        flag = (self.match(self.vn[0], self.node_number) & (self.p == len(self.goal_list)))  # 必须要遍历完测试字符串
-        print(self.p)
-        if flag:
-            print(self.quaternions)
-            print(' 分析成功')
-        else:
-            print(' 分析失败')
-        self.check_print()
-        if self.main_flag == 0:
-            self.warnings_str += "Warning: 程序中无main函数！！！\n"
-        siyuanshi = []
-        for i in self.quaternions:
-            siyuanshi.append(i[1:])
-        self.quaternions = siyuanshi
-        for i in self.quaternions:
-            if i[0] == '@':
-                i[0] = '-'
-        print(self.warnings_str)
-        print(self.quaternions)
-        print(self.function_param_list)
-        print(self.function_jubu_list)
-        """打印符号表"""
-        tree.render()
-        # print(tree.source)
-        # tree.render('test-output/test-table.gv', view=True)
-        return self.fun_list, self.function_param_list, self.function_jubu_list, self.quaternions, self.syntax_error, self.warnings_str, self.text1, self.text2
-
-
+            """ 递归下降分析 """
+            tree.node(str(self.node_number), print_dic[self.vn[0]], fontname="SimHei")
+            self.p = 0  # 字符串指针
+            self.len = len(self.goal_list)
+            flag = (self.match(self.vn[0], self.node_number) & (self.p == len(self.goal_list)))  # 必须要遍历完测试字符串
+            #print(self.p)
+            if flag:
+                #print(self.quaternions)
+                print(' 分析成功')
+            else:
+                print(' 分析失败')
+            self.check_print()
+            if self.main_flag == 0:
+                self.warnings_str += "Warning: 程序中无main函数！！！\n"
+            siyuanshi = []
+            for i in self.quaternions:
+                siyuanshi.append(i[1:])
+            self.quaternions = siyuanshi
+            for i in self.quaternions:
+                if i[0] == '@':
+                    i[0] = '-'
+            """打印符号表"""
+            tree.render()
+            # print(tree.source)
+            # tree.render('test-output/test-table.gv', view=True)
+            return self.fun_list, self.function_param_list, self.function_jubu_list, self.quaternions, self.syntax_error, self.warnings_str, self.text1, self.text2
+        except:
+            return self.fun_list, self.function_param_list, self.function_jubu_list, self.quaternions, self.syntax_error, self.warnings_str, self.text1, self.text2
 # 定义栈
 class Stack(object):
 
@@ -705,14 +730,20 @@ class Stack(object):
         """
         出栈函数，
         """
-        return self.stack.pop()
+        if not self.empty():
+            return self.stack.pop()
+        else:
+            return None
 
 
     def gettop(self):
         """
         取栈顶
         """
-        return self.stack[-1]
+        if not self.empty():
+            return self.stack[-1]
+        else:
+            return None
 
 
     def empty(self):
@@ -737,8 +768,8 @@ class Stack(object):
 
 # file_object = open('文法.txt')
 # a = recDesc_analysis(file_object)
-# a.solve([[2, 'int', '102'], [2, 'main', '142'], [2, '(', '201'], [2, ')', '202'], [2, '{', '301'], [3, 'int', '102'], [3, 'x', '700'], [3, ',', '304'], [3, 'y', '700'], [3, ',', '304'], [3, 'z', '700'], [3, ';', '303'], [4, 'x', '700'], [4, '=', '230'], [4, '9', '400'], [4, ';', '303'], [5, 'y', '700'], [5, '=', '230'], [5, '3', '400'], [5, ';', '303'], [6, 'z', '700'], [6, '=', '230'], [6, 'x', '700'], [6, '-', '208'], [6, 'y', '700'], [6, '*', '213'], [6, 'y', '700'], [6, '-', '208'], [6, 'x', '700'], [6, '%', '216'], [6, '3', '400'], [6, ';', '303'], [7, 'write', '700'], [7, '(', '201'], [7, 'x', '700'], [7, ')', '202'], [7, ';', '303'], [8, 'write', '700'], [8, '(', '201'], [8, 'y', '700'], [8, ')', '202'], [8, ';', '303'], [9, 'write', '700'], [9, '(', '201'], [9, 'z', '700'], [9, ')', '202'], [9, ';', '303'], [10, '}', '302']]
-# )
+# a.solve([[2, 'main', '142'], [2, '(', '201'], [2, ')', '202'], [2, '{', '301'], [3, 'int', '102'], [3, 'n', '700'], [3, ',', '304'], [3, 'i', '700'], [3, ',', '304'], [3, 'sum', '700'], [3, ';', '303'], [5, 'for', '113'], [5, '(', '201'], [5, 'int', '102'], [5, 'n', '700'], [5, '=', '230'], [5, '1', '400'], [5, ';', '303'], [5, 'n', '700'], [5, '<=', '220'], [5, '1000', '400'], [5, ';', '303'], [5, 'n', '700'], [5, '=', '230'], [5, 'n', '700'], [5, '+', '207'], [5, '1', '400'], [5, ')', '202'], [5, '{', '301'], [6, 'sum', '700'], [6, '=', '230'], [6, '0', '400'], [6, ';', '303'], [7, 'for', '113'], [7, '(', '201'], [7, 'i', '700'], [7, '=', '230'], [7, '1', '400'], [7, ';', '303'], [7, 'i', '700'], [7, '<', '219'], [7, 'n', '700'], [7, ';', '303'], [7, 'i', '700'], [7, '=', '230'], [7, 'i', '700'], [7, '+', '207'], [7, '1', '400'], [7, ')', '202'], [7, '{', '301'], [8, 'if', '111'], [8, '(', '201'], [8, 'n', '700'], [8, '%', '216'], [8, 'i', '700'], [8, '==', '223'], [8, '0', '400'], [8, ')', '202'], [8, 'sum', '700'], [8, '=', '230'], [8, 'sum', '700'], [8, '+', '207'], [8, 'i', '700'], [8, ';', '303'], [9, '}', '302'], [10, 'if', '111'], [10, '(', '201'], [10, 'sum', '700'], [10, '==', '223'], [10, 'n', '700'], [10, ')', '202'], [10, '{', '301'], [11, 'write', '700'], [11, '(', '201'], [11, 'n', '700'], [11, ')', '202'], [11, ';', '303'], [12, '}', '302'], [13, '}', '302'], [14, 'return', '106'], [14, '0', '400'], [14, ';', '303'], [15, '}', '302']]
+#         )
 # fun_list,function_param_list,function_jubu_list,siyuanshia,worrings_str,text1,text2 = a.solve([[2, 'int', '102'], [2, 'a', '700'], [2, '=', '230'], [2, '1', '400'], [2, ';', '303'], [3, 'int', '102'], [3, 'seq', '700'], [3, '(', '201'], [3, 'int', '102'], [3, ',', '304'], [3, 'int', '102'], [3, ')', '202'], [3, ';', '303'], [4, 'const', '105'], [4, 'int', '102'], [4, 'c', '700'], [4, '=', '230'], [4, '2', '400'], [4, ',', '304'], [4, 'd', '700'], [4, '=', '230'], [4, '3', '400'], [4, ';', '303'], [5, 'int', '102'], [5, 'p', '700'], [5, ',', '304'], [5, 'q', '700'], [5, '=', '230'], [5, '9', '400'], [5, ';', '303'], [6, 'main', '142'], [6, '(', '201'], [6, ')', '202'], [6, '{', '301'], [8, 'int', '102'], [8, 'result', '700'], [8, ';', '303'], [9, 'int', '102'], [9, 'N', '700'], [9, '=', '230'], [9, 'read', '700'], [9, '(', '201'], [9, 'a', '700'], [9, '+', '207'], [9, '1', '400'], [9, ',', '304'], [9, 'c', '700'], [9, ')', '202'], [9, ';', '303'], [10, 'int', '102'], [10, 'M', '700'], [10, '=', '230'], [10, 'read', '700'], [10, '(', '201'], [10, ')', '202'], [10, ';', '303'], [11, 'int', '102'], [11, 'b', '700'], [11, '=', '230'], [11, '2', '400'], [11, '+', '207'], [11, '3', '400'], [11, '-', '208'], [11, '2', '400'], [11, '+', '207'], [11, '(', '201'], [11, '5', '400'], [11, '+', '207'], [11, '6', '400'], [11, ')', '202'], [11, '+', '207'], [11, '3', '400'], [11, '*', '213'], [11, '5', '400'], [11, '/', '215'], [11, 'a', '700'], [11, ';', '303'], [12, 'if', '111'], [12, '(', '201'], [12, 'A', '700'], [12, '&&', '227'], [12, 'B', '700'], [12, '&&', '227'], [12, 'c', '700'], [12, '>', '221'], [12, 'D', '700'], [12, ')', '202'], [13, 'if', '111'], [13, '(', '201'], [13, 'M', '700'], [13, '>=', '222'], [13, 'N', '700'], [13, ')', '202'], [13, 'result', '700'], [13, '=', '230'], [13, 'M', '700'], [13, ';', '303'], [14, 'else', '112'], [14, 'result', '700'], [14, '=', '230'], [14, 'N', '700'], [14, ';', '303'], [16, 'if', '111'], [16, '(', '201'], [16, 'w', '700'], [16, '<', '219'], [16, '1', '400'], [16, ')', '202'], [17, 'a', '700'], [17, '=', '230'], [17, 'b', '700'], [17, '*', '213'], [17, 'c', '700'], [17, '+', '207'], [17, 'd', '700'], [17, ';', '303'], [18, 'else', '112'], [19, '{', '301'], [20, 'do', '109'], [21, '{', '301'], [22, 'a', '700'], [22, '=', '230'], [22, 'a', '700'], [22, '-', '208'], [22, '1', '400'], [22, ';', '303'], [23, '}', '302'], [23, 'while', '110'], [23, '(', '201'], [23, 'a', '700'], [23, '<', '219'], [23, '0', '400'], [23, ')', '202'], [23, ';', '303'], [25, '}', '302'], [26, 'for', '113'], [26, '(', '201'], [26, 'i', '700'], [26, '=', '230'], [26, 'a', '700'], [26, '+', '207'], [26, 'b', '700'], [26, '*', '213'], [26, '2', '400'], [26, ';', '303'], [26, 'i', '700'], [26, '<', '219'], [26, 'c', '700'], [26, '+', '207'], [26, 'd', '700'], [26, '+', '207'], [26, '10', '400'], [26, ';', '303'], [26, 'i', '700'], [26, '=', '230'], [26, 'i', '700'], [26, '+', '207'], [26, '1', '400'], [26, ')', '202'], [27, 'if', '111'], [27, '(', '201'], [27, 'h', '700'], [27, '>', '221'], [27, 'g', '700'], [27, ')', '202'], [28, 'p', '700'], [28, '=', '230'], [28, 'p', '700'], [28, '+', '207'], [28, '1', '400'], [28, ';', '303'], [29, 'a', '700'], [29, '=', '230'], [29, 'result', '700'], [29, '+', '207'], [29, '100', '400'], [29, ';', '303'], [30, 'write', '700'], [30, '(', '201'], [30, 'a', '700'], [30, ')', '202'], [30, ';', '303'], [32, '}', '302']])
 # print(fun_list)
 # print(function_param_list,function_jubu_list)
