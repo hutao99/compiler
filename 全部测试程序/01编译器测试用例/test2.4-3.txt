@@ -1,5 +1,7 @@
-//Ë«ÖØforÇ¶Ì×£¬ÊäÈëÒ»¸öÊın,Êä³öÇ°nÁĞ³Ë·¨±í
-int chengfabiao(int);
+//åŒé‡foråµŒå¥—ï¼Œè¾“å…¥ä¸€ä¸ªæ•°n,è¾“å‡ºå‰nåˆ—ä¹˜æ³•è¡¨
+
+int chengfabiao(int)ï¼›
+
 main()
 {
    int n;
@@ -15,7 +17,7 @@ int chengfabiao(int n)
          for(j=1;j<=i;j=j+1)
         {
              s=i*j;
-           write(j);write(i);write(s);
+           write(j);write(i);write(s );
        }
     }
   return 0;

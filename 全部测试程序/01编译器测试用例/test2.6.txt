@@ -1,17 +1,16 @@
-// break£¬continueÌø×ª ÊäÈëÑ¡Ôñ(1:break,2:continue,3:exit)
-
+// breakï¼Œcontinueè·³è½¬(1:break,2:continue,3:exit):
+int read();
+void write(int);
 main()
 {
     int a;
     while (1)
     {
- 
         a = read();
         if (a == 1 || a == 2)
         {
             do
             {
-
                 if (a == 1)
                     break;
                 if (a == 2)

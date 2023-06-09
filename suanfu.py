@@ -122,7 +122,7 @@ class Suanfufirst:
                     r = num.index(str[i]) + 1
                     c = num.index(str[i + 1]) + 1
                     if gra[r][c] == '·>' or gra[r][c] == '<·':
-                        print("该文法不是算符优先文法，请检查输入")
+                        #print("该文法不是算符优先文法，请检查输入")
                         return False
                     else:
                         gra[r][c] = '=·'
@@ -130,7 +130,7 @@ class Suanfufirst:
                     r = num.index(str[i]) + 1
                     c = num.index(str[i + 2]) + 1
                     if gra[r][c] == '·>' or gra[r][c] == '<·':
-                        print("该文法不是算符优先文法，请检查输入")
+                        #print("该文法不是算符优先文法，请检查输入")
                         return False
                     else:
                         gra[r][c] = '=·'
@@ -139,7 +139,7 @@ class Suanfufirst:
                         r = num.index(str[i]) + 1
                         c = num.index(a) + 1
                         if gra[r][c] == '·>' or gra[r][c] == '=·':
-                            print("该文法不是算符优先文法，请检查输入")
+                            #print("该文法不是算符优先文法，请检查输入")
                             return False
                         else:
                             gra[r][c] = '<·'
@@ -148,7 +148,7 @@ class Suanfufirst:
                         r = num.index(a) + 1
                         c = num.index(str[i + 1]) + 1
                         if gra[r][c] == '=·' or gra[r][c] == '<·':
-                            print("该文法不是算符优先文法，请检查输入")
+                            #print("该文法不是算符优先文法，请检查输入")
                             return False
                         else:
                             gra[r][c] = '·>'
@@ -220,7 +220,7 @@ class Suanfufirst:
             # stack[j]是栈最上面的终结符,a是当前输入串的第一个字符（终结符
             a = ana_str[0]
             if stack[j] not in num or a not in num:
-                print("ERROR ----- ", stack[j])
+                #print("ERROR ----- ", stack[j])
                 return False
             else:
                 # 栈顶终结符优先级低于等于字符串第一个终结符
@@ -271,7 +271,7 @@ class Suanfufirst:
                         str = str[::-1]
                         # 归约,str是最左素短语
                         if self.reduce(str, self.grammer) == True:
-                            print("将",str,"归约为N")
+                            #print("将",str,"归约为N")
                             if len(str) != 1:
                                 if str[1] == '=':
                                     str_list.append([count, str[1], digit_stack[-1], '_', 'T%s' % placeid])
@@ -294,13 +294,13 @@ class Suanfufirst:
                                         str_list.append([count, str[1], digit_stack[-2], digit_stack[-1], 'T%s' % placeid])
                                     del digit_stack[len(digit_stack) - 2:]
                                     digit_stack.append('T%s' % placeid)
-                                    print(digit_stack)
+                                    #print(digit_stack)
                                     count += 1
                                     placeid += 1
                             del stack[len(stack) - len(str):]
                             stack.append('N')  # 反正模糊归约，这个非终结符随便写个就行了8
                         else:
-                            print(stack)
+                            #print(stack)
                             print("归约失败")
                             return False
                     if gra[num.index(stack[j]) + 1][num.index(a) + 1] != '·>' \
@@ -309,8 +309,8 @@ class Suanfufirst:
                         print("ERROR")
                         return False
                     # j已经指向栈顶第一个终结符
-        print('规约成功')
-        print('strlist',str_list)
+        #print('规约成功')
+        #print('strlist',str_list)
         return [str_list, count, placeid] #四元式列表 接下来第几条四元式编号 T的编号
 
 
@@ -337,13 +337,13 @@ class Suanfufirst:
                 self.first(gr)
             first2 = copy.deepcopy(self.firstVT)
 
-        print("该文法的非终结符的firstVT集为：")
-        i = 0
-        for f in self.firstVT:
-            if len(f) != 0:
-                print('firstVT(' + self.non_ter[i] + '):', f)
-            i += 1
-        print()
+        #print("该文法的非终结符的firstVT集为：")
+        # i = 0
+        # for f in self.firstVT:
+        #     if len(f) != 0:
+        #         print('firstVT(' + self.non_ter[i] + '):', f)
+        #     i += 1
+        # print()
 
         # 循环求最终lastVT集
         last1 = copy.deepcopy(self.lastVT)
@@ -357,13 +357,13 @@ class Suanfufirst:
                 self.last(gr)
             last2 = copy.deepcopy(self.lastVT)
 
-        print("该文法的非终结符的lastVT集为：")
-        j = 0
-        for f in self.lastVT:
-            if len(f) != 0:
-                print('lastVT(' + self.non_ter[j] + '):', f)
-            j += 1
-        print()
+        # print("该文法的非终结符的lastVT集为：")
+        # j = 0
+        # for f in self.lastVT:
+        #     if len(f) != 0:
+        #         print('lastVT(' + self.non_ter[j] + '):', f)
+        #     j += 1
+        # print()
 
         num = []
         for gra_line in grammer:
@@ -375,27 +375,27 @@ class Suanfufirst:
                 elif gr in self.terSymbol and gr not in num:
                     num.append(gr)
         num.append('#') #将#添加至非终结符中
-        print('num',num)
+        # print('num',num)
         if self.table(grammer, num) != False:
-            print("该文法的优先关系表为：")
+            # print("该文法的优先关系表为：")
             gra = self.table(grammer, num)
-            for i in range(len(gra)):  # 控制行
-                for j in range(len(gra[i])):  # 控制列
-                    print(gra[i][j], end='\t')
-                print()
-            print()
+            # for i in range(len(gra)):  # 控制行
+            #     for j in range(len(gra[i])):  # 控制列
+            #         print(gra[i][j], end='\t')
+            #     print()
+            # print()
         return num,gra
 
 
     def solve(self,count,placeid,ana_str,digit_str):#四元式编号 T变量编号 格式化字符串 数字字符串
             if ana_str[0] == '-':
                 ana_str[0] = '@'
-            print("分析：",ana_str,digit_str)
-            print()
+            # print("分析：",ana_str,digit_str)
+            # print()
             return self.master(count,placeid,ana_str, self.num,self.gra,digit_str)
 
 # ss = Suanfufirst()
-# ana_str = " -a  "
+# ana_str = " - a  "
 # digit_str = ['a','1','1','4','5','2','b','c','8','9','2','b','c','8','9']
 # ana_str = ana_str.split()
 # print('ana_str',ana_str)

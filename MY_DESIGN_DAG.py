@@ -56,13 +56,18 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         if s == '':
             QMessageBox.warning(self, '警告', '请输入需要生成DAG的四元式！')
             return
+        s = s.replace("'", "").replace('"', '')
+        s = s.replace("[", "").replace(']', '')
+        s = s.replace("(", "").replace(')', '')
         # code 四元式列表
-        if s[0] == '(':
-            lst = [tuple(x.strip() for x in line.strip("()").split(",")) for line in s.splitlines()]
-            code = [tuple(x.strip() for x in _[1:-1].split(',')) for _ in s.split("\n")]
-        else:
-            code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
+        # if s[0] == '(':
+        #     lst = [tuple(x.strip() for x in line.strip("()").split(",")) for line in s.splitlines()]
+        #     code = [tuple(x.strip() for x in _[1:-1].split(',')) for _ in s.split("\n")]
+        # else:
+        #     code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
+        code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
         try:
+            print('测试code:',code)
             DAG = create_DAG(code)
             codes = optimize(DAG)
             info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])

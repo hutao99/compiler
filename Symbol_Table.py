@@ -131,23 +131,23 @@ class FunctionSymbolTable:
         return ""
     def lookAll(self):
         self.text = "函数符号表\n入口\t形参个数\t返回类型\t函数名\t形参类型列表\n"
-        print("函数符号表")
-        print("入口\t形参个数\t返回类型\t函数名\t形参类型列表")
+        #print("函数符号表")
+        #print("入口\t形参个数\t返回类型\t函数名\t形参类型列表")
         item = self.head
         while item is not None:  # 变量名相同 作用域在其之上或者与其相同(长度小于或等于当前变量)
             self.check(item)
             item = item.n
         return self.text
     def check(self,node):
-        if node == None:
-            print(None)
+        #if node == None:
+            #print(None)
         # if isinstance(node, node1):
         #     print(node.address,node.parameter,node.type,node.name,node.value)
         # else:
         s = None
         if node.parameter != 0:
             s = ','.join(map(str, node.paralist))
-        print("%s\t%s\t%s\t%s\t%s" % (node.address, node.parameter, node.type, node.name, s))
+        #print("%s\t%s\t%s\t%s\t%s" % (node.address, node.parameter, node.type, node.name, s))
         self.text+="%s\t%s\t%s\t%s\t%s\n" % (node.address, node.parameter, node.type, node.name, s)
 
     def __iter__(self):
@@ -266,7 +266,7 @@ class VariableSymbolTable():# 记录常量以及变量表
 
                 if item.name == name and item.scope == scope:
                     item.value = value
-                    print(self.check(item))
+                    #print(self.check(item))
                     return True
                 item = item.n
 
@@ -274,7 +274,7 @@ class VariableSymbolTable():# 记录常量以及变量表
                 scope = scope[0:-2]
                 item = self.head # 重新指向头结点
             else:
-                print("变量未声明!")
+                #print("变量未声明!")
                 return False
     def lookAll(self):
         self.text1 = "常量符号表\n"
@@ -285,8 +285,8 @@ class VariableSymbolTable():# 记录常量以及变量表
             item = item.n
         self.text1 += "变量符号表\n"
         self.text1 += "入口\t类型名\t变量名\t值\t作用域\n"
-        print("变量符号表")
-        print("入口\t类型名\t变量名\t值\t作用域")
+        #print("变量符号表")
+        #print("入口\t类型名\t变量名\t值\t作用域")
         item = self.head
         while item is not None:  # 变量名相同 作用域在其之上或者与其相同(长度小于或等于当前变量)
             self.check(item)
@@ -296,7 +296,7 @@ class VariableSymbolTable():# 记录常量以及变量表
     def check(self,node):
         if node == None:
             return None
-        print("%s\t%s\t%s\t%s\t%s" % (node.address, node.type, node.name, node.value,node.scope))
+        #print("%s\t%s\t%s\t%s\t%s" % (node.address, node.type, node.name, node.value,node.scope))
         self.text1+="%s\t%s\t%s\t%s\t%s\n" % (node.address, node.type, node.name, node.value,node.scope)
 
     def __iter__(self):
