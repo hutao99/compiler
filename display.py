@@ -854,31 +854,34 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.suanfu_window.show()
 
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
-        # 对全局变量进行初始化
-        self.split_flag = 0
-        self.yh_flag = 0
-        self.siyuanshi = None
-        self.basic_blocks = None
+        try:
+            # 对全局变量进行初始化
+            self.split_flag = 0
+            self.yh_flag = 0
+            self.siyuanshi = None
+            self.basic_blocks = None
 
-        self.recursive_or_lr_flag = 2
-        text = self.textEdit.toPlainText()
-        lex = AnalyzerLex()
-        lex.input(text + '\n')
-        s = ''
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            s += ("值:{:<15}行:{:<10}列:{:<10}类型:{:<20}\n".format(
-                tok.value, tok.lineno, lex.find_column(tok.lexer.lexdata, tok), tok.type))
-        self.textEdit_3.setText(s)
-        s = ''
-        for i in lex.error:
-            s += (
-                ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
-        self.textEdit_2.setText(s)
-        # 对textEdit中的关键字进行处理
-        self.change_keyword_color()
+            self.recursive_or_lr_flag = 2
+            text = self.textEdit.toPlainText()
+            lex = AnalyzerLex()
+            lex.input(text + '\n')
+            s = ''
+            while True:
+                tok = lex.token()
+                if not tok:
+                    break
+                s += ("值:{:<15}行:{:<10}列:{:<10}类型:{:<20}\n".format(
+                    tok.value, tok.lineno, lex.find_column(tok.lexer.lexdata, tok), tok.type))
+            self.textEdit_3.setText(s)
+            s = ''
+            for i in lex.error:
+                s += (
+                    ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
+            self.textEdit_2.setText(s)
+            # 对textEdit中的关键字进行处理
+            self.change_keyword_color()
+        except Exception as e:
+            QMessageBox.warning(self, '警告', '系统出错')
 
     # 将文本框中的四元式转换
     def format_conversion(self, s):
