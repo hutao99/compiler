@@ -269,7 +269,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             print(fname[0])
             with open(fname[0], encoding=self.check_charset(fname[0])) as f:
                 str = f.read()
-                print(str)
+                # print(str)
                 self.textEdit.setText(str)
 
     def save_text(self):
