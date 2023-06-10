@@ -113,7 +113,6 @@ class LR1GrammarSolver(QMainWindow):
 
         # 在分析图 tab 中添加 QLabel 和 QPixmap
         self.label = QLabel(self.tab4)
-        pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
         # label.setPixmap(pixmap)
 
         # 将 QLabel 放在 QVBoxLayout 中，并将 QVBoxLayout 设置为 self.tab4 的布局
@@ -126,7 +125,7 @@ class LR1GrammarSolver(QMainWindow):
         button.clicked.connect(self.show_image)
         layout.addWidget(button)
         layout.addWidget(button_save)
-        button_save.clicked.connect(lambda: self.save_image(pixmap))
+        button_save.clicked.connect(lambda: self.save_image())
 
 
         layout1 = QtWidgets.QGridLayout()
@@ -504,21 +503,13 @@ class LR1GrammarSolver(QMainWindow):
         dialog.resize(pixmap.width(), pixmap.height())
         dialog.show()'''
 
-    def save_image(self, pixmap):
+    def save_image(self):
         # 弹出文件对话框，让用户选择保存的文件名和路径
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, selected_filter = QFileDialog.getSaveFileName(self, "保存图片", "", "JPEG (*.jpg);;PNG (*.png)", options=options)
-        # 如果用户选择了文件名和路径，则保存图片到本地
+        file_name, _ = QFileDialog.getSaveFileName(self, '保存图片', '', 'Images (*.png *.xpm *.jpg)')
+        pixmap = QPixmap('LR_Digraph\\LR_Digraph.gv.png')
         if file_name:
-            # 从过滤器中获取文件类型后缀
-            file_types = ('JPEG (*.jpg)', 'PNG (*.png)')
-            file_exts = ('.jpg', '.png')
-            idx = file_types.index(selected_filter)
-            file_ext = file_exts[idx]
-            if not file_name.endswith(file_ext):
-                file_name += file_ext
-
             pixmap.save(file_name)
 
     def check_charset(self, file_path):
