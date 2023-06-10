@@ -38,6 +38,7 @@ class LR0GrammarSolver(QMainWindow):
         super().__init__()
         # 创建一个选项卡窗口部件
         self.tabWidget = QtWidgets.QTabWidget(self)
+        self.tabWidget.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.setWindowTitle("LR0分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
@@ -51,6 +52,7 @@ class LR0GrammarSolver(QMainWindow):
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab1, "LR状态信息")
+        self.tab1.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 创建下拉框，用于选择模式
         self.mode_combo = QComboBox(self.tab1)
@@ -74,14 +76,17 @@ class LR0GrammarSolver(QMainWindow):
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab2, "LR分析表")
+        self.tab2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 创建第三个选项卡
         self.tab3 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab3, "测试案例")
+        self.tab3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 创建第四个选项卡
         self.tab4 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab4, "分析图")
+        self.tab4.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 在分析图 tab 中添加 QLabel 和 QPixmap
         self.label = QLabel(self.tab4)
@@ -117,6 +122,7 @@ class LR0GrammarSolver(QMainWindow):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("LR文法分析")
         self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 导入LR复杂文法的按钮
         self.pushButton_ = QtWidgets.QPushButton()
@@ -132,6 +138,7 @@ class LR0GrammarSolver(QMainWindow):
         self.pushButton_.setObjectName("pushButton")
         self.pushButton_.setText("导入LR文法")
         self.pushButton_.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 求解FIRST集合的按钮
         # 求解FOLLOW集合的按钮
@@ -146,12 +153,13 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_2.setText("显示状态信息")
         self.pushButton_2.clicked.connect(self.get_state)
 
         # 显示LR文法的内容
         self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(13)
@@ -163,7 +171,7 @@ class LR0GrammarSolver(QMainWindow):
 
         # 显示状态信息
         self.textEdit_state = QtWidgets.QTextEdit()
-        self.textEdit_state.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_state.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(13)
@@ -184,17 +192,18 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3_.setFont(font)
         self.pushButton_3_.setObjectName("pushButton_2")
+        self.pushButton_3_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_3_.setText("保存状态信息")
 
         # 将文法导入按钮和显示文法的文本框垂直布局
-        buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        buttonSplitter = QtWidgets.QSplitter(Qt.Vertical)
         buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
         buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
-        textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        textEditSplitter = QtWidgets.QSplitter(Qt.Vertical)
         textEditSplitter.addWidget(self.pushButton_2)
         textEditSplitter.addWidget(self.textEdit_state)
         textEditSplitter.addWidget(self.pushButton_3_)
@@ -233,12 +242,13 @@ class LR0GrammarSolver(QMainWindow):
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText("LR分析表")
+        self.pushButton_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_3.clicked.connect(self.LR_Table)
 
         # 显示LR分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
-        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         #self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -255,6 +265,7 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3__.setFont(font)
         self.pushButton_3__.setObjectName("pushButton_3__")
+        self.pushButton_3__.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_3__.setText("保存LR分析表")
 
         # 规约式
@@ -269,12 +280,13 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3__Statutory.setFont(font)
         self.pushButton_3__Statutory.setObjectName("pushButton_3")
+        self.pushButton_3__Statutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_3__Statutory.setText("规约式")
 
         # 显示规约式的内容
         self.tableStatutory = QtWidgets.QTextEdit()
         self.tableStatutory.setObjectName("tableStatutory")
-        self.tableStatutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStatutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 保存规约式
         self.pushButton_3__Statutory_ = QtWidgets.QPushButton()
@@ -288,6 +300,7 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3__Statutory_.setFont(font)
         self.pushButton_3__Statutory_.setObjectName("pushButton_3__Statutory_")
+        self.pushButton_3__Statutory_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_3__Statutory_.setText("保存规约式")
 
         self.splitter2 = QSplitter(Qt.Vertical)
@@ -336,12 +349,13 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_4.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_4.setText("分析过程")
         self.pushButton_4.clicked.connect(self.LR_Analyse)
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
-        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(13)
@@ -362,12 +376,13 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_5.setFont(font)
         self.pushButton_5.setObjectName("pushButton_5")
+        self.pushButton_5.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_5.setText("打开测试案例或手动输入")
 
         # 显示分析过程
         self.tableStack = QtWidgets.QTableWidget()
         self.tableStack.setObjectName("tableStack")
-        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.tableStack.setColumnCount(4)
 
@@ -394,6 +409,7 @@ class LR0GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_5_.setFont(font)
         self.pushButton_5_.setObjectName("pushButton_5")
+        self.pushButton_5_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_5_.setText("保存LR分析过程")
 
         # 连接信号和槽
@@ -685,8 +701,8 @@ class LR0GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-'''if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = LR0GrammarSolver()
-    window.show()
-    sys.exit(app.exec_())'''
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = LR0GrammarSolver()
+#     window.show()
+#     sys.exit(app.exec_())
