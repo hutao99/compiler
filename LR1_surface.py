@@ -688,7 +688,6 @@ class LR1GrammarSolver(QMainWindow):
                         else:
                             f.write('\t')
                     f.write('\n')
-
 #
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)
