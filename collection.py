@@ -296,7 +296,7 @@ class FirstVTAndLastVT:
             # 规约
             elif precedence_table[sequence[sign]][sequence[i]] == '>':
                 priority.append('>')
-                action.append('规约')
+                action.append('归约')
                 length = len(stack)
                 flag = True
                 lmp = []
@@ -323,8 +323,8 @@ class FirstVTAndLastVT:
                 stack.append(self.begin)
                 # 规约不了，报错
                 if flag:
-                    print("没有产生式可以规约")
-                    info += "没有产生式可以规约"
+                    print("没有产生式可以归约")
+                    info += "没有产生式可以归约"
                     break
             else:
                 # 没有优先级关系报错

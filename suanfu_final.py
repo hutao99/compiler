@@ -8,24 +8,51 @@ import Analyzer
 from collection import FirstVTAndLastVT
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
+import re
 
 
 def grammar_cut(grammar):
     non_terminals = set()
-    terminals = set()
     for line in grammar.split('\n'):
         if line == '':
             continue
         lhs, rhs = line.split(':')
-        non_terminals.add(lhs)
-        for symbol in rhs:
-            if symbol.isalpha() and symbol.islower():
-                terminals.add(symbol)
+        non_terminals.add(lhs.replace(" ", ""))
+    regex = '|'.join(re.escape(s) for s in non_terminals)
 
-    # 为每个符号添加空格
-    for symbol in non_terminals.union(terminals):
-        grammar = grammar.replace(symbol, f" {symbol} ")
-    return grammar, non_terminals, terminals
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, grammar)
+
+    # 将匹配到的字符串两边加上空格
+    for match in matches:
+        grammar = grammar.replace(match, f' {match} ')
+    print(grammar)
+    s = ''
+    for i in grammar.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+
+    # 返回处理好的字符串
+    return s, non_terminals
+
+
+def text_cut(text, non_terminals):
+    regex = '|'.join(re.escape(s) for s in non_terminals)
+
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, text)
+    for match in matches:
+        text = text.replace(match, f' {match} ')
+    print(text)
+    s = ''
+    for i in text.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+    return s
 
 
 class OPGGrammarSolver(QMainWindow):
@@ -423,11 +450,13 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def get_VT(self):
+        self.table_FIRST.clear()
+        self.table_FOLLOW.clear()
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         try:
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             op = FirstVTAndLastVT()
             op.input(grammar)
             terminal = set()
@@ -470,7 +499,7 @@ class OPGGrammarSolver(QMainWindow):
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             op = FirstVTAndLastVT()
             op.input(grammar)
             sequence1, precedence_table1, is_opg = op.Table()
@@ -499,15 +528,15 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def analyze_sentence(self):
-
+        self.tableStack.clear()
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         text = self.textEdit_1.toPlainText()
         try:
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
-                for symbol in non_terminals.union(terminals):
-                    text = text.replace(symbol, f" {symbol} ")
+                grammar, non_terminals = grammar_cut(grammar)
+                text = text_cut(text, non_terminals)
+            print(text)
             op = FirstVTAndLastVT()
             op.input(grammar)
             sequence1, precedence_table1, is_opg = op.Table()
@@ -576,8 +605,8 @@ class OPGGrammarSolver(QMainWindow):
                     f.write('\n')
 
     def save_analyze_process(self):
-        self.tableStack.clear()
-        self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
+        # self.tableStack.clear()
+        # self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
         filename1, _ = QFileDialog.getSaveFileName(self, '保存分析过程', '', 'Text Files (*.txt)')
         if filename1:
             with open(filename1, 'w') as f:
