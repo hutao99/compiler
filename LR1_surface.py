@@ -8,29 +8,52 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, Q
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
 import LR_use_interface
-
-# lr0界面
+import re
+# lr1界面
 
 
 def grammar_cut(grammar):
     non_terminals = set()
-    terminals = set()
-    print(grammar.split('\n'))
     for line in grammar.split('\n'):
         if line == '':
             continue
-        print(line)
         lhs, rhs = line.split(':')
-        lhs = lhs.replace(" ", "")
-        non_terminals.add(lhs)
-        for symbol in rhs:
-            if symbol.isalpha() and symbol.islower():
-                terminals.add(symbol)
+        non_terminals.add(lhs.replace(" ", ""))
+    regex = '|'.join(re.escape(s) for s in non_terminals)
 
-    # 为每个符号添加空格
-    for symbol in non_terminals.union(terminals):
-        grammar = grammar.replace(symbol, f" {symbol} ")
-    return grammar, non_terminals, terminals
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, grammar)
+
+    # 将匹配到的字符串两边加上空格
+    for match in matches:
+        grammar = grammar.replace(match, f' {match} ')
+    print(grammar)
+    s = ''
+    for i in grammar.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+
+    # 返回处理好的字符串
+    return s, non_terminals
+
+
+def text_cut(text, non_terminals):
+    regex = '|'.join(re.escape(s) for s in non_terminals)
+
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, text)
+    for match in matches:
+        text = text.replace(match, f' {match} ')
+    print(text)
+    s = ''
+    for i in text.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+    return s
 
 
 class LR1GrammarSolver(QMainWindow):
@@ -38,6 +61,7 @@ class LR1GrammarSolver(QMainWindow):
         super().__init__()
         # 创建一个选项卡窗口部件
         self.tabWidget = QtWidgets.QTabWidget(self)
+        self.tabWidget.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.setWindowTitle("LR1分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
         # self.tabWidget.resize(800, 600)
@@ -50,6 +74,7 @@ class LR1GrammarSolver(QMainWindow):
 
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
+        self.tab1.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab1, "LR状态信息")
 
         # 创建下拉框，用于选择模式
@@ -73,14 +98,17 @@ class LR1GrammarSolver(QMainWindow):
 
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
+        self.tab2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab2, "LR分析表")
 
         # 创建第三个选项卡
         self.tab3 = QtWidgets.QWidget()
+        self.tab3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab3, "测试案例")
 
         # 创建第四个选项卡
         self.tab4 = QtWidgets.QWidget()
+        self.tab4.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab4, "分析图")
 
         # 在分析图 tab 中添加 QLabel 和 QPixmap
@@ -117,6 +145,7 @@ class LR1GrammarSolver(QMainWindow):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("LR文法分析")
         self.pushButton.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 导入LR复杂文法的按钮
         self.pushButton_ = QtWidgets.QPushButton()
@@ -132,6 +161,7 @@ class LR1GrammarSolver(QMainWindow):
         self.pushButton_.setObjectName("pushButton")
         self.pushButton_.setText("导入LR文法")
         self.pushButton_.setStyleSheet("QPushButton {text-align:left;}")
+        self.pushButton_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 求解FIRST集合的按钮
         # 求解FOLLOW集合的按钮
@@ -146,12 +176,13 @@ class LR1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_2.setText("显示状态信息")
         self.pushButton_2.clicked.connect(self.get_state)
 
         # 显示LR文法的内容
         self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(13)
@@ -163,7 +194,7 @@ class LR1GrammarSolver(QMainWindow):
 
         # 显示状态信息
         self.textEdit_state = QtWidgets.QTextEdit()
-        self.textEdit_state.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_state.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(13)
@@ -188,14 +219,14 @@ class LR1GrammarSolver(QMainWindow):
         self.pushButton_3_.clicked.connect(self.save_state)
 
         # 将文法导入按钮和显示文法的文本框垂直布局
-        buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        buttonSplitter = QtWidgets.QSplitter(Qt.Vertical)
         buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
         buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
-        textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        textEditSplitter = QtWidgets.QSplitter(Qt.Vertical)
         textEditSplitter.addWidget(self.pushButton_2)
         textEditSplitter.addWidget(self.textEdit_state)
         textEditSplitter.addWidget(self.pushButton_3_)
@@ -239,7 +270,7 @@ class LR1GrammarSolver(QMainWindow):
         # 显示LR分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
-        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         #self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -275,7 +306,7 @@ class LR1GrammarSolver(QMainWindow):
         # 显示规约式的内容
         self.tableStatutory = QtWidgets.QTextEdit()
         self.tableStatutory.setObjectName("tableStatutory")
-        self.tableStatutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStatutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 保存规约式
         self.pushButton_3__Statutory_ = QtWidgets.QPushButton()
@@ -342,7 +373,7 @@ class LR1GrammarSolver(QMainWindow):
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
-        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(13)
@@ -368,7 +399,7 @@ class LR1GrammarSolver(QMainWindow):
         # 显示分析过程
         self.tableStack = QtWidgets.QTableWidget()
         self.tableStack.setObjectName("tableStack")
-        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.tableStack.setColumnCount(4)
 
@@ -459,7 +490,7 @@ class LR1GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 self.LR.draw_graphic()
@@ -500,7 +531,8 @@ class LR1GrammarSolver(QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/13LR分析测试用例',
+                                                '文本文件 (*.txt)')
             if fname[0]:
                 print(fname[0])
                 with open(fname[0], encoding=self.check_charset(fname[0])) as f:
@@ -530,7 +562,7 @@ class LR1GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 self.LR.draw_graphic()
@@ -545,7 +577,7 @@ class LR1GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 row_count = len(self.LR.parsing_table)
@@ -588,9 +620,8 @@ class LR1GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
-                    for symbol in non_terminals.union(terminals):
-                        text = text.replace(symbol, f" {symbol} ")
+                    grammar, non_terminals = grammar_cut(grammar)
+                    text = text_cut(text, non_terminals)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 t = [[], [], [], []]
@@ -617,7 +648,7 @@ class LR1GrammarSolver(QMainWindow):
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             self.LR.input(grammar)
             lab = self.LR.Action_and_GoTo_Table()
             self.textEdit_state.setText(lab)
@@ -681,8 +712,9 @@ class LR1GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-'''if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = LR1GrammarSolver()
-    window.show()
-    sys.exit(app.exec_())'''
+
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = LR1GrammarSolver()
+#     window.show()
+#     sys.exit(app.exec_())
