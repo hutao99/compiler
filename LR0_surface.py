@@ -8,29 +8,52 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, Q
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
 import LR0_use_interface
-
+import re
 # lr0界面
 
 
 def grammar_cut(grammar):
     non_terminals = set()
-    terminals = set()
-    print(grammar.split('\n'))
     for line in grammar.split('\n'):
         if line == '':
             continue
-        print(line)
         lhs, rhs = line.split(':')
-        lhs = lhs.replace(" ", "")
-        non_terminals.add(lhs)
-        for symbol in rhs:
-            if symbol.isalpha() and symbol.islower():
-                terminals.add(symbol)
+        non_terminals.add(lhs.replace(" ", ""))
+    regex = '|'.join(re.escape(s) for s in non_terminals)
 
-    # 为每个符号添加空格
-    for symbol in non_terminals.union(terminals):
-        grammar = grammar.replace(symbol, f" {symbol} ")
-    return grammar, non_terminals, terminals
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, grammar)
+
+    # 将匹配到的字符串两边加上空格
+    for match in matches:
+        grammar = grammar.replace(match, f' {match} ')
+    print(grammar)
+    s = ''
+    for i in grammar.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+
+    # 返回处理好的字符串
+    return s, non_terminals
+
+
+def text_cut(text, non_terminals):
+    regex = '|'.join(re.escape(s) for s in non_terminals)
+
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, text)
+    for match in matches:
+        text = text.replace(match, f' {match} ')
+    print(text)
+    s = ''
+    for i in text.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+    return s
 
 
 class LR0GrammarSolver(QMainWindow):
@@ -458,7 +481,7 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 self.LR.draw_graphic()
@@ -529,7 +552,7 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 self.LR.draw_graphic()
@@ -544,7 +567,7 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 is_lr = self.LR.Action_and_GoTo_Table()
                 if not is_lr:
@@ -589,9 +612,8 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
-                    for symbol in non_terminals.union(terminals):
-                        text = text.replace(symbol, f" {symbol} ")
+                    grammar, non_terminals = grammar_cut(grammar)
+                    text = text_cut(text, non_terminals)
                 self.LR.input(grammar)
                 is_lr, lab = self.LR.Action_and_GoTo_Table()
                 if not is_lr:
@@ -620,7 +642,7 @@ class LR0GrammarSolver(QMainWindow):
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             self.LR.input(grammar)
             is_lr, lab = self.LR.Action_and_GoTo_Table()
             if not is_lr:
@@ -685,8 +707,9 @@ class LR0GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-'''if __name__ == '__main__':
+
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = LR0GrammarSolver()
     window.show()
-    sys.exit(app.exec_())'''
+    sys.exit(app.exec_())
