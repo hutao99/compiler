@@ -701,6 +701,7 @@ class LR0GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
+
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)
 #     window = LR0GrammarSolver()
