@@ -1,2 +1,2 @@
-S>AS|b
-A>SA|a
+S->AS|b
+A->SA|a
