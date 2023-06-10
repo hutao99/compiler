@@ -422,6 +422,8 @@ class CLRParser:
         sign_loop = ['(', '{']
         # 初始范围
         scope = [['0', 0]]
+        # 作用域计数
+        scope_count = 0
         #
         fun_name = ''
         while index < len(sign_list):
@@ -912,10 +914,11 @@ class CLRParser:
                 stack_num.append(node_index)
                 node_index += 1
                 if name == '{':
-                    scope.append([scope[-1][0] + ',' + str(scope[-1][1]), 0])
+                    scope_count += 1
+                    scope.append([scope[-1][0] + ',' + str(scope_count), scope_count])
                 elif name == '}':
                     scope.pop()
-                    scope[-1][1] += 1
+                    scope_count -= 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
@@ -959,6 +962,8 @@ class CLRParser:
         index = 0
         # 初始范围
         scope = [['0', 0]]
+        # 作用域计数
+        scope_count = 0
         # 中间代码下标
         index_code = 0
         # 计数
@@ -1427,10 +1432,11 @@ class CLRParser:
             else:
                 stack_node.append(Node(name, symbol_info=token[index]))
                 if name == '{':
-                    scope.append([scope[-1][0] + ',' + str(scope[-1][1]), 0])
+                    scope_count += 1
+                    scope.append([scope[-1][0] + ',' + str(scope_count), scope_count])
                 elif name == '}':
                     scope.pop()
-                    scope[-1][1] += 1
+                    scope_count -= 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
