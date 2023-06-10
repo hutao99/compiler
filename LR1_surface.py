@@ -508,7 +508,8 @@ class LR1GrammarSolver(QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/13LR分析测试用例',
+                                                '文本文件 (*.txt)')
             if fname[0]:
                 print(fname[0])
                 with open(fname[0], encoding=self.check_charset(fname[0])) as f:
