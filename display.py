@@ -297,7 +297,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         if text == '':
             QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
         else:
-            #另存为…的时候，能定位到打开的文件路径，显示默认的文件名
+            # 另存为…的时候，能定位到打开的文件路径，显示默认的文件名
             if self.file_path:
                 file_path, _ = QFileDialog.getSaveFileName(self, "Save File", self.file_path,
                                                            "Text Files (*.txt);;All Files (*)")
@@ -736,7 +736,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             try:
                 codes = self.format_conversion(s)
                 self.basic_blocks = Partition_Basic_Block(codes)
-                #print('basic_blocks', self.basic_blocks)
+                # print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
                 image_format = QtGui.QTextImageFormat()
                 image_format.setName('./Basic_Block/basic_block.gv.png')
@@ -777,7 +777,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 text += str(idx) + ':' + str(i) + '\n'
                 idx += 1
             self.textEdit_2.setText(text)
-            #print('optimize_quaternion', self.optimize_quaternion)
+            # print('optimize_quaternion', self.optimize_quaternion)
             self.yh_flag = 1
         except:
             QMessageBox.warning(self, '警告', '系统错误！')
@@ -886,7 +886,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     # 将文本框中的四元式转换
     def format_conversion(self, s):
-        #print('s', s)
+        # print('s', s)
         # 去掉末尾的换行符
         s = s.strip()
         # 按照换行符分割成多个行字符串
@@ -900,7 +900,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)
-        #print('result', result)
+        # print('result', result)
         return result
 
     def searchHelp(self):
@@ -919,4 +919,3 @@ if __name__ == "__main__":
     ex = DetailUI()
     ex.show()
     sys.exit(app.exec_())
-
