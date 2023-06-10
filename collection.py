@@ -9,6 +9,7 @@ class FirstAndFollow:
     def input(self, data):
         # 处理文法
         carve = list(filter(None, data.split('\n')))
+        carve = [k for k in carve if ':' in k]
         index = carve[0].find(':')
         begin = carve[0][0:index]
         self.begin = begin.replace(" ", "")
@@ -116,6 +117,7 @@ class FirstVTAndLastVT:
 
     def input(self, data):
         carve = list(filter(None, data.split('\n')))
+        carve = [k for k in carve if ':' in k]
         index = carve[0].find(':')
         begin = carve[0][0:index]
         self.begin = begin.replace(" ", "")
