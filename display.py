@@ -142,6 +142,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.basic_blocks = None
         self.split_flag = 0  # 是否划分四元式
         self.yh_flag = 0  # 是否进行优化
+        self.file_path = None  # 用于保存当前打开的文件路径
 
         '''
         添加帮助文档和版权信息
@@ -264,13 +265,17 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def open_text(self):
         # 定义打开文件夹目录的函数
-        fname = QFileDialog.getOpenFileName(self, 'Open file', '.')
-        if fname[0]:
-            print(fname[0])
-            with open(fname[0], encoding=self.check_charset(fname[0])) as f:
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Text Files (*.txt);;All Files (*)")
+        if file_path:
+            print(file_path)
+            with open(file_path, encoding=self.check_charset(file_path)) as f:
                 str = f.read()
                 # print(str)
+                # 将文本框中的字体颜色设置为默认的黑色，防止出现第一次将文本标红时，第二次打开文本全部为红色的情况
+                text_color = QColor(Qt.black)
+                self.textEdit.setTextColor(text_color)
                 self.textEdit.setText(str)
+                self.file_path = file_path  # 保存当前打开的文件路径
 
     def save_text(self):
         text = self.textEdit.toPlainText()
@@ -292,17 +297,16 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         if text == '':
             QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
         else:
-            # 弹出文件对话框，让用户选择要保存的文件路径和文件名
-            options = QFileDialog.Options()
-            options |= QFileDialog.DontUseNativeDialog
-            file_name, _ = QFileDialog.getSaveFileName(self, "Save As", "", "Text Files (*.txt);;All Files (*)",
-                                                       options=options)
-            if file_name:
-                # 如果用户选择了文件路径和文件名，则执行保存操作
-                with open(file_name, 'w') as f:
-                    f.write(self.textEdit.toPlainText())
-                # 更新当前文件名
-                self.file_name = file_name
+            #另存为…的时候，能定位到打开的文件路径，显示默认的文件名
+            if self.file_path:
+                file_path, _ = QFileDialog.getSaveFileName(self, "Save File", self.file_path,
+                                                           "Text Files (*.txt);;All Files (*)")
+            else:
+                file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                with open(file_path, "w") as f:
+                    f.write(self.text_edit.toPlainText())
+                self.file_path = file_path  # 更新当前文件路径
 
     def closeEvent(self, event):
         # 保存设置
