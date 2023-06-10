@@ -292,6 +292,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 with open(file_name, 'w') as f:
                     f.write(self.textEdit.toPlainText())
 
+
     def onFileSaveAs(self):
         text = self.textEdit.toPlainText()
         if text == '':
