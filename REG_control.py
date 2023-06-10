@@ -482,6 +482,14 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         text = str(open(filename).read())  # 从文件中读入数据并强转为字符串类型
         with open(path, 'w') as f:
             f.write(text)
+    def closeEvent(self, event):
+        # 弹出消息框
+        reply = QMessageBox.question(self, '确认', '确定要退出吗？',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 if __name__ == '__main__':
