@@ -1,0 +1,24 @@
+//if测试，输入两个数，将其中较大的数加100输出
+//int a = 1 ;
+
+int main(){
+
+    int result=0 ;
+ int N =0;
+int M=0;
+    N = read() ;
+     M = read() ;
+    
+    if (M >= N)
+    {
+	int c=3;
+         result = M;
+     }
+     else
+     {
+        result = N;
+      } 
+     int a = result + 100;
+     write(a);
+}
+

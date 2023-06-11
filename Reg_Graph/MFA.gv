@@ -1,0 +1,10 @@
+// MFA_graph
+digraph "./Reg_Graph/MFA" {
+	rankdir=LR
+	0 [label=0 fillcolor=red shape=doublecircle style=filled]
+	0 [label=0 shape=doublecircle]
+	0 -> 0 [label=1]
+	0 [label=0 fillcolor=red shape=doublecircle style=filled]
+	0 [label=0 shape=doublecircle]
+	0 -> 0 [label=0]
+}

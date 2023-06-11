@@ -1,0 +1,12 @@
+expression->relational_expression expression'|! relational_expression expression'
+expression'->, relational_expression expression'|$
+expression_statement->;|expression ;
+relational_expression->additive_expression relational_expression'
+relational_expression'->< additive_expression relational_expression'|<= additive_expression relational_expression'|>= additive_expression relational_expression'|> additive_expression relational_expression'|!= additive_expression relational_expression'|== additive_expression relational_expression'|&& additive_expression relational_expression'|or additive_expression relational_expression'|= additive_expression relational_expression'|$
+additive_expression->multiplicative_expression additive_expression'
+additive_expression'->+ multiplicative_expression additive_expression'|- multiplicative_expression additive_expression'|++|--|$
+multiplicative_expression->postfix_expression multiplicative_expression'|integer multiplicative_expression'
+multiplicative_expression'->* postfix_expression multiplicative_expression'|/ postfix_expression multiplicative_expression'|% postfix_expression multiplicative_expression'|$
+postfix_expression->primary_expression postfix_expression'
+postfix_expression'->[ expression ]|( expression )|$
+primary_expression->identifier|integer|integer|character|string|float|( expression )
