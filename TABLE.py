@@ -336,7 +336,6 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
-
 # if __name__ == "__main__":
 #     test = Predictive_Analysis()
 #     path = "D:\pythonProject\compiler\全部测试程序\\11LL(1)测试用例\用户分词模式案例\LL1_6_p101.txt"
