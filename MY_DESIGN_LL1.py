@@ -840,7 +840,6 @@ class LL1GrammarSolver(QMainWindow):
                 self.tableStack.setItem(layer_stack - 1, 3, item1)
                 print("分析完成")
                 break
-
             elif cur in VT:
                 a = analyze_str[index]
                 if a == cur:
