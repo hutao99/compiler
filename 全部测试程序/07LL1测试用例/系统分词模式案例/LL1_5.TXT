@@ -1,6 +1,0 @@
-S->(L)|aP
-P->S|$
-L->,SD
-D->SD|$
-S→(L)|aS
-L→L,S|S
