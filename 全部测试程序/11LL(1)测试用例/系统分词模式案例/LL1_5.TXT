@@ -1,8 +1,0 @@
-S->(L)|aP
-P->S|$
-L->,SD
-D->SD|$
-
-S¡ú(L)|aS|a
-L¡úL,S|S
-

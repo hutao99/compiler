@@ -1,5 +1,0 @@
-E->T B
-B->+ T B|$
-T->F P
-P->* F P|$
-F->( E )|identifier

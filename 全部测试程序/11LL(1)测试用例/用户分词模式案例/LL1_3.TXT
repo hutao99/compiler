@@ -1,4 +1,0 @@
-A->identifier T
-T->A B identifier |$
-B->identifier F
-F->identifier F |$
