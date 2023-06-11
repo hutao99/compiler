@@ -28,6 +28,8 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.action_7.triggered.connect(self.open_file)
         # 打开待输入符号串文件
         self.action_10.triggered.connect(self.open_file1)
+        # 打开NFA或DFA文件
+        self.action_13.triggered.connect(self.open_file2)
         # 按钮
         self.pushButton.clicked.connect(self.open_nfa)
         self.pushButton_2.clicked.connect(self.open_dfa)
@@ -44,6 +46,8 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.action_MFA_2.triggered.connect(self.save_mfa_graph)
         self.action_12.triggered.connect(self.save_all)
 
+
+
         self.my_object = None
         self.nfa = []
         self.dfa = []
@@ -53,7 +57,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.text = ""
 
     def open_file(self):
-        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例', '文本文件 (*.txt)')
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例/正则表达式及其对应测试用例/', '文本文件 (*.txt)')
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
             with open(path, 'r', encoding="utf-8") as f:
                 text = f.read()
@@ -62,7 +66,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
             self.plainTextEdit.setPlainText(text)
 
     def open_file1(self):
-        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例',
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例/正则表达式及其对应测试用例/',
                                               '文本文件 (*.txt)')
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
             with open(path, 'r', encoding="utf-8") as f:
@@ -70,6 +74,18 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
             f.close()
             self.plainTextEdit_2.clear()
             self.plainTextEdit_2.setPlainText(text)
+
+    def open_file2(self):
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件',
+                                              './全部测试程序/03REG正则表达式转换测试用例/NFA和DFA/',
+                                              '文本文件 (*.txt)')
+        if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
+            with open(path, 'r', encoding="utf-8") as f:
+                text = f.read()
+            f.close()
+            self.plainTextEdit.clear()
+            self.plainTextEdit.setPlainText(text)
+
 
     def reg_to_nfa(self):
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
@@ -286,7 +302,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                                         arc.append(value1)
                             if len(arc) > 0:
                                 final_nfa.append(arc)
-                    my_object = REG.NfaDfaMfa("")
+                    my_object = REG.NfaDfaMfa("",{})
                     dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
                     f = open("DFA.txt")
                     text = f.read()
@@ -339,7 +355,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                                             input_symbols.append(value1)
                             if len(arc) > 0:
                                 final_dfa.append(arc)
-                    my_object = REG.NfaDfaMfa("")
+                    my_object = REG.NfaDfaMfa("",{})
                     mfa, final_states = my_object.dfa_to_mfa(final_dfa, final_states, input_symbols)
                     f = open("MFA.txt")
                     text = f.read()
