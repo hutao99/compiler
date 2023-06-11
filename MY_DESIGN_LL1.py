@@ -606,6 +606,7 @@ class LL1GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
+
     def obtain_type(self, stack):
         res = []
         for item in stack:
@@ -819,6 +820,9 @@ class LL1GrammarSolver(QMainWindow):
         stack.append('#')
         stack.append(test.begin)
 
+
+
+
         while len(stack) != 0:
             # 层数增加一层
             layer_stack = layer_stack + 1
@@ -932,8 +936,8 @@ class LL1GrammarSolver(QMainWindow):
                     f.write('\n')
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = LL1GrammarSolver()
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = LL1GrammarSolver()
+#     window.show()
+#     sys.exit(app.exec_())
