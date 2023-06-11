@@ -1,0 +1,6 @@
+S->( L )|identifier P
+P->S|$
+L->, S D
+D->S D|$
+S→( L )|identifier S
+L→L , S|S
