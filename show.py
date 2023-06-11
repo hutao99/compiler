@@ -111,6 +111,9 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(13)
         self.textEdit.setFont(font)
+        # 设置文本框中显示的内容的字体颜色为黑色
+        text_color = QColor(Qt.black)
+        self.textEdit.setTextColor(text_color)
 
         self.textEdit_3 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_3.setObjectName("textEdit_3")

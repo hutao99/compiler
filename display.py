@@ -142,6 +142,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.basic_blocks = None
         self.split_flag = 0  # 是否划分四元式
         self.yh_flag = 0  # 是否进行优化
+        self.file_path = None  # 用于保存当前打开的文件路径
 
         '''
         添加帮助文档和版权信息
@@ -264,13 +265,17 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
     def open_text(self):
         # 定义打开文件夹目录的函数
-        fname = QFileDialog.getOpenFileName(self, 'Open file', '.')
-        if fname[0]:
-            print(fname[0])
-            with open(fname[0], encoding=self.check_charset(fname[0])) as f:
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Text Files (*.txt);;All Files (*)")
+        if file_path:
+            print(file_path)
+            with open(file_path, encoding=self.check_charset(file_path)) as f:
                 str = f.read()
                 # print(str)
+                # 将文本框中的字体颜色设置为默认的黑色，防止出现第一次将文本标红时，第二次打开文本全部为红色的情况
+                text_color = QColor(Qt.black)
+                self.textEdit.setTextColor(text_color)
                 self.textEdit.setText(str)
+                self.file_path = file_path  # 保存当前打开的文件路径
 
     def save_text(self):
         text = self.textEdit.toPlainText()
@@ -287,22 +292,22 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 with open(file_name, 'w') as f:
                     f.write(self.textEdit.toPlainText())
 
+
     def onFileSaveAs(self):
         text = self.textEdit.toPlainText()
         if text == '':
             QMessageBox.warning(self, '警告', '请在左上输入框输入代码或打开文件')
         else:
-            # 弹出文件对话框，让用户选择要保存的文件路径和文件名
-            options = QFileDialog.Options()
-            options |= QFileDialog.DontUseNativeDialog
-            file_name, _ = QFileDialog.getSaveFileName(self, "Save As", "", "Text Files (*.txt);;All Files (*)",
-                                                       options=options)
-            if file_name:
-                # 如果用户选择了文件路径和文件名，则执行保存操作
-                with open(file_name, 'w') as f:
-                    f.write(self.textEdit.toPlainText())
-                # 更新当前文件名
-                self.file_name = file_name
+            # 另存为…的时候，能定位到打开的文件路径，显示默认的文件名
+            if self.file_path:
+                file_path, _ = QFileDialog.getSaveFileName(self, "Save File", self.file_path,
+                                                           "Text Files (*.txt);;All Files (*)")
+            else:
+                file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                with open(file_path, "w") as f:
+                    f.write(self.text_edit.toPlainText())
+                self.file_path = file_path  # 更新当前文件路径
 
     def closeEvent(self, event):
         # 保存设置
@@ -732,7 +737,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             try:
                 codes = self.format_conversion(s)
                 self.basic_blocks = Partition_Basic_Block(codes)
-                #print('basic_blocks', self.basic_blocks)
+                # print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
                 image_format = QtGui.QTextImageFormat()
                 image_format.setName('./Basic_Block/basic_block.gv.png')
@@ -773,7 +778,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 text += str(idx) + ':' + str(i) + '\n'
                 idx += 1
             self.textEdit_2.setText(text)
-            #print('optimize_quaternion', self.optimize_quaternion)
+            # print('optimize_quaternion', self.optimize_quaternion)
             self.yh_flag = 1
         except:
             QMessageBox.warning(self, '警告', '系统错误！')
@@ -854,35 +859,38 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.suanfu_window.show()
 
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
-        # 对全局变量进行初始化
-        self.split_flag = 0
-        self.yh_flag = 0
-        self.siyuanshi = None
-        self.basic_blocks = None
+        try:
+            # 对全局变量进行初始化
+            self.split_flag = 0
+            self.yh_flag = 0
+            self.siyuanshi = None
+            self.basic_blocks = None
 
-        self.recursive_or_lr_flag = 2
-        text = self.textEdit.toPlainText()
-        lex = AnalyzerLex()
-        lex.input(text + '\n')
-        s = ''
-        while True:
-            tok = lex.token()
-            if not tok:
-                break
-            s += ("值:{:<15}行:{:<10}列:{:<10}类型:{:<20}\n".format(
-                tok.value, tok.lineno, lex.find_column(tok.lexer.lexdata, tok), tok.type))
-        self.textEdit_3.setText(s)
-        s = ''
-        for i in lex.error:
-            s += (
-                ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
-        self.textEdit_2.setText(s)
-        # 对textEdit中的关键字进行处理
-        self.change_keyword_color()
+            self.recursive_or_lr_flag = 2
+            text = self.textEdit.toPlainText()
+            lex = AnalyzerLex()
+            lex.input(text + '\n')
+            s = ''
+            while True:
+                tok = lex.token()
+                if not tok:
+                    break
+                s += ("值:{:<15}行:{:<10}列:{:<10}类型:{:<20}\n".format(
+                    tok.value, tok.lineno, lex.find_column(tok.lexer.lexdata, tok), tok.type))
+            self.textEdit_3.setText(s)
+            s = ''
+            for i in lex.error:
+                s += (
+                    ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])))
+            self.textEdit_2.setText(s)
+            # 对textEdit中的关键字进行处理
+            self.change_keyword_color()
+        except Exception as e:
+            QMessageBox.warning(self, '警告', '系统出错')
 
     # 将文本框中的四元式转换
     def format_conversion(self, s):
-        #print('s', s)
+        # print('s', s)
         # 去掉末尾的换行符
         s = s.strip()
         # 按照换行符分割成多个行字符串
@@ -896,7 +904,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)
-        #print('result', result)
+        # print('result', result)
         return result
 
     def searchHelp(self):
@@ -915,4 +923,3 @@ if __name__ == "__main__":
     ex = DetailUI()
     ex.show()
     sys.exit(app.exec_())
-

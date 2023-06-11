@@ -8,24 +8,51 @@ import Analyzer
 from collection import FirstVTAndLastVT
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
+import re
 
 
 def grammar_cut(grammar):
     non_terminals = set()
-    terminals = set()
     for line in grammar.split('\n'):
         if line == '':
             continue
         lhs, rhs = line.split(':')
-        non_terminals.add(lhs)
-        for symbol in rhs:
-            if symbol.isalpha() and symbol.islower():
-                terminals.add(symbol)
+        non_terminals.add(lhs.replace(" ", ""))
+    regex = '|'.join(re.escape(s) for s in non_terminals)
 
-    # 为每个符号添加空格
-    for symbol in non_terminals.union(terminals):
-        grammar = grammar.replace(symbol, f" {symbol} ")
-    return grammar, non_terminals, terminals
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, grammar)
+
+    # 将匹配到的字符串两边加上空格
+    for match in matches:
+        grammar = grammar.replace(match, f' {match} ')
+    print(grammar)
+    s = ''
+    for i in grammar.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+
+    # 返回处理好的字符串
+    return s, non_terminals
+
+
+def text_cut(text, non_terminals):
+    regex = '|'.join(re.escape(s) for s in non_terminals)
+
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, text)
+    for match in matches:
+        text = text.replace(match, f' {match} ')
+    print(text)
+    s = ''
+    for i in text.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+    return s
 
 
 class OPGGrammarSolver(QMainWindow):
@@ -35,7 +62,7 @@ class OPGGrammarSolver(QMainWindow):
         self.tabWidget = QtWidgets.QTabWidget(self)
         self.setWindowTitle("算符优先分析")
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 800, 600))
-        # self.tabWidget.resize(800, 600)
+        self.tabWidget.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 控制选项的变量
         self.chose_mode = '系统分词模式'
@@ -43,6 +70,7 @@ class OPGGrammarSolver(QMainWindow):
         # 创建第一个选项卡
         self.tab1 = QtWidgets.QWidget()
         self.tabWidget.addTab(self.tab1, "FirstVT和LastVT")
+        self.tab1.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         # 创建下拉框，用于选择模式
         self.mode_combo = QComboBox(self.tab1)
         font = QtGui.QFont()
@@ -64,10 +92,12 @@ class OPGGrammarSolver(QMainWindow):
 
         # 创建第二个选项卡
         self.tab2 = QtWidgets.QWidget()
+        self.tab2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab2, "算符优先关系表")
 
         # 创建第三个选项卡
         self.tab3 = QtWidgets.QWidget()
+        self.tab3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.tabWidget.addTab(self.tab3, "测试案例")
 
         layout1 = QtWidgets.QGridLayout()
@@ -121,7 +151,7 @@ class OPGGrammarSolver(QMainWindow):
 
         # 显示LL1文法的内容
         self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(13)
@@ -134,7 +164,7 @@ class OPGGrammarSolver(QMainWindow):
         # 显示FIRST集合的内容
         self.table_FIRST = QtWidgets.QTableWidget()
         self.table_FIRST.setObjectName("tableAnalyze")
-        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         # self.table_FIRST.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -143,7 +173,7 @@ class OPGGrammarSolver(QMainWindow):
         # 显示FOLLOW集合的内容
         self.table_FOLLOW = QtWidgets.QTableWidget()
         self.table_FOLLOW.setObjectName("tableAnalyze")
-        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         # self.table_FOLLOW.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -164,14 +194,14 @@ class OPGGrammarSolver(QMainWindow):
         self.pushButton_3_.clicked.connect(self.save_follow)
 
         # 将文法导入按钮和显示文法的文本框垂直布局
-        buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        buttonSplitter = QtWidgets.QSplitter(Qt.Vertical)
         buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
         buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
-        textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        textEditSplitter = QtWidgets.QSplitter(Qt.Vertical)
         textEditSplitter.addWidget(self.table_FIRST)
         textEditSplitter.addWidget(self.pushButton_2)
         textEditSplitter.addWidget(self.table_FOLLOW)
@@ -216,7 +246,7 @@ class OPGGrammarSolver(QMainWindow):
         # 显示预测分析表的内容
         self.tableAnalyze = QtWidgets.QTableWidget()
         self.tableAnalyze.setObjectName("tableAnalyze")
-        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         # 隐藏分析表的横纵表头
         self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
@@ -269,7 +299,7 @@ class OPGGrammarSolver(QMainWindow):
 
         # 显示待分析的内容
         self.textEdit_1 = QtWidgets.QTextEdit()
-        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.textEdit_1.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(13)
@@ -295,7 +325,7 @@ class OPGGrammarSolver(QMainWindow):
         # 显示分析过程
         self.tableStack = QtWidgets.QTableWidget()
         self.tableStack.setObjectName("tableStack")
-        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
+        self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.tableStack.setColumnCount(4)
 
@@ -399,7 +429,8 @@ class OPGGrammarSolver(QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/12OPG算符优先分析测试用例',
+                                                '文本文件 (*.txt)')
             if fname[0]:
                 print(fname[0])
                 with open(fname[0], encoding=self.check_charset(fname[0])) as f:
@@ -423,11 +454,13 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def get_VT(self):
+        self.table_FIRST.clear()
+        self.table_FOLLOW.clear()
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         try:
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             op = FirstVTAndLastVT()
             op.input(grammar)
             terminal = set()
@@ -470,7 +503,7 @@ class OPGGrammarSolver(QMainWindow):
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             op = FirstVTAndLastVT()
             op.input(grammar)
             sequence1, precedence_table1, is_opg = op.Table()
@@ -499,15 +532,15 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def analyze_sentence(self):
-
+        self.tableStack.clear()
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         text = self.textEdit_1.toPlainText()
         try:
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
-                for symbol in non_terminals.union(terminals):
-                    text = text.replace(symbol, f" {symbol} ")
+                grammar, non_terminals = grammar_cut(grammar)
+                text = text_cut(text, non_terminals)
+            print(text)
             op = FirstVTAndLastVT()
             op.input(grammar)
             sequence1, precedence_table1, is_opg = op.Table()
@@ -576,8 +609,8 @@ class OPGGrammarSolver(QMainWindow):
                     f.write('\n')
 
     def save_analyze_process(self):
-        self.tableStack.clear()
-        self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
+        # self.tableStack.clear()
+        # self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
         filename1, _ = QFileDialog.getSaveFileName(self, '保存分析过程', '', 'Text Files (*.txt)')
         if filename1:
             with open(filename1, 'w') as f:
@@ -598,8 +631,8 @@ class OPGGrammarSolver(QMainWindow):
                     f.write('\n')
 
 
-'''if __name__ == '__main__':
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = OPGGrammarSolver()
     window.show()
-    sys.exit(app.exec_())'''
+    sys.exit(app.exec_())

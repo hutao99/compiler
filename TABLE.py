@@ -313,7 +313,7 @@ def check_charset(file_path):
 #     con = 'i+i*i'
 #     # con+='#'
 #     # con = ""
-#     # Filepath = "D:\pythonProject\compiler\全部测试程序\\02已测试正确的编译器测试用例\\test2.2.txt"
+#     # Filepath = "D:\pythonProject\compiler\全部测试程序\\02已测试正确的编译器用例\\test2.2.txt"
 #     # for line in open(Filepath, 'r', encoding=check_charset(Filepath)):
 #     #     con += line
 #     lex = Analyzer.AnalyzerLex()

@@ -1,6 +1,7 @@
 import ply.lex as lex
 
-class Analyzer(object):
+
+class Analyzer:
     def __init__(self):
         f = open('种别码.txt', 'r', encoding='utf-8')
         self.type = dict()
@@ -336,6 +337,16 @@ class Analyzer(object):
             index[0] += 1
 
 
+def typefile(address):
+    f = open(address, 'r', encoding='utf-8')
+    ty = dict()  # 种别码
+    for i in f.readlines():
+        a = i.split()
+        ty[a[0]] = a[1]
+    f.close()
+    return ty
+
+
 class AnalyzerLex:
     tokens = (
         'keyword',  # 关键词
@@ -350,17 +361,9 @@ class AnalyzerLex:
 
     def __init__(self):
         self.lexer = lex.lex(module=self)
-        self.ty = self.typefile("种别码.txt")
+        self.ty = typefile("种别码.txt")
         self.error = []
 
-    def typefile(self, address):
-        f = open(address, 'r', encoding='utf-8')
-        ty = dict()  # 种别码
-        for i in f.readlines():
-            a = i.split()
-            ty[a[0]] = a[1]
-        f.close()
-        return ty
     states = (
         ('multicomment', 'exclusive'),  # 多行注释
     )
@@ -375,13 +378,14 @@ class AnalyzerLex:
         # 切换状态回到默认状态
         t.lexer.pop_state()
 
-    def t_multicomment_CONTENT(self, t):  # 注释内部的内容
-        r'.'
-        pass
+    t_multicomment_ignore = '.'
 
     def t_multicomment_line(self, t):  # 换行
         r'\n'
         t.lexer.lineno += 1
+
+    def t_multicomment_error(self, t):
+        t.lexer.skip(1)
 
     def t_multicomment_eof(self, t):  # 注释不闭合
         self.error.append(
