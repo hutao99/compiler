@@ -1,7 +1,6 @@
-S->( L )|a P
-P->S|$
-L->, S D
-D->S D|$
+E->- E|( E )|V F
+F->- E|$
+V->identifier W
+W->( E )|$
 
-S¡ú( L )|a S|a
-L¡úL , S|S
+

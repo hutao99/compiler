@@ -1,4 +1,7 @@
-D->TL
-T->i|r
-L->cR
-R->,cR|$
+E->TG
+G->+E|$
+T->FH
+H->T|$
+F->PM
+M->*M|$
+P->(E)|a|b|^

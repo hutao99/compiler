@@ -1,6 +1,7 @@
-B->T C
-C->identifier T C|$
-T->F D
-D->identifier F D|$
-F->identifier F_|( B )
-F_->F|$
+E->T G
+G->+ E|$
+T->F H
+H->T|$
+F->P M
+M->* M|$
+P->( E )|identifier|^

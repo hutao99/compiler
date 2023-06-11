@@ -1,5 +1,0 @@
-D→T L
-T→identifier
-L→identifier R
-R→, identifier R|$
-

@@ -1,4 +1,6 @@
-A->identifier T
-T->A B identifier |$
-B->identifier F
-F->identifier F |$
+E->T G
+G->+ T G|$
+T->F H
+H->* F H|$
+F->( E )
+F->identifier
