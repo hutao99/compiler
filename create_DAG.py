@@ -23,8 +23,10 @@ def DAG_draw(codes):
     idx = 1 # 从1编号
     #codes [{'label': '3.14', 'node_label': 'T0'}, {'label': '2', 'node_label': []}, {'label': '*', 'node_label': ' T1', 'left': 1, 'right': 0}
     for code in codes:# label|node_label
-        s = code['label'] + '|' + ''.join(code['node_label'])
-        # print('s',s)
+        if len(code['node_label']) != 0:
+            s = code['label'] + '|' + ''.join(code['node_label'])
+        else:
+            s = code['label']
         dot.node(str(idx), s) #编号  标签
         idx += 1
     # print('codes',codes)
