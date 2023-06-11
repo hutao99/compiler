@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtWidgets import QSplitter
 
 
@@ -20,30 +20,42 @@ class Ui_MainWindow(object):
         MainWindow.resize(1033, 837)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.centralwidget.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
 
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit.setGeometry(QtCore.QRect(80, 100, 104, 64))
         self.plainTextEdit.setObjectName("plainTextEdit")
+        self.plainTextEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+
         self.plainTextEdit_2 = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit_2.setGeometry(QtCore.QRect(210, 100, 104, 64))
         self.plainTextEdit_2.setObjectName("plainTextEdit_2")
+        self.plainTextEdit_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+
         self.plainTextEdit_3 = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit_3.setGeometry(QtCore.QRect(360, 100, 104, 64))
         self.plainTextEdit_3.setObjectName("plainTextEdit_3")
+        self.plainTextEdit_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(200, 190, 104, 64))
         self.textEdit.setObjectName("textEdit")
+        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(160, 270, 75, 23))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_2.setGeometry(QtCore.QRect(240, 270, 75, 23))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_2.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_3.setGeometry(QtCore.QRect(320, 270, 75, 23))
         self.pushButton_3.setObjectName("pushButton_3")
+        self.pushButton_3.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         font = QFont()
         font.setPointSize(10)
