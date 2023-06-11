@@ -1,0 +1,58 @@
+program->function_definition func_table
+func_table->function_definition func_table|$
+function_definition->type declarator_func compound_statement 
+type->int|void|char|double|float
+declarator_func->identifier dec'|main dec'
+declarator->identifier dec
+dec->[ integer ]|$
+compound_statement->{ compound_statement'
+compound_statement'->statement_list }|declaration_list statement_list }|}
+declaration_list->declaration declaration_list'
+declaration_list'->declaration declaration_list'|$
+declaration->declaration_specifiers init_declarator declaration'
+declaration'->, init_declarator declaration'|$
+init_declarator->declarator init_declarator'
+init_declarator'->= initializer fen_not|$
+fen_not->;|$
+initializer->relational_expression|{ initializer_list }
+initializer_list->initializer initializer_list'
+initializer_list'->, initializer , initializer_list'|$
+statement_list->statement statement_list'
+statement_list'->statement statement_list'|$
+statement->compound_statement|expression_statement|selection_statement|iteration_statement|declaration_list|jump_statement
+jump_statement->continue ;|break ;|return jump_statement'
+jump_statement'->;|expression ;
+selection_statement->if ( expression ) compound_statement selection_statement'
+selection_statement'->else statement|$
+iteration_statement->while ( expression ) statement|for ( expression_statement expression_statement expression ) statement
+expression->relational_expression expression'|! relational_expression expression'
+expression'->, relational_expression expression'|$
+expression_statement->;|expression ;
+relational_expression->additive_expression relational_expression'
+relational_expression'->< additive_expression relational_expression'|<= additive_expression relational_expression'|>= additive_expression relational_expression'|> additive_expression relational_expression'|!= additive_expression relational_expression'|== additive_expression relational_expression'|&& additive_expression relational_expression'|= additive_expression relational_expression'|$
+additive_expression->multiplicative_expression additive_expression'
+additive_expression'->+ multiplicative_expression additive_expression'|- multiplicative_expression additive_expression'|++|--|$
+multiplicative_expression->postfix_expression multiplicative_expression'|integer multiplicative_expression'
+multiplicative_expression'->* postfix_expression multiplicative_expression'|/ postfix_expression multiplicative_expression'|% postfix_expression multiplicative_expression'|$
+postfix_expression->primary_expression postfix_expression'
+postfix_expression'->[ expression ]|$
+pe'->$|const_list
+primary_expression->identifier fuc_not|integer|integer|character|string|float
+dec'->( declarator'|$
+declarator'->parameter_list )|)
+parameter_list->parameter_declaration parameter_list'
+parameter_list'->, parameter_declaration parameter_list'|$
+parameter_declaration->declaration_specifiers identifier   
+declaration_specifiers->type_
+type_->int|char|double|float      
+fuc_not->( args'|$
+args'->args_list )|)
+args_list->identifier id_func|constants args_list_1|expression
+id_func->args_list_1
+args_list_1->, term args_list_1|$
+term->identifier|constants
+semicolon_or_not->;|$
+constants->integer|character|string|float
+const_list->const type_ const_list'
+const_table->identifier = constants const_list'
+const_list'->, const_table|;
