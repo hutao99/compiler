@@ -1,0 +1,6 @@
+E→-E|( E )|V F
+F→-E|$
+V→ identifier W
+W→( E )|$
+
+
