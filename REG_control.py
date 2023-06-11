@@ -53,7 +53,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.text = ""
 
     def open_file(self):
-        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/10REG正则表达式转换', '文本文件 (*.txt)')
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例', '文本文件 (*.txt)')
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
             with open(path, 'r', encoding="utf-8") as f:
                 text = f.read()
@@ -62,7 +62,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
             self.plainTextEdit.setPlainText(text)
 
     def open_file1(self):
-        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/10REG正则表达式转换',
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例',
                                               '文本文件 (*.txt)')
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
             with open(path, 'r', encoding="utf-8") as f:

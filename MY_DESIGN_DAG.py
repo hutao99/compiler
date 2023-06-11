@@ -93,7 +93,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
 
     def open_text(self):
         # 定义打开文件夹目录的函数
-        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/14DAG测试用例',
+        path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/04DAG测试用例',
                                               '文本文件 (*.txt)')
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
             with open(path, 'r', encoding="utf-8") as f:
