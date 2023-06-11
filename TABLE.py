@@ -25,11 +25,9 @@ class ASTNode:
 
 class Predictive_Analysis:
     def __init__(self):
-        self.follow_dict = None
         self.first = dict()
-        self.last = dict()
         self.Formula = dict()
-        self.productions = {}
+        self.productions = dict()
         self.begin = ''
         self.predict_table = dict()
         self.predict_table_ = dict()
@@ -38,6 +36,8 @@ class Predictive_Analysis:
         self.grammars = dict()
         self.flag = 0
         self.first_dict = dict()
+        self.follow_table = dict()
+        self.recorder = dict()
         self.nonterminals = []  # 非终结符
         self.kong = []
 
@@ -53,26 +53,22 @@ class Predictive_Analysis:
             index = i.find(':')
             self.Formula[i[0:index]] = i[index + 1:]
             self.first[i[0:index]] = []
-            self.last[i[0:index]] = []
-        self.last[begin].append('#')
         self.get_vn_vt(data)
-        # self.First_()
         self.compute_first(self.productions)
         print('first', self.first)
         self.FIRST()
         print('first_dict', self.first_dict)
-        # self.first=self.first_dict
-        # self.FOLLOW()
         for i in self.first:
             if '$' in self.first[i]:
                 self.kong.append(i)
         print('kong', self.kong)
-        self.Last_()
-        self.get_predict_table_(data)
+        self.find_follow()
+        print(self.follow_table)
+        self.get_predict_table_()
         print("\n预测分析表\n")
         for i in self.predict_table_:
             print(i, self.predict_table_[i])
-        self.get_predict_table(data)
+        self.get_predict_table()
 
         print(self.predict_table)
 
@@ -114,7 +110,7 @@ class Predictive_Analysis:
                     if temp not in self.vt and temp not in self.vn and temp != '$':
                         self.vt.append(temp)
         self.vt.append('#')
-        self.vt.append('$')
+        # self.vt.append('$')
         self.vt = list(set(self.vt))
         self.vn = list(set(self.vn))
         print('\n\n--------- 文法的非终结符为 ----------\n', self.vn,
@@ -200,59 +196,98 @@ class Predictive_Analysis:
                 for i in list(first_set):
                     self.first_dict[nonter].append(i)
 
-    def Last_(self):
-        self.last[self.begin] = ["#"]
-        flag = True
-        while flag:
-            flag = False
-            for i in self.Formula:
-                production = self.Formula[i]
-                # 对产生式分割
-                for j in list(filter(None, production.split('|'))):
-                    # 去除元素为空的字符
-                    word = list(filter(None, j.split(' ')))
-                    length = len(word)
-                    for k in range(length):
-                        # 如果是非终结符
-                        if word[k] in self.Formula:
-                            if k + 1 < length:
-                                # 非终结符的下一个也是非终结符，把下一个的first集合加入当前非终结符的last
-                                if word[k + 1] in self.Formula:
-                                    for n in self.first[word[k + 1]]:
-                                        # 为空把后面一个的再后面一个first集合加入当前last
-                                        if n == '$' and k + 2 < length:
-                                            # 是非终结符
-                                            if word[k + 2] in self.Formula:
-                                                for e in self.first_dict[word[k + 2]]:
-                                                    if e != '$' and e not in self.last[word[k]]:
-                                                        flag = True
-                                                        self.last[word[k]].append(e)
-                                            # 不是非终结符
-                                            elif word[k + 2] not in self.last[word[k]]:
-                                                flag = True
-                                                self.last[word[k]].append(word[k + 2])
+    """
+    recorder： 用于求follow集合的过程中特殊情况：
+        非终结符的后继非终结符的first集合可能存在null
+        eg： A -> BC     C -> D | $   D -> (A) | i
+        那么在一次遍历过程中，因为C的first集合存在null，所以需要将follow（A）加入follow（B）
+        （重点）但是！此时的follow（A），并不是完整的，它可能在后续的遍历中会继续更新自身的follow集合
+        所以此时会出现遗漏的follow
+        所以这里需要进行记录并更新
+    """
 
-                                        # 把没有的符号加入last中
-                                        elif n not in self.last[word[k]] and n != '$':
-                                            # 说明集合变化了，需要再循环一次
-                                            flag = True
-                                            self.last[word[k]].append(n)
-                                        # 最后一个字符为非终结符且其中含有空字符
-                                        if n == '$' and k + 1 == length - 1:
-                                            for y in self.last[i]:
-                                                if y not in self.last[word[k]]:
-                                                    flag = True
-                                                    self.last[word[k]].append(y)
-                                elif word[k + 1] not in self.last[word[k]]:
-                                    self.last[word[k]].append(word[k + 1])
-                    # 是非终结符且是最后一个符号
-                    if word[length - 1] in self.Formula:
-                        for y in self.last[i]:
-                            if y not in self.last[word[length - 1]]:
-                                flag = True
-                                self.last[word[length - 1]].append(y)
+    def init_record(self):
+        for k in self.grammars:
+            self.follow_table[k] = []
+            self.recorder[k] = []
+            for next_grammar in self.grammars[k]:
+                last_k = next_grammar.split()[-1]  # 取列表中的倒数第一个元素
+                if last_k in self.grammars and last_k != k:
+                    self.recorder[k].append(last_k)
 
-    def get_predict_table(self, data):
+    """
+    刷新订阅
+    检测到某个follow集合更新时，对其订阅的所有产生式左部的follow集合进行更新
+    简而言之：follow（A）发生了更新，那么曾经将follow（A）加入自身的B，C也更新其follow
+    并且，这是一个递归过程
+    """
+
+    def update(self, k):
+        for lk in self.recorder[k]:
+            new_lk = self.mix_set(self.follow_table[k], self.follow_table[lk])
+            if new_lk != self.follow_table[lk]:
+                self.follow_table[lk] = new_lk
+                self.update(lk)
+
+    """
+    合并两个list并且去重
+    """
+
+    def mix_set(self, A, B):
+        return list(set(A + B))
+
+    """
+    查找所有非终结符follow
+    """
+
+    def find_follow(self):
+        self.init_record()
+        # 参考书上101页
+        self.follow_table[self.begin] = ["#"]
+        for k in self.grammars:
+            for next_grammar in self.grammars[k]:
+                next_k = next_grammar.split()
+
+                for i in range(0, len(next_k) - 1):
+                    if next_k[i] in self.grammars:
+                        if next_k[i + 1] not in self.grammars:
+                            """
+                            101页第二条，将a(next_k[i + 1])加入FOLLOW[next_k[i]]中
+                            如果后继字符不是终结符，加入
+                            """
+                            new_follow = self.mix_set([next_k[i + 1]], self.follow_table[next_k[i]])
+                            if new_follow != self.follow_table[next_k[i]]:
+                                self.follow_table[next_k[i]] = new_follow
+                                self.update(next_k[i])
+                        else:
+                            # 101页第三条，将FIRST[next_k[i + 1]]中非null元素加入FOLLOW[next_k[i]]中
+                            new_follow = self.mix_set(self.first_dict[next_k[i + 1]], self.follow_table[next_k[i]])
+                            """
+                            如果后继字符的first集合中含有null，recorder更新follow集合
+                            """
+                            if "$" in self.first_dict[next_k[i + 1]]:
+                                new_follow = self.mix_set(self.follow_table[k], new_follow)
+                                self.recorder[k].append(next_k[i])
+                            # 101页第四条，将follow_table[item]加入FOLLOW[next_k[i]]中
+                            if new_follow != self.follow_table[next_k[i]]:
+                                self.follow_table[next_k[i]] = new_follow
+                                self.update(next_k[i])
+                """
+                产生式左部的follow集合加入最后一个非终结符的follow集合
+                """
+                # 101页第四条，将follow_table[item]加入FOLLOW[next_k[i]]中
+                if next_k[-1] in self.grammars:
+                    if next_k[-1] not in self.follow_table:
+                        self.follow_table[next_k[-1]] = []
+                    if next_k[-1] != k:
+                        self.follow_table[next_k[-1]] = self.mix_set(self.follow_table[next_k[-1]],
+                                                                     self.follow_table[k])
+
+        for k in self.follow_table:
+            if "$" in self.follow_table[k]:
+                self.follow_table[k].remove("$")
+
+    def get_predict_table(self):
         for item in self.grammars:
             self.predict_table[item] = {}
             for next_t in self.grammars[item]:
@@ -269,10 +304,10 @@ class Predictive_Analysis:
                 next_k = next_grammar.split()[0]
 
                 if next_k in self.grammars and "$" in self.first_dict[next_k] or next_k == "$":
-                    for fk in self.last[k]:
+                    for fk in self.follow_table[k]:
                         self.predict_table[k][fk] = next_grammar
 
-    def get_predict_table_(self, data):
+    def get_predict_table_(self):
         for item in self.grammars:
             self.predict_table_[item] = {}
             for next_t in self.grammars[item]:
@@ -283,16 +318,13 @@ class Predictive_Analysis:
                         if i != '$':
                             self.predict_table_[item][i] = item + '->' + next_t
                 else:
-                    if (next_value == '{'):
-                        print('---------------------------12222222222222222222')
-                        print(item + '->' + next_t)
                     self.predict_table_[item][next_value] = item + '->' + next_t
                     print(self.predict_table_[item])
         for k in self.grammars:
             for next_grammar in self.grammars[k]:
                 next_k = next_grammar.split()[0]
                 if next_k in self.grammars and "$" in self.first_dict[next_k] or next_k == "$":
-                    for fk in self.last[k]:
+                    for fk in self.follow_table[k]:
                         self.predict_table_[k][fk] = k + '->' + next_grammar
 
 
@@ -304,39 +336,14 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
-# if __name__ == "__main__":
-#     test = Predictive_Analysis()
-#     path = "全部测试程序\\11LL(1)测试用例\文法.TXT"
-#     grammar = str(open(path).read())
-#     grammar = grammar.replace('->', ':')
-#     test.input(grammar)
-#     con = 'i+i*i'
-#     # con+='#'
-#     # con = ""
-#     # Filepath = "D:\pythonProject\compiler\全部测试程序\\02已测试正确的编译器用例\\test2.2.txt"
-#     # for line in open(Filepath, 'r', encoding=check_charset(Filepath)):
-#     #     con += line
-#     lex = Analyzer.AnalyzerLex()
-#     lex.input(con)
-#     expression = []
-#
-#     while True:
-#         tok = lex.token()
-#         if not tok:
-#             break
-#         s1 = ['operator', 'keyword', 'Boundary']
-#         s2 = ['integer', 'character', 'string', 'identifier', 'float']
-#         if tok.type in s1:
-#             expression.append([tok.value, tok.value])
-#         elif tok.type in s2:
-#             expression.append([tok.type, tok.value])
-#     expression.append(['#', '#'])
-#     print(expression)
-#     print(test.first_dict)
-#     print(test.last)
-#     print(test.predict_table_['A1'])
 
-# 做成一个库
-# 调用库里的函数
-#.lib文件
-#行号
+if __name__ == "__main__":
+    test = Predictive_Analysis()
+    path = "D:\pythonProject\compiler\全部测试程序\\11LL(1)测试用例\用户分词模式案例\LL1_6_p101.txt"
+    grammar = str(open(path).read())
+    grammar = grammar.replace('->', ':')
+    test.input(grammar)
+    print(test.first_dict)
+    print('----------------')
+    print(test.follow_table)
+

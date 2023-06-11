@@ -109,7 +109,6 @@ class LL1GrammarSolver(QMainWindow):
 
         # 显示LL1文法的内容
         self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setStyleSheet('QWidget{background-color:%s}' % QColor("#F5F5DC").name())
         font = QtGui.QFont()
         font.setFamily("仿宋")
         font.setPointSize(13)
@@ -122,13 +121,17 @@ class LL1GrammarSolver(QMainWindow):
 
         # 显示FIRST集合的内容
         self.table_FIRST = QtWidgets.QTableWidget()
-        self.table_FIRST.setObjectName("tableAnalyze")
+        self.table_FIRST.setObjectName("table_FIRST")
         self.table_FIRST.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+        self.table_FIRST.setStyleSheet(
+            "QTableView#table_FIRST::item { border-bottom: 1px solid gray; } QTableView#table_FIRST { background-color: white; }")
 
         # 显示FOLLOW集合的内容
         self.table_FOLLOW = QtWidgets.QTableWidget()
-        self.table_FOLLOW.setObjectName("tableAnalyze")
+        self.table_FOLLOW.setObjectName("table_FOLLOW")
         self.table_FOLLOW.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
+        self.table_FOLLOW.setStyleSheet(
+            "QTableView#table_FOLLOW::item { border-bottom: 1px solid gray; } QTableView#table_FOLLOW { background-color: white; }")
 
         self.pushButton_3_ = QtWidgets.QPushButton()
         self.pushButton_3_.setEnabled(True)
@@ -145,14 +148,14 @@ class LL1GrammarSolver(QMainWindow):
         self.pushButton_3_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
 
         # 将文法导入按钮和显示文法的文本框垂直布局
-        buttonSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        buttonSplitter = QtWidgets.QSplitter(Qt.Vertical)
         buttonSplitter.addWidget(self.mode_combo)
         buttonSplitter.addWidget(self.pushButton_)
         buttonSplitter.addWidget(self.textEdit)
         buttonSplitter.addWidget(self.pushButton)
 
         # 将FIRST和FOLLOW集合求解按钮和显示的表格布局垂直布局
-        textEditSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        textEditSplitter = QtWidgets.QSplitter(Qt.Vertical)
         textEditSplitter.addWidget(self.table_FIRST)
         textEditSplitter.addWidget(self.pushButton_2)
         textEditSplitter.addWidget(self.table_FOLLOW)
@@ -272,10 +275,6 @@ class LL1GrammarSolver(QMainWindow):
         self.tableStack.setObjectName("tableStack")
         self.tableStack.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
-        self.tableStack.setColumnCount(3)
-
-        # 设置tablewidget 栈分析表的表头
-        self.tableStack.setHorizontalHeaderLabels(["符号栈", "产生式", "匹配字符"])
         '''
         使用 QSizePolicy 控件来实现 QTableWidget 表格的大小随着界面的变化而自动调整
         如果表格中的数据量很大，自动调整表格大小可能会影响程序的性能
@@ -361,6 +360,7 @@ class LL1GrammarSolver(QMainWindow):
         return charset
 
     def open_text(self):
+        self.textEdit.clear()
         # 定义打开文件夹目录的函数
         try:
             fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/11LL(1)测试用例',
@@ -375,6 +375,7 @@ class LL1GrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def open_sample(self):
+        self.textEdit_1.clear()
         # 定义打开文件夹目录的函数
         try:
             fname = QFileDialog.getOpenFileName(self, 'Open file')
@@ -406,8 +407,8 @@ class LL1GrammarSolver(QMainWindow):
 
     def onClick_create_first_follow(self):
         print(self.chose_mode)
-        self.table_FIRST.clearContents()
-        self.table_FOLLOW.clearContents()
+        self.table_FIRST.clear()
+        self.table_FOLLOW.clear()
         test = Predictive_Analysis()
         grammar = ""
         if self.chose_mode == "系统分词模式":
@@ -436,14 +437,14 @@ class LL1GrammarSolver(QMainWindow):
         VN = test.vn
         VT = test.vt
         FIRST = test.first_dict
-        FOLLOW = test.last
+        FOLLOW = test.follow_table
         print('----------------------------')
         print("\nfirst集合如下\n")
         for i in test.first:
             print(i, test.first[i])
         print("\nfollow集合如下\n")
-        for j in test.last:
-            print(j, test.last[j])
+        for j in  test.follow_table:
+            print(j,  test.follow_table[j])
         # 设置行数和列数
         row_count = len(VN)
         col_count = len(VT)
@@ -451,6 +452,16 @@ class LL1GrammarSolver(QMainWindow):
         self.table_FIRST.setColumnCount(col_count)
         self.table_FIRST.setHorizontalHeaderLabels(VT)
         self.table_FIRST.setVerticalHeaderLabels(VN)
+        # 设置表格标题的样式
+        background_color = QColor("#CCCCCC").name()
+        self.table_FIRST.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+        self.table_FIRST.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+
+        # 设置表格内容的样式
+        self.table_FIRST.setStyleSheet("QTableView#table_FIRST::item { border-bottom: 1px solid gray; }"
+                                       " QTableView#table_FIRST { background-color: white; }")
 
         for i in range(len(VN)):
             # 显示FIRST集合的每一行 动作
@@ -465,6 +476,17 @@ class LL1GrammarSolver(QMainWindow):
         self.table_FOLLOW.setColumnCount(col_count)
         self.table_FOLLOW.setHorizontalHeaderLabels(VT)
         self.table_FOLLOW.setVerticalHeaderLabels(VN)
+
+        # 设置表格标题的样式
+        background_color = QColor("#CCCCCC").name()
+        self.table_FOLLOW.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+        self.table_FOLLOW.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+
+        # 设置表格内容的样式
+        self.table_FOLLOW.setStyleSheet("QTableView#table_FOLLOW::item { border-bottom: 1px solid gray; }"
+                                        " QTableView#table_FOLLOW { background-color: white; }")
 
         for i in range(len(VN)):
             # 显示预测分析表的每一行 动作
@@ -501,6 +523,17 @@ class LL1GrammarSolver(QMainWindow):
                     f.write('\n')
 
     def analyze_table(self):
+        # 设置表格标题的样式
+        background_color = QColor("#CCCCCC").name()
+        self.tableAnalyze.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+        self.tableAnalyze.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+
+        # 设置表格内容的样式
+        self.tableAnalyze.setStyleSheet("QTableView#tableAnalyze::item { border-bottom: 1px solid gray; }"
+                                        " QTableView#tableAnalyze { background-color: white; }")
+        self.tableAnalyze.clear()
         test = Predictive_Analysis()
         '''
                  if self.chose_mode == "系统分词模式":
@@ -568,12 +601,24 @@ class LL1GrammarSolver(QMainWindow):
         return res
 
     def onClick_analyze_stack_1(self):
+        self.tableStack.clear()
+        self.tableStack.setColumnCount(4)
+        # 设置tablewidget 栈分析表的表头
+        self.tableStack.setHorizontalHeaderLabels(["分析栈", "剩余输入串", "推导所用产生式", "匹配字符"])
+        # 设置表格标题的样式
+        background_color = QColor("#CCCCCC").name()
+        self.tableStack.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+        self.tableStack.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+
+        # 设置表格内容的样式
+        self.tableStack.setStyleSheet("QTableView#tableStack::item { border-bottom: 1px solid gray; }"
+                                      " QTableView#tableStack { background-color: white; }")
         test = Predictive_Analysis()
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         test.input(grammar)
-        VN = test.vn
-        VT = test.vt
         self.predict_table = test.predict_table
         self.predict_table_ = test.predict_table_
         # 获取输入串并加入‘#’结束标志
@@ -583,6 +628,7 @@ class LL1GrammarSolver(QMainWindow):
         # 获取 输入串 输入框中的句子 并且保存在 STACK_INPUT 列表中
         lex = Analyzer.AnalyzerLex()
         lex.input(self.textEdit_1.toPlainText())
+        contents = self.textEdit_1.toPlainText()
         word_table = []
 
         while True:
@@ -618,12 +664,16 @@ class LL1GrammarSolver(QMainWindow):
             if cur.type == "#" and len(stack) == 0:
                 print("符号栈：", self.obtain_type(stack), "\n匹配字符: ", '#')
                 item1 = QtWidgets.QTableWidgetItem(str(self.obtain_type(stack)))
-                item1.setTextAlignment(Qt.AlignCenter)
+                # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 0, item1)
 
+                item1 = QtWidgets.QTableWidgetItem(str(contents))
+                # item1.setTextAlignment(Qt.AlignCenter)
+                self.tableStack.setItem(layer_stack - 1, 1, item1)
+
                 item1 = QtWidgets.QTableWidgetItem(str(word_table[index][1]))
-                item1.setTextAlignment(Qt.AlignCenter)
-                self.tableStack.setItem(layer_stack - 1, 2, item1)
+                # item1.setTextAlignment(Qt.AlignCenter)
+                self.tableStack.setItem(layer_stack - 1, 3, item1)
 
                 print("分析完成")
                 break
@@ -632,12 +682,17 @@ class LL1GrammarSolver(QMainWindow):
                 print(index)
                 print("符号栈：", self.obtain_type(stack), "\n匹配字符: ", word_table[index][1])
                 item1 = QtWidgets.QTableWidgetItem(str(self.obtain_type(stack)))
-                item1.setTextAlignment(Qt.AlignCenter)
+                # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 0, item1)
 
                 item1 = QtWidgets.QTableWidgetItem(str(word_table[index][1]))
-                item1.setTextAlignment(Qt.AlignCenter)
-                self.tableStack.setItem(layer_stack - 1, 2, item1)
+                # item1.setTextAlignment(Qt.AlignCenter)
+                self.tableStack.setItem(layer_stack - 1, 3, item1)
+
+                contents = contents.replace(word_table[index][1], "",1)
+                item1 = QtWidgets.QTableWidgetItem(str(contents))
+                # item1.setTextAlignment(Qt.AlignCenter)
+                self.tableStack.setItem(layer_stack - 1, 1, item1)
 
                 cur.text = word_table[index][1]
                 index += 1
@@ -651,23 +706,31 @@ class LL1GrammarSolver(QMainWindow):
                         print("\n符号栈：", self.obtain_type(stack), "\n产生式: ", cur.type, "->",
                               self.predict_table[cur.type][a])
                         item1 = QtWidgets.QTableWidgetItem(str(self.obtain_type(stack)))
-                        item1.setTextAlignment(Qt.AlignCenter)
+                        # item1.setTextAlignment(Qt.AlignCenter)
                         self.tableStack.setItem(layer_stack - 1, 0, item1)
 
-                        item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur.type][a]))
-                        item1.setTextAlignment(Qt.AlignCenter)
+                        item1 = QtWidgets.QTableWidgetItem(str(contents))
+                        # item1.setTextAlignment(Qt.AlignCenter)
                         self.tableStack.setItem(layer_stack - 1, 1, item1)
+
+                        item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur.type][a]))
+                        # item1.setTextAlignment(Qt.AlignCenter)
+                        self.tableStack.setItem(layer_stack - 1, 2, item1)
                         continue
                     next_epr = self.predict_table[cur.type][a].split()
                     print("\n符号栈：", self.obtain_type(stack), "\n产生式: ", cur.type, "->",
                           self.predict_table[cur.type][a])
                     item1 = QtWidgets.QTableWidgetItem(str(self.obtain_type(stack)))
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
 
-                    item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur.type][a]))
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    item1 = QtWidgets.QTableWidgetItem(str(contents))
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 1, item1)
+
+                    item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur.type][a]))
+                    # item1.setTextAlignment(Qt.AlignCenter)
+                    self.tableStack.setItem(layer_stack - 1, 2, item1)
 
                     node_list = []
                     """
@@ -685,7 +748,7 @@ class LL1GrammarSolver(QMainWindow):
                     # 发生错误,直到跳到第二行为止
                     print("error", stack, cur.type, word_table[index][0])
                     item1 = QtWidgets.QTableWidgetItem('ERROR')
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
                     break
 
@@ -696,7 +759,20 @@ class LL1GrammarSolver(QMainWindow):
         return res
 
     def onClick_analyze_stack_2(self):
+        self.tableStack.clear()
+        self.tableStack.setColumnCount(4)
+        # 设置tablewidget 栈分析表的表头
+        self.tableStack.setHorizontalHeaderLabels(["分析栈", "剩余输入串", "推导所用产生式", "匹配字符"])
+        # 设置表格标题的样式
+        background_color = QColor("#CCCCCC").name()
+        self.tableStack.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+        self.tableStack.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
 
+        # 设置表格内容的样式
+        self.tableStack.setStyleSheet("QTableView#tableStack::item { border-bottom: 1px solid gray; }"
+                                      " QTableView#tableStack { background-color: white; }")
         test = Predictive_Analysis()
         text = self.textEdit.toPlainText()
         lines = text.splitlines(True)
@@ -725,8 +801,7 @@ class LL1GrammarSolver(QMainWindow):
         self.tableStack.setRowCount(layer_stack)
         analyze_str = self.textEdit_1.toPlainText()
         analyze_str += '#'
-        print('09999999999999999999999')
-        print(analyze_str)
+        contents = analyze_str
         stack = []
         index = 0
         stack.append('#')
@@ -738,15 +813,19 @@ class LL1GrammarSolver(QMainWindow):
             self.tableStack.setRowCount(layer_stack)
             cur = stack.pop()
             if cur == "#" and len(stack) == 0:
-                print("符号栈：", self.obtain_con(stack), "\n匹配字符: ", '#')
+                '''["分析栈", "剩余输入串","推导所用产生式", "匹配字符"'''
+                print("分析栈：", self.obtain_con(stack), "\n匹配字符: ", '#')
                 item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
-                item1.setTextAlignment(Qt.AlignCenter)
+                # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 0, item1)
 
-                item1 = QtWidgets.QTableWidgetItem(str(analyze_str[index]))
-                item1.setTextAlignment(Qt.AlignCenter)
-                self.tableStack.setItem(layer_stack - 1, 2, item1)
+                item1 = QtWidgets.QTableWidgetItem(str(contents))
+                # item1.setTextAlignment(Qt.AlignCenter)
+                self.tableStack.setItem(layer_stack - 1, 1, item1)
 
+                item1 = QtWidgets.QTableWidgetItem(str("接受"))
+                # item1.setTextAlignment(Qt.AlignCenter)
+                self.tableStack.setItem(layer_stack - 1, 3, item1)
                 print("分析完成")
                 break
             elif cur in VT:
@@ -754,12 +833,17 @@ class LL1GrammarSolver(QMainWindow):
                 if a == cur:
                     print("符号栈：", self.obtain_con(stack), "\n匹配字符: ", analyze_str[index])
                     item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
 
                     item1 = QtWidgets.QTableWidgetItem(str(analyze_str[index]))
-                    item1.setTextAlignment(Qt.AlignCenter)
-                    self.tableStack.setItem(layer_stack - 1, 2, item1)
+                    # item1.setTextAlignment(Qt.AlignCenter)
+                    self.tableStack.setItem(layer_stack - 1, 3, item1)
+
+                    contents = contents.replace(analyze_str[index], "",1)
+                    item1 = QtWidgets.QTableWidgetItem(str(contents))
+                    # item1.setTextAlignment(Qt.AlignCenter)
+                    self.tableStack.setItem(layer_stack - 1, 1, item1)
                     index += 1
                     if index >= len(analyze_str):
                         index -= 1
@@ -767,7 +851,7 @@ class LL1GrammarSolver(QMainWindow):
                     print(cur)
                     print("分析错误")
                     item1 = QtWidgets.QTableWidgetItem('ERROR')
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
                     break
 
@@ -778,24 +862,32 @@ class LL1GrammarSolver(QMainWindow):
                         print("\n符号栈：", self.obtain_con(stack), "\n产生式: ", cur, "->",
                               self.predict_table[cur][a])
                         item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
-                        item1.setTextAlignment(Qt.AlignCenter)
+                        # item1.setTextAlignment(Qt.AlignCenter)
                         self.tableStack.setItem(layer_stack - 1, 0, item1)
 
-                        item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur][a]))
-                        item1.setTextAlignment(Qt.AlignCenter)
+                        item1 = QtWidgets.QTableWidgetItem(str(contents))
+                        # item1.setTextAlignment(Qt.AlignCenter)
                         self.tableStack.setItem(layer_stack - 1, 1, item1)
+
+                        item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur][a]))
+                        # item1.setTextAlignment(Qt.AlignCenter)
+                        self.tableStack.setItem(layer_stack - 1, 2, item1)
                         continue
                     next_epr = self.predict_table[cur][a].split()
 
                     print("\n符号栈：", self.obtain_con(stack), "\n产生式: ", cur, "->",
                           self.predict_table[cur][a])
                     item1 = QtWidgets.QTableWidgetItem(str(self.obtain_con(stack)))
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
 
-                    item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur][a]))
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    item1 = QtWidgets.QTableWidgetItem(str(contents))
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 1, item1)
+
+                    item1 = QtWidgets.QTableWidgetItem(str(self.predict_table_[cur][a]))
+                    # item1.setTextAlignment(Qt.AlignCenter)
+                    self.tableStack.setItem(layer_stack - 1, 2, item1)
                     node_list = []
                     """
                       产生式右部符号入栈,反序入栈
@@ -810,7 +902,7 @@ class LL1GrammarSolver(QMainWindow):
                 else:
                     print("分析错误")
                     item1 = QtWidgets.QTableWidgetItem('ERROR')
-                    item1.setTextAlignment(Qt.AlignCenter)
+                    # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 0, item1)
                     break
 
