@@ -346,9 +346,6 @@ def typefile(address):
     f.close()
     return ty
 
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, message="No error rule is defined for exclusive state 'multicomment'")
-warnings.filterwarnings("ignore", category=UserWarning, message="No ignore rule is defined for exclusive state 'multicomment'")
 
 class AnalyzerLex:
     tokens = (

@@ -1,6 +1,6 @@
-S>UTa|Tb
-T>S|Sc|d
-U>US|e
+S->UTa|Tb
+T->S|Sc|d
+U->US|e
 
 
 

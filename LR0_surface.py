@@ -8,29 +8,52 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, Q
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox
 import sys
 import LR0_use_interface
-
+import re
 # lr0界面
 
 
 def grammar_cut(grammar):
     non_terminals = set()
-    terminals = set()
-    print(grammar.split('\n'))
     for line in grammar.split('\n'):
         if line == '':
             continue
-        print(line)
         lhs, rhs = line.split(':')
-        lhs = lhs.replace(" ", "")
-        non_terminals.add(lhs)
-        for symbol in rhs:
-            if symbol.isalpha() and symbol.islower():
-                terminals.add(symbol)
+        non_terminals.add(lhs.replace(" ", ""))
+    regex = '|'.join(re.escape(s) for s in non_terminals)
 
-    # 为每个符号添加空格
-    for symbol in non_terminals.union(terminals):
-        grammar = grammar.replace(symbol, f" {symbol} ")
-    return grammar, non_terminals, terminals
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, grammar)
+
+    # 将匹配到的字符串两边加上空格
+    for match in matches:
+        grammar = grammar.replace(match, f' {match} ')
+    print(grammar)
+    s = ''
+    for i in grammar.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+
+    # 返回处理好的字符串
+    return s, non_terminals
+
+
+def text_cut(text, non_terminals):
+    regex = '|'.join(re.escape(s) for s in non_terminals)
+
+    # 在输入字符串中匹配集合中的字符串
+    matches = re.findall(regex, text)
+    for match in matches:
+        text = text.replace(match, f' {match} ')
+    print(text)
+    s = ''
+    for i in text.split(' '):
+        if i in non_terminals:
+            s += i + ' '
+        else:
+            s += ' '.join(i) + ' '
+    return s
 
 
 class LR0GrammarSolver(QMainWindow):
@@ -90,7 +113,7 @@ class LR0GrammarSolver(QMainWindow):
 
         # 在分析图 tab 中添加 QLabel 和 QPixmap
         self.label = QLabel(self.tab4)
-        pixmap = QPixmap('LR0_Digraph\LR_Digraph.gv.png')
+        # self.pixmap = QPixmap('LR0_Digraph\LR_Digraph.gv.png')
         # label.setPixmap(pixmap)
 
         # 将 QLabel 放在 QVBoxLayout 中，并将 QVBoxLayout 设置为 self.tab4 的布局
@@ -103,7 +126,7 @@ class LR0GrammarSolver(QMainWindow):
         button.clicked.connect(self.show_image)
         layout.addWidget(button)
         layout.addWidget(button_save)
-        button_save.clicked.connect(lambda: self.save_image(pixmap))
+        button_save.clicked.connect(lambda: self.save_image())
 
 
         layout1 = QtWidgets.QGridLayout()
@@ -474,7 +497,7 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 self.LR.draw_graphic()
@@ -488,21 +511,13 @@ class LR0GrammarSolver(QMainWindow):
         dialog.resize(pixmap.width(), pixmap.height())
         dialog.show()'''
 
-    def save_image(self, pixmap):
+    def save_image(self):
         # 弹出文件对话框，让用户选择保存的文件名和路径
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, selected_filter = QFileDialog.getSaveFileName(self, "保存图片", "", "JPEG (*.jpg);;PNG (*.png)", options=options)
-        # 如果用户选择了文件名和路径，则保存图片到本地
+        file_name, _ = QFileDialog.getSaveFileName(self, '保存图片', '', 'Images (*.png *.xpm *.jpg)')
+        pixmap = QPixmap('LR0_Digraph\\LR_Digraph.gv.png')
         if file_name:
-            # 从过滤器中获取文件类型后缀
-            file_types = ('JPEG (*.jpg)', 'PNG (*.png)')
-            file_exts = ('.jpg', '.png')
-            idx = file_types.index(selected_filter)
-            file_ext = file_exts[idx]
-            if not file_name.endswith(file_ext):
-                file_name += file_ext
-
             pixmap.save(file_name)
 
     def check_charset(self, file_path):
@@ -546,7 +561,7 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 self.LR.Action_and_GoTo_Table()
                 self.LR.draw_graphic()
@@ -561,7 +576,7 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
+                    grammar, non_terminals = grammar_cut(grammar)
                 self.LR.input(grammar)
                 is_lr = self.LR.Action_and_GoTo_Table()
                 if not is_lr:
@@ -606,9 +621,8 @@ class LR0GrammarSolver(QMainWindow):
             try:
                 grammar = grammar.replace('->', ':')
                 if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals, terminals = grammar_cut(grammar)
-                    for symbol in non_terminals.union(terminals):
-                        text = text.replace(symbol, f" {symbol} ")
+                    grammar, non_terminals = grammar_cut(grammar)
+                    text = text_cut(text, non_terminals)
                 self.LR.input(grammar)
                 is_lr, lab = self.LR.Action_and_GoTo_Table()
                 if not is_lr:
@@ -637,7 +651,7 @@ class LR0GrammarSolver(QMainWindow):
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
             if self.chose_mode == '系统分词模式':
-                grammar, non_terminals, terminals = grammar_cut(grammar)
+                grammar, non_terminals = grammar_cut(grammar)
             self.LR.input(grammar)
             is_lr, lab = self.LR.Action_and_GoTo_Table()
             if not is_lr:
@@ -702,9 +716,8 @@ class LR0GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     window = LR0GrammarSolver()
-#     window.show()
-#     sys.exit(app.exec_())
+'''if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = LR0GrammarSolver()
+    window.show()
+    sys.exit(app.exec_())'''
