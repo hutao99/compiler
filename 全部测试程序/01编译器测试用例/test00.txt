@@ -1,4 +1,4 @@
-//姹傜粷瀵瑰�硷紝甯lse鐨刬f娴嬭瘯
+//求绝对值，带else的if测试
 main(){
   int x = -3;
   if (x < 0) {

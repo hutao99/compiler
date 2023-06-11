@@ -558,7 +558,7 @@ def check_charset(file_path):
     return charset
 
 
-# filename = r'全部测试程序\00编译阶段 部分错误测试用例\词法分析用例.txt'
+# filename = r'全部测试程序\00编译阶段部分错误测试用例\词法分析用例.txt'
 # with open(filename, encoding=check_charset(filename)) as f:
 #     text = f.read()
 #     a = LexicalAnalysis(text)  # 读入文章

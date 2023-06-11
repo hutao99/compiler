@@ -317,8 +317,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                               self.saveGeometry())
             settings.setValue("MainWindow/State",
                               self.saveState())
-            settings.setValue("MessageSplitter",
-                              self.textEdit.saveState())
             settings.setValue("MainSplitter",
                               self.splitter1.saveState())
         else:

@@ -1,0 +1,8 @@
+// Test Graph
+digraph {
+	A [label="不是闰年"]
+	B [label="是闰年
+"]
+	A -> B [label="366天"]
+	B -> A [label="365天"]
+}
