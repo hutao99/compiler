@@ -137,7 +137,6 @@ class Ui_MainWindow(object):
         self.tree.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
         self.splitter2 = QSplitter(Qt.Vertical)
-        # self.splitter2.addWidget(self.splitter1)
         self.splitter2.addWidget(self.textEdit_3)
         self.splitter2.addWidget(self.textEdit_2)
 
@@ -147,9 +146,7 @@ class Ui_MainWindow(object):
 
         self.splitter1 = QSplitter(Qt.Horizontal)
         self.splitter1.addWidget(self.splitter3)
-        # self.splitter1.addWidget(self.tree)
         self.splitter1.addWidget(self.textEdit)
-        # self.splitter1.addWidget(self.textEdit_2)
         self.splitter1.addWidget(self.splitter2)
 
         sizes = [100,200, 300]
@@ -180,6 +177,8 @@ class Ui_MainWindow(object):
         self.menuDAG.setObjectName("menuDAG")
         self.menu_picture = QtWidgets.QMenu(self.menubar)
         self.menu_picture.setObjectName("menu_picture")
+        self.menu_algorithm=QtWidgets.QMenu(self.menubar)
+        self.menu_algorithm.setObjectName("menu_algorithm")
 
         MainWindow.setMenuBar(self.menubar)
         self.toolBar = QtWidgets.QToolBar(MainWindow)
@@ -323,12 +322,11 @@ class Ui_MainWindow(object):
         self.actionLR1.setObjectName("actionLR1")
         self.actionLR0 = QtWidgets.QAction(MainWindow)
         self.actionLR0.setObjectName("actionLR0")
-        ##############
 
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
         self.actionDAG_.setObjectName("actionDAG_")
 
-        ##导出图片
+        #导出图片
         self.action_tree_pic= QtWidgets.QAction(MainWindow)
         self.action_tree_pic.setObjectName("action_tree_pic")
 
@@ -337,9 +335,6 @@ class Ui_MainWindow(object):
 
         self.action_DAG_pic = QtWidgets.QAction(MainWindow)
         self.action_DAG_pic.setObjectName("action_DAG_pic")
-
-
-
 
         self.action = QtWidgets.QAction(MainWindow)
         self.action.setObjectName("action")
@@ -359,12 +354,7 @@ class Ui_MainWindow(object):
         self.menuedit.addAction(self.actionselect_all)
         self.menu_cifa.addAction(self.actionstate_transition)
         self.menu_cifa.addAction(self.actionPLY)
-        self.menu_cifa.addAction(self.actionNFA_DFA)
         self.menu_yufa.addAction(self.actionfrom_up_to_down)
-        self.menu_yufa.addAction(self.actionLL1)
-        self.menu_yufa.addAction(self.actionsuanfu_first)
-        self.menu_yufa.addAction(self.actionLR1)
-        self.menu_yufa.addAction(self.actionLR0)
         self.menu_Quaternion.addAction(self.action_middle_code)
         self.menu_Quaternion.addAction(self.action_basic_block)
         self.menu_Quaternion.addAction(self.actionDAG)
@@ -372,6 +362,13 @@ class Ui_MainWindow(object):
         self.menu_picture.addAction(self.action_tree_pic)
         self.menu_picture.addAction(self.action_baseblock_pic)
         self.menu_picture.addAction(self.action_DAG_pic)
+
+        self.menu_algorithm.addAction(self.actionNFA_DFA)
+        self.menu_algorithm.addAction(self.actionLL1)
+        self.menu_algorithm.addAction(self.actionsuanfu_first)
+        self.menu_algorithm.addAction(self.actionLR1)
+        self.menu_algorithm.addAction(self.actionLR0)
+
         self.menuDAG.addAction(self.actionDAG_)
         self.menu_O.addAction(self.actionhuibian_code)
         self.menu_H.addAction(self.actionHELP_CHM)
@@ -396,6 +393,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_H.menuAction())
         self.menubar.addAction(self.menuDAG.menuAction())
         self.menubar.addAction(self.menu_picture.menuAction())
+        self.menubar.addAction(self.menu_algorithm.menuAction())
         self.toolBar.addAction(self.actionOPEN)
         self.toolBar.addAction(self.actionSAVE)
         self.toolBar.addAction(self.actionundo)
@@ -431,6 +429,7 @@ class Ui_MainWindow(object):
         self.menu_2.setTitle(_translate("MainWindow", "视图(V)"))
         self.menuDAG.setTitle(_translate("MainWindow", "DAG优化(基本块)"))
         self.menu_picture.setTitle(_translate("MainWindow", "导出图片"))
+        self.menu_algorithm.setTitle(_translate("MainWindow", "算法"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionOPEN.setText(_translate("MainWindow", "打开"))
         self.actionOPEN.setShortcut(_translate("MainWindow", "Ctrl+O"))
