@@ -1,3 +1,5 @@
+import re
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
@@ -425,9 +427,14 @@ class LL1GrammarSolver(QMainWindow):
                     new_s += line[i]
                 print(new_s)
                 res += new_s.strip() + '\n'
+            print('------------res-------------')
             print(res)
-            grammar = res.replace(' - > ', ':')
-            grammar = grammar.replace(' | ', '|')
+            for line in re.split('\n', res):
+                if ' - > ' in line:
+                    line = line.replace(' - > ', ':')
+                if ' | ' in line:
+                    line = line.replace(' | ', '|')
+                grammar += line + '\n'
         elif self.chose_mode == "用户分词模式":
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
@@ -443,8 +450,8 @@ class LL1GrammarSolver(QMainWindow):
         for i in test.first:
             print(i, test.first[i])
         print("\nfollow集合如下\n")
-        for j in  test.follow_table:
-            print(j,  test.follow_table[j])
+        for j in test.follow_table:
+            print(j, test.follow_table[j])
         # 设置行数和列数
         row_count = len(VN)
         col_count = len(VT)
@@ -555,9 +562,14 @@ class LL1GrammarSolver(QMainWindow):
                     new_s += line[i]
                 print(new_s)
                 res += new_s.strip() + '\n'
+            print('------------res-------------')
             print(res)
-            grammar = res.replace(' - > ', ':')
-            grammar = grammar.replace(' | ', '|')
+            for line in re.split('\n', res):
+                if ' - > ' in line:
+                    line = line.replace(' - > ', ':')
+                if ' | ' in line:
+                    line = line.replace(' | ', '|')
+                grammar += line + '\n'
         elif self.chose_mode == "用户分词模式":
             grammar = self.textEdit.toPlainText()
             grammar = grammar.replace('->', ':')
@@ -593,6 +605,7 @@ class LL1GrammarSolver(QMainWindow):
                         else:
                             f.write('\t')
                     f.write('\n')
+
 
     def obtain_type(self, stack):
         res = []
@@ -671,7 +684,7 @@ class LL1GrammarSolver(QMainWindow):
                 # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 1, item1)
 
-                item1 = QtWidgets.QTableWidgetItem(str(word_table[index][1]))
+                item1 = QtWidgets.QTableWidgetItem(str("接受"))
                 # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 3, item1)
 
@@ -689,7 +702,7 @@ class LL1GrammarSolver(QMainWindow):
                 # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 3, item1)
 
-                contents = contents.replace(word_table[index][1], "",1)
+                contents = contents.replace(word_table[index][1], "", 1)
                 item1 = QtWidgets.QTableWidgetItem(str(contents))
                 # item1.setTextAlignment(Qt.AlignCenter)
                 self.tableStack.setItem(layer_stack - 1, 1, item1)
@@ -807,6 +820,9 @@ class LL1GrammarSolver(QMainWindow):
         stack.append('#')
         stack.append(test.begin)
 
+
+
+
         while len(stack) != 0:
             # 层数增加一层
             layer_stack = layer_stack + 1
@@ -840,7 +856,7 @@ class LL1GrammarSolver(QMainWindow):
                     # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 3, item1)
 
-                    contents = contents.replace(analyze_str[index], "",1)
+                    contents = contents.replace(analyze_str[index], "", 1)
                     item1 = QtWidgets.QTableWidgetItem(str(contents))
                     # item1.setTextAlignment(Qt.AlignCenter)
                     self.tableStack.setItem(layer_stack - 1, 1, item1)
@@ -919,9 +935,8 @@ class LL1GrammarSolver(QMainWindow):
                             f.write('\t')
                     f.write('\n')
 
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = LL1GrammarSolver()
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = LL1GrammarSolver()
+#     window.show()
+#     sys.exit(app.exec_())

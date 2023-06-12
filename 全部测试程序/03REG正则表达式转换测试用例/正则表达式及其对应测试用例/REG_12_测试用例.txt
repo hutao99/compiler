@@ -1,0 +1,5 @@
+auto int char
+float
+break baby
+apple
+animal

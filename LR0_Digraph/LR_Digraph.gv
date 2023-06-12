@@ -1,0 +1,64 @@
+// LR_Digraph
+digraph {
+	0 [label="I0
+E'→.E
+E→.aA
+E→.bB
+" fontname=SimHei shape=rectangle]
+	1 [label="I1
+E'→E.
+" fontname=SimHei shape=doublecircle]
+	2 [label="I2
+E→a.A
+A→.cA
+A→.d
+" fontname=SimHei shape=rectangle]
+	3 [label="I3
+E→b.B
+B→.cB
+B→.d
+" fontname=SimHei shape=rectangle]
+	4 [label="I4
+E→aA.
+" fontname=SimHei shape=doublecircle]
+	5 [label="I5
+A→.cA
+A→.d
+A→c.A
+" fontname=SimHei shape=rectangle]
+	6 [label="I6
+A→d.
+" fontname=SimHei shape=doublecircle]
+	7 [label="I7
+E→bB.
+" fontname=SimHei shape=doublecircle]
+	8 [label="I8
+B→.cB
+B→.d
+B→c.B
+" fontname=SimHei shape=rectangle]
+	9 [label="I9
+B→d.
+" fontname=SimHei shape=doublecircle]
+	10 [label="I10
+A→cA.
+" fontname=SimHei shape=doublecircle]
+	11 [label="I11
+B→cB.
+" fontname=SimHei shape=doublecircle]
+	0 -> 1 [label=E fontname=SimHei]
+	0 -> 2 [label=a fontname=SimHei]
+	0 -> 3 [label=b fontname=SimHei]
+	2 -> 4 [label=A fontname=SimHei]
+	2 -> 5 [label=c fontname=SimHei]
+	2 -> 6 [label=d fontname=SimHei]
+	3 -> 7 [label=B fontname=SimHei]
+	3 -> 8 [label=c fontname=SimHei]
+	3 -> 9 [label=d fontname=SimHei]
+	5 -> 10 [label=A fontname=SimHei]
+	5 -> 5 [label=c fontname=SimHei]
+	5 -> 6 [label=d fontname=SimHei]
+	8 -> 11 [label=B fontname=SimHei]
+	8 -> 8 [label=c fontname=SimHei]
+	8 -> 9 [label=d fontname=SimHei]
+}
