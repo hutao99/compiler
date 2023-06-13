@@ -8,6 +8,7 @@ import re
 regex = r"\[(\w+)]"
 
 global_main_symbol = []
+global_str_symbol = {} #字符串字典 字符串为键 _writestring为值
 # 除main函数外其他函数里参数 以及对应的ss:[bp+n]， 局部变量  以及对应的ss:[bp-n]     sub sp n    n的值为局部变量个数*2
 function = {}
 function_array = {}
@@ -49,13 +50,22 @@ def function_get(quaternion_list):
         function[i] = [{}, {}]
         for j in v:
             function[i][0][j] = '_'
+    # 字符串的编号
+    num = 1
     # 遍历四元式
     for i, line in enumerate(quaternion_list[0:sys+1]):  # i从0标号 line[1:]
         if line[0] not in ['jnz', 'para', 'call', 'j', 'jz', 'j<', 'j>', 'j<=', 'j>=', 'j==', 'j!=']:  # 如果不是跳转语句 不是函数调用
             for var in line[1:]:  # 全局变量表添加
-                #print('line1',line[1:])
+                # print('line1',line[1:])
                 if is_var(var) and var not in global_main_symbol + ['_'] and var[0] != 'T':
                     global_main_symbol.append(var)
+        if line[0] == 'para' and line[1][0] in ['\'','"']: # 函数参数为字符串常量
+            if line[1].replace('\\n','') not in global_str_symbol:
+                s = 'writestring'+str(num)
+                num+=1
+            global_str_symbol[line[1].replace('\\n','')] = s
+            # print(line[1],global_str_symbol[line[1]])
+
     #print(global_main_symbol)
 
     num = 0
@@ -145,6 +155,9 @@ def target_code(four_table):
     fun_name = '**'
     f = open('./target/data_segment.txt', 'r')
     s = f.read()
+    for k,v in global_str_symbol.items():
+        s += '\t_' + v + ' db '+ k + ' ,\'$\'\n'
+        # print('\t_' + v + ' db '+ k + ' ,\'$\'\n')
     for i in global_main_symbol:
         s += '\t_' + i + ' dw 0\n'
     for i in global_array_list:
@@ -159,6 +172,7 @@ def target_code(four_table):
     f = open('./target/code_segment2.txt', 'r')
     rear = f.read()
     f.close()
+    flag = False # 打印字符串标志
     fun_name = '**'
     for i, line in enumerate(four_table):
         one = four_table[i][0]
@@ -323,10 +337,18 @@ def target_code(four_table):
             第二个参数->BP+4
             第一个参数->BP+6
             '''
-            s += '_%d:\t' % (i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + 'PUSH AX\n'
+            if two[0] == '"' or two[0] == '\'': # 参数为字符串
+                s += '_%d:\t' % (i) + array_address1(fun_name, two1) + 'MOV BX, offset _' + global_str_symbol[two.replace('\\n','')] + '\n'
+                flag = True # 打印字符串
+            else:
+                s += '_%d:\t' % (i) + array_address1(fun_name,two1) +'MOV AX,' + two + '\n\t' + 'PUSH AX\n'
         elif one == 'call':
-            two = str(four_table[i][1])
-            s += '_%d:\t' % (i) + 'CALL ' + two + '\n'
+            if flag:
+                flag = False
+                s += '_%d:\t' % (i) + 'CALL _print\n'
+            else:
+                two = str(four_table[i][1])
+                s += '_%d:\t' % (i) + 'CALL ' + two + '\n'
             if four != '_':
                 s += '\tMOV ' + four + ',AX\n'
         elif one == 'ret' and two != '_':
