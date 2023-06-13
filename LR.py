@@ -810,7 +810,7 @@ class CLRParser:
                     elif father.name == '函数定义参数':
                         val = VariableInfo()
                         val.type = father.type
-                        val.scope = scope[-1][0] + ',' + str(scope[-1][1])
+                        val.scope = scope[-1][0] + ',' + str(scope_count+1)
                         if len(father.children) == 2:
                             father.type = father.children[-1].type
                             father.parameters = 1
@@ -917,7 +917,7 @@ class CLRParser:
                     scope.append([scope[-1][0] + ',' + str(scope_count), scope_count])
                 elif name == '}':
                     scope.pop()
-                    scope_count -= 1
+                    # scope_count -= 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
@@ -1439,7 +1439,7 @@ class CLRParser:
                     scope.append([scope[-1][0] + ',' + str(scope_count), scope_count])
                 elif name == '}':
                     scope.pop()
-                    scope_count -= 1
+                    # scope_count -= 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
