@@ -884,11 +884,14 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         thread = self.CalculationThread(parent=self)
         thread.start()
 
-        progress = QProgressDialog("正在初始化LR分析表...", "取消", 0, 100, self)
-        progress.setWindowModality(Qt.WindowModal)
-        progress.setAutoClose(True)
-        progress.setAutoReset(True)
-        progress.setMinimumDuration(0)
+        progress = QMessageBox(self)
+        progress.setWindowTitle("提示")
+        progress.setText("正在初始化LR分析表...")
+        progress.setStandardButtons(QMessageBox.Cancel)
+        cancel_button = progress.button(QMessageBox.Cancel)
+        cancel_button.setText("取消")
+        progress.setModal(True)
+        # progress.setMinimumDuration(0)
         thread.closeProgressDialog.connect(self.on_close_progress_dialog)  # 连接关闭进度对话框信号
         progress.show()
         self.progress_dialog = progress  # 保存进度对话框的引用
