@@ -311,7 +311,7 @@ class LR0GrammarSolver(QMainWindow):
         self.pushButton_3__Statutory.setFont(font)
         self.pushButton_3__Statutory.setObjectName("pushButton_3")
         self.pushButton_3__Statutory.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
-        self.pushButton_3__Statutory.setText("规约式")
+        self.pushButton_3__Statutory.setText("归约式")
 
         # 显示规约式的内容
         self.tableStatutory = QtWidgets.QTextEdit()
@@ -331,7 +331,7 @@ class LR0GrammarSolver(QMainWindow):
         self.pushButton_3__Statutory_.setFont(font)
         self.pushButton_3__Statutory_.setObjectName("pushButton_3__Statutory_")
         self.pushButton_3__Statutory_.setStyleSheet('QWidget{background-color:%s}' % QColor("#CCCCCC").name())
-        self.pushButton_3__Statutory_.setText("保存规约式")
+        self.pushButton_3__Statutory_.setText("保存归约式")
 
         self.splitter2 = QSplitter(Qt.Vertical)
         self.splitter2.addWidget(self.pushButton_3)
