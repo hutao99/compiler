@@ -650,6 +650,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
                         s += '函数表:\n'
                         for i in self.LR.FunctionTable:
+                            if i == 'read' or i == 'write':
+                                continue
                             s += i + ": "
                             s += str(vars(self.LR.FunctionTable[i])) + '\n'
                         s += '\nerror %d\n' % len(errors)
