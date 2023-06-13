@@ -392,7 +392,7 @@ class recDesc_analysis:
                                 # else:
                                 #     print(self.warnings_str)
                         self.node_number += 1
-                        tree.node(str(self.node_number), self.goal_list[self.p][1])
+                        tree.node(str(self.node_number), self.goal_list[self.p][1],fontname="SimHei")
                         tree.edge(str(fabian), str(self.node_number))
                         self.p += 1
                     elif self.p < len(self.goal_list) and (item == self.goal_list[self.p][1]):  # 终结符 则进行匹配 字符串指针++
