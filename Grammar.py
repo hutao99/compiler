@@ -478,29 +478,37 @@ class recDesc_analysis:
                     if self.expression_shengming and not self.str1.gettop().empty():
                         str1 = copy.deepcopy(self.str1.gettop().getlist())
                         str2 = copy.deepcopy(self.str2.gettop().getlist())
-                        expression_type = self.format_type(str2[0][0])
-                        ss = []
-                        flag1, flag2 = 0, 0  # 表达式中是否出现[char double int bool]类型的 以及string类型
-                        for l in str2:
-                            if self.format_type(l[0]) in ['char', 'double', 'int', 'bool']:
-                                flag1 = 1
-                            elif self.format_type(l[0]) == 'string':
-                                flag2 = 1
-                            ss.append(l[1])
-                        if flag1 == 1 and flag2 == 1:
-                            expression_type = 'mismatch'
-
-                        temp = self.suan_process.solve(self.count, self.Tid, str1, ss)  # 第几条四元式 T的编号，
-                        if temp != False:  # 将表达式产生的四元式添加到我们原来的四元式
-                            for i in temp[0]:
-                                self.quaternions.append(i)
-                            self.count = temp[1]
-                            self.Tid = temp[2]
-                            if len(temp[0]) >= 1:
-                                self.expression_list.push([expression_type, self.quaternions[-1][4]])
+                        # print(str1,str2)
+                        if len(str1) == 2 and str1[0] == '-' and str2[0][0] in ['400','800','850']: # 对 “x=-1"形式进行处理
+                            expression_type = self.format_type(str2[0][0])
+                            if str2[0][0] == '400':
+                                self.expression_list.push([expression_type, str(-int(str2[0][1]))])
                             else:
-                                # self.expression_list.push(self.str2[-1][0])
-                                self.expression_list.push([expression_type, str2[0][1]])
+                                self.expression_list.push([expression_type, str(-double(str2[0][1]))])
+                        else:
+                            expression_type = self.format_type(str2[0][0])
+                            ss = []
+                            flag1, flag2 = 0, 0  # 表达式中是否出现[char double int bool]类型的 以及string类型
+                            for l in str2:
+                                if self.format_type(l[0]) in ['char', 'double', 'int', 'bool']:
+                                    flag1 = 1
+                                elif self.format_type(l[0]) == 'string':
+                                    flag2 = 1
+                                ss.append(l[1])
+                            if flag1 == 1 and flag2 == 1:
+                                expression_type = 'mismatch'
+
+                            temp = self.suan_process.solve(self.count, self.Tid, str1, ss)  # 第几条四元式 T的编号，
+                            if temp != False:  # 将表达式产生的四元式添加到我们原来的四元式
+                                for i in temp[0]:
+                                    self.quaternions.append(i)
+                                self.count = temp[1]
+                                self.Tid = temp[2]
+                                if len(temp[0]) >= 1:
+                                    self.expression_list.push([expression_type, self.quaternions[-1][4]])
+                                else:
+                                    # self.expression_list.push(self.str2[-1][0])
+                                    self.expression_list.push([expression_type, str2[0][1]])
                     self.str1.pop()
                     self.str2.pop()
                     if self.str1.empty():

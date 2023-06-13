@@ -391,7 +391,6 @@ class Suanfufirst:
             if ana_str[0] == '-':
                 ana_str[0] = '@'
             # print("分析：",ana_str,digit_str)
-            # print()
             return self.master(count,placeid,ana_str, self.num,self.gra,digit_str)
 
 # ss = Suanfufirst()
