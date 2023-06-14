@@ -308,6 +308,7 @@ class Ui_MainWindow(object):
         icon17.addPixmap(QtGui.QPixmap("ICON/312581_blue_m&m_chocolate_color_colour_icon.png"), QtGui.QIcon.Normal,
                          QtGui.QIcon.Off)
         self.actionblue_font.setIcon(icon17)
+
         self.actionblue_font.setObjectName("actionblue_font")
         self.actionNFA_DFA = QtWidgets.QAction(MainWindow)
         self.actionNFA_DFA.setObjectName("actionNFA_DFA")
