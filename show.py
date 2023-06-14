@@ -298,6 +298,7 @@ class Ui_MainWindow(object):
         self.actionpurple_font.setIcon(icon15)
         self.actionpurple_font.setObjectName("actionpurple_font")
         self.actionorange_font = QtWidgets.QAction(MainWindow)
+
         icon16 = QtGui.QIcon()
         icon16.addPixmap(QtGui.QPixmap("ICON/312580_m&m_orange_chocolate_color_colour_icon.png"), QtGui.QIcon.Normal,
                          QtGui.QIcon.Off)
@@ -309,8 +310,10 @@ class Ui_MainWindow(object):
                          QtGui.QIcon.Off)
         self.actionblue_font.setIcon(icon17)
         self.actionblue_font.setObjectName("actionblue_font")
+
         self.actionNFA_DFA = QtWidgets.QAction(MainWindow)
         self.actionNFA_DFA.setObjectName("actionNFA_DFA")
+
         self.actionLL1 = QtWidgets.QAction(MainWindow)
         self.actionLL1.setObjectName("actionLL1")
         self.actionsuanfu_first = QtWidgets.QAction(MainWindow)
@@ -321,7 +324,6 @@ class Ui_MainWindow(object):
         self.actionLR1.setObjectName("actionLR1")
         self.actionLR0 = QtWidgets.QAction(MainWindow)
         self.actionLR0.setObjectName("actionLR0")
-
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
         self.actionDAG_.setObjectName("actionDAG_")
 
@@ -428,7 +430,7 @@ class Ui_MainWindow(object):
         self.menu_2.setTitle(_translate("MainWindow", "视图(V)"))
         self.menuDAG.setTitle(_translate("MainWindow", "DAG优化(基本块)"))
         self.menu_picture.setTitle(_translate("MainWindow", "导出图片"))
-        self.menu_algorithm.setTitle(_translate("MainWindow", "算法"))
+        self.menu_algorithm.setTitle(_translate("MainWindow", "相关算法"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionOPEN.setText(_translate("MainWindow", "打开"))
         self.actionOPEN.setShortcut(_translate("MainWindow", "Ctrl+O"))
