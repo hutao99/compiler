@@ -170,8 +170,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 item.setText(0, os.path.basename(folder))
                 item.setData(0, Qt.UserRole, folder)
 
-            ''''''
-
             # 连接itemDoubleClicked信号到槽函数
             def on_item_clicked(item, column):
                 # 获取双击的项目
@@ -237,7 +235,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             print(self.file_path)
 
         self.save_info()
-        self.init_info()
 
     def save_info(self):
         # 参考了https://blog.csdn.net/qq_38463737/article/details/107109046
@@ -250,13 +247,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
         self.app_data.setValue('list', list_)
 
-    def init_info(self):
-        time = self.app_data.value('time')
-        last_path = self.app_data.value('self.last_path')
-        a = self.app_data.value('a')
-        list_ = self.app_data.value('list')
-        bool_ = self.app_data.value('bool')
-        dict_ = self.app_data.value('dict')
 
     def check_charset(self, file_path):
         import chardet
@@ -335,26 +325,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         print(self.model.filePath(Qmodelidx))  # 输出文件的地址。
         print(self.model.fileName(Qmodelidx))  # 输出文件名
 
-    def increase_font(self):
-        # 创建一个QFont对象，并设置初始字体大小为12
-        font = QFont()
-        font.setPointSize(13)
-        self.textEdit.setFont(font)
-
-        # 获取当前字体大小
-        font_size = self.textEdit.fontPointSize()
-
-        # 增大字体大小
-        font_size += 2
-
-        # 设置新的字体大小
-        self.textEdit.setFontPointSize(font_size)
-
-        # 将光标移动到文本末尾
-        cursor = self.textEdit.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        self.textEdit.setTextCursor(cursor)
-
     def on_increase_font_size_clicked(self):
         font = QFont()
         font.setPointSize(13)
@@ -396,24 +366,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
         # 将选中的文本应用新的格式
         cursor.mergeCharFormat(char_format)
-
-    def decrease_font(self):
-        font = QFont()
-        font.setPointSize(13)
-        self.textEdit.setFont(font)
-        # 获取当前字体大小
-        font_size = self.textEdit.fontPointSize()
-
-        # 增大字体大小2个点
-        font_size -= 2
-
-        # 设置新的字体大小
-        self.textEdit.setFontPointSize(font_size)
-
-        # 将光标移动到文本末尾
-        cursor = self.textEdit.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        self.textEdit.setTextCursor(cursor)
 
     def on_bold_clicked(self):
         # 获取当前选中的文本
@@ -595,9 +547,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         cursor.insertImage(image_format)
 
                         self.textEdit_3.show()
-
-
-
                     except:
                         QMessageBox.warning(self, '警告', '系统无法处理！')
             else:
