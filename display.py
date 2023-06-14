@@ -395,7 +395,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 创建一个新的QTextCharFormat对象，并设置其下划线属性为True
         char_format = QTextCharFormat()
         char_format.setFontUnderline(True)
-
         # 将选中的文本应用新的格式
         cursor.mergeCharFormat(char_format)
 
