@@ -483,6 +483,7 @@ class OPGGrammarSolver(QMainWindow):
                 print(op.first[i])
                 for j in range(len(op.first[i])):
                     item = QtWidgets.QTableWidgetItem(op.first[i][j])
+                    item.setTextAlignment(Qt.AlignCenter)
                     self.table_FIRST.setItem(idx, j, item)
                 idx += 1
             idx = 0
@@ -491,6 +492,7 @@ class OPGGrammarSolver(QMainWindow):
                 self.table_FOLLOW.setVerticalHeaderItem(idx, item1)
                 for j in range(len(op.last[i])):
                     item = QtWidgets.QTableWidgetItem(op.last[i][j])
+                    item.setTextAlignment(Qt.AlignCenter)
                     self.table_FOLLOW.setItem(idx, j, item)
                 idx += 1
         except Exception as e:
@@ -525,6 +527,7 @@ class OPGGrammarSolver(QMainWindow):
             for i in sequence1:
                 for j in range(len(sequence1)):
                     item = QtWidgets.QTableWidgetItem(precedence_table1[sequence1[i]][j])
+                    item.setTextAlignment(Qt.AlignCenter)
                     self.tableAnalyze.setItem(idx, j+1, item)
                 idx += 1
             print(precedence_table1)
@@ -562,6 +565,8 @@ class OPGGrammarSolver(QMainWindow):
                         break
                     p = str(t[j][i])
                     item = QtWidgets.QTableWidgetItem(p)
+                    if j == 1:
+                        item.setTextAlignment(Qt.AlignRight)
                     self.tableStack.setItem(i, j, item)
         except Exception as e:
             QMessageBox.warning(self, '错误', '句子中可能存在文法中没有的终结符或系统错误')

@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QFileDialog, QPushButton, QLabel, QDialog, \
     QHBoxLayout, QScrollArea, QSizePolicy, QComboBox
@@ -112,12 +112,18 @@ class LR1GrammarSolver(QMainWindow):
         self.tabWidget.addTab(self.tab4, "分析图")
 
         # 在分析图 tab 中添加 QLabel 和 QPixmap
-        self.label = QLabel(self.tab4)
+        '''self.label = QLabel(self.tab4)
         # label.setPixmap(pixmap)
 
         # 将 QLabel 放在 QVBoxLayout 中，并将 QVBoxLayout 设置为 self.tab4 的布局
         layout = QVBoxLayout(self.tab4)
-        layout.addWidget(self.label)
+        layout.addWidget(self.label)'''
+        layout = QVBoxLayout(self.tab4)
+        scroll_area = QScrollArea()
+        layout.addWidget(scroll_area)
+        self.label = QLabel()
+        scroll_area.setWidget(self.label)
+        scroll_area.setWidgetResizable(True)
 
         # 创建按钮，用于触发显示图片的操作
         button = QPushButton('显示图片', self.tab4)
@@ -300,7 +306,7 @@ class LR1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3__Statutory.setFont(font)
         self.pushButton_3__Statutory.setObjectName("pushButton_3")
-        self.pushButton_3__Statutory.setText("规约式")
+        self.pushButton_3__Statutory.setText("归约式")
 
         # 显示规约式的内容
         self.tableStatutory = QtWidgets.QTextEdit()
@@ -319,7 +325,7 @@ class LR1GrammarSolver(QMainWindow):
         font.setWeight(50)
         self.pushButton_3__Statutory_.setFont(font)
         self.pushButton_3__Statutory_.setObjectName("pushButton_3__Statutory_")
-        self.pushButton_3__Statutory_.setText("保存规约式")
+        self.pushButton_3__Statutory_.setText("保存归约式")
 
         self.splitter2 = QSplitter(Qt.Vertical)
         self.splitter2.addWidget(self.pushButton_3)
@@ -448,6 +454,9 @@ class LR1GrammarSolver(QMainWindow):
         # 保存LR分析过程
         self.pushButton_5_.clicked.connect(self.save_analyze_process)
 
+        # 画图提示框
+        self.progress_dialog = None
+
     def onItemChanged(self, item):
         # 自动调整表格大小
         self.tableStack.resizeColumnsToContents()
@@ -469,39 +478,60 @@ class LR1GrammarSolver(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
     def on_mode_changed(self, index):
         # 处理用户选择的模式
         mode = self.mode_combo.currentText()
         self.chose_mode = mode
         print("当前模式：", mode)
 
+    class CalculationThread(QThread):  # 画图的线程
+        closeProgressDialog = pyqtSignal()
+
+        def __init__(self, grammar, parent=None):
+            super().__init__(parent)
+            self.main_window = parent
+            self.grammar = grammar
+
+        def run(self):
+            grammar = self.grammar.replace('->', ':')
+            if self.main_window.chose_mode == '系统分词模式':
+                grammar, non_terminals = grammar_cut(grammar)
+            self.main_window.LR.input(grammar)
+            self.main_window.LR.Action_and_GoTo_Table()
+            self.main_window.LR.draw_graphic()
+            pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
+            self.main_window.label.setPixmap(pixmap)
+            self.closeProgressDialog.emit()  # 发送信号，计算结束
+
+    def startCalculation(self, grammar):
+        thread = self.CalculationThread(grammar, parent=self)
+
+        progress = QMessageBox(self)
+        progress.setWindowTitle("提示")
+        progress.setText("正在构建DFA图...")
+        progress.setStandardButtons(QMessageBox.Cancel)
+        cancel_button = progress.button(QMessageBox.Cancel)
+        cancel_button.setText("取消")
+        progress.setModal(True)
+        # progress.setMinimumDuration(0)
+        thread.closeProgressDialog.connect(self.on_close_progress_dialog)  # 连接关闭进度对话框信号
+        progress.show()
+        thread.start()
+        self.progress_dialog = progress  # 保存进度对话框的引用
+        self.progress_dialog.exec_()
+
+    def on_close_progress_dialog(self):
+        self.progress_dialog.close()
+
     def show_image(self):
-        '''
-        :return:显示图片
-        '''
-         # 创建 QDialog，并将它设置为模态对话框
-        '''dialog = QDialog(self)
-        dialog.setModal(True)
-        # 在 QDialog 中添加 QLabel 和 QPixmap
-        label = QLabel(dialog)'''
         grammar = self.textEdit.toPlainText()
         if len(grammar) != 0:
             try:
-                grammar = grammar.replace('->', ':')
-                if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals = grammar_cut(grammar)
-                self.LR.input(grammar)
-                self.LR.Action_and_GoTo_Table()
-                self.LR.draw_graphic()
-                pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
-                self.label.setPixmap(pixmap)
+                self.startCalculation(grammar)
             except Exception as e:
                 QMessageBox.warning(self, '警告', '系统出错')
                 print("Error: ", e)
-        # 调整 QDialog 的大小，并显示它
-        '''dialog.setWindowTitle('分析图')
-        dialog.resize(pixmap.width(), pixmap.height())
-        dialog.show()'''
 
     def save_image(self):
         # 弹出文件对话框，让用户选择保存的文件名和路径
@@ -547,20 +577,6 @@ class LR1GrammarSolver(QMainWindow):
         except Exception as e:
             print("Error: ", e)
 
-    def LR_image(self):  # 画图
-        grammar = self.textEdit.toPlainText()
-        if len(grammar) != 0:
-            try:
-                grammar = grammar.replace('->', ':')
-                if self.chose_mode == '系统分词模式':
-                    grammar, non_terminals = grammar_cut(grammar)
-                self.LR.input(grammar)
-                self.LR.Action_and_GoTo_Table()
-                self.LR.draw_graphic()
-            except Exception as e:
-                QMessageBox.warning(self, '警告', '系统出错')
-                print("Error: ", e)
-
     def LR_Table(self):
         self.tableAnalyze.clear()
         grammar = self.textEdit.toPlainText()
@@ -593,6 +609,7 @@ class LR1GrammarSolver(QMainWindow):
                     self.tableAnalyze.setVerticalHeaderItem(i, item1)
                     for j in self.LR.parsing_table[i]:
                         item = QtWidgets.QTableWidgetItem(self.LR.parsing_table[i][j])
+                        item.setTextAlignment(Qt.AlignCenter)
                         self.tableAnalyze.setItem(i, idx[j], item)
                 s = ''
                 for i in range(0, len(self.LR.reduction)):
@@ -629,6 +646,8 @@ class LR1GrammarSolver(QMainWindow):
                         if j == 3 and str(t[j][i]).isdigit():
                             p = 'goto ' + p
                         item = QtWidgets.QTableWidgetItem(p)
+                        if j == 2:
+                            item.setTextAlignment(Qt.AlignRight)
                         self.tableStack.setItem(i, j, item)
             except Exception as e:
                 QMessageBox.warning(self, '警告', '系统出错')
