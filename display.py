@@ -412,7 +412,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         char_format = QTextCharFormat()
         # 设置为斜体
         char_format.setFontItalic(True)
-
         # 将选中的文本应用新的格式
         cursor.mergeCharFormat(char_format)
 
