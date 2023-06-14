@@ -324,7 +324,6 @@ class Ui_MainWindow(object):
         self.actionLR0.setObjectName("actionLR0")
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
         self.actionDAG_.setObjectName("actionDAG_")
-
         #导出图片
         self.action_tree_pic= QtWidgets.QAction(MainWindow)
         self.action_tree_pic.setObjectName("action_tree_pic")
