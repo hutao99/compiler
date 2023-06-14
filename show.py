@@ -298,6 +298,7 @@ class Ui_MainWindow(object):
         self.actionpurple_font.setIcon(icon15)
         self.actionpurple_font.setObjectName("actionpurple_font")
         self.actionorange_font = QtWidgets.QAction(MainWindow)
+
         icon16 = QtGui.QIcon()
         icon16.addPixmap(QtGui.QPixmap("ICON/312580_m&m_orange_chocolate_color_colour_icon.png"), QtGui.QIcon.Normal,
                          QtGui.QIcon.Off)
