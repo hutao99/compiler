@@ -2,20 +2,18 @@ import string
 lines = []
 nonterminals = [] #非终结符
 productions = {}
-with open('文法.txt', 'r') as f:
-    s = f.read()
-    for production in s.split('\n'):
-        left, right = production.split('->')
-        left = left.strip()
-        # 按照空格分割右部符号
-        symbols_list = right.split(' | ')
+first = {}
+follow_dict = {}
+first_dict = {}
+kong = []
+print_dic = {'A1':"程序",'A2':'声明语句','A3':'复合语句','A4':'函数块','A5':'函数定义','A6':'函数类型','A7':'标识符','A8':'函数定义形参列表',
+             'B1':'函数定义形参','B2':'变量类型','C1':'语句','C2':'执行语句','C3':'值声明','C4':'函数声明','C5':'常量声明','C6':'变量声明','C7':'常量类型','C8':'常量声明表','C9':'常量',
+             'D1':'变量声明表','D2':'单变量声明','D3':'变量','D4':'表达式','D5':'函数声明形参列表','D6':'函数声明形参','D7':'数据处理语句','D8':'控制语句',
+             'E1':'赋值语句','E2':'函数调用语句','E3':'赋值表达式','E4':'函数调用','E5':'语句表',
+             'F1':'关系表达式','F2':'算术表达式','F3':'关系运算符','F4':'布尔表达式','F5':'布尔项','F6':'布尔因子',
+             'G1':'项','G2':'因子','G3':'常量','G4':'变量','G5':'数值型常量','G6':'字符型常量','G7':'布尔常量','H1':'实参列表','H2':'实参',
+             'I1':'if语句','I2':'for语句','I3':'while语句','I4':'dowhile语句','I5':'return语句','J6':'break语句','J7':'continue语句'}
 
-        # 将左部和右部添加到字典中
-        if left not in productions:
-            productions[left] = []
-            nonterminals.append(left)
-        for symbols in symbols_list:
-            productions[left].append(symbols.split())
 # print(productions)
 # print(nonterminals)
 # print(len(nonterminals))
@@ -77,8 +75,6 @@ def compute_first(productions):
 
     return first
 
-first = compute_first(productions)
-# print('first',first)
 
 def compute_first_set(symbols):
     first_set = set()
@@ -100,20 +96,6 @@ def compute_first_set(symbols):
         first_set.add('r')
     return first_set
 
-
-first_dict = {}
-# 计算每个候选式的FIRST集
-for nonter, production in productions.items():
-    first_dict[nonter] = []
-    for rhs in production:
-        first_set = compute_first_set(rhs)
-        first_dict[nonter].append(list(first_set))
-# print('first_dict',first_dict)
-
-kong = []
-for i in first:
-    if 'r' in first[i]:
-        kong.append(i)
 # print('kong',kong)
 def compute_follow( start_symbol):
     follow_sets = {symbol: set() for symbol in nonterminals}
@@ -163,14 +145,36 @@ def compute_follow( start_symbol):
     return follow_sets
 
 
-follow_dict = compute_follow('A1')
-for i in follow_dict:
-    follow_dict[i] = list(follow_dict[i])
-# print('follow_dict',follow_dict)
-print_dic = {'A1':"程序",'A2':'声明语句','A3':'复合语句','A4':'函数块','A5':'函数定义','A6':'函数类型','A7':'标识符','A8':'函数定义形参列表',
-             'B1':'函数定义形参','B2':'变量类型','C1':'语句','C2':'执行语句','C3':'值声明','C4':'函数声明','C5':'常量声明','C6':'变量声明','C7':'常量类型','C8':'常量声明表','C9':'常量',
-             'D1':'变量声明表','D2':'单变量声明','D3':'变量','D4':'表达式','D5':'函数声明形参列表','D6':'函数声明形参','D7':'数据处理语句','D8':'控制语句',
-             'E1':'赋值语句','E2':'函数调用语句','E3':'赋值表达式','E4':'函数调用','E5':'语句表',
-             'F1':'关系表达式','F2':'算术表达式','F3':'关系运算符','F4':'布尔表达式','F5':'布尔项','F6':'布尔因子',
-             'G1':'项','G2':'因子','G3':'常量','G4':'变量','G5':'数值型常量','G6':'字符型常量','G7':'布尔常量','H1':'实参列表','H2':'实参',
-             'I1':'if语句','I2':'for语句','I3':'while语句','I4':'dowhile语句','I5':'return语句','J6':'break语句','J7':'continue语句'}
+
+
+def start():
+    global first,first_dict,kong,follow_dict
+    with open('文法.txt', 'r') as f:
+        s = f.read()
+        for production in s.split('\n'):
+            left, right = production.split('->')
+            left = left.strip()
+            # 按照空格分割右部符号
+            symbols_list = right.split(' | ')
+
+            # 将左部和右部添加到字典中
+            if left not in productions:
+                productions[left] = []
+                nonterminals.append(left)
+            for symbols in symbols_list:
+                productions[left].append(symbols.split())
+    first = compute_first(productions)
+    # 计算每个候选式的FIRST集
+    for nonter, production in productions.items():
+        first_dict[nonter] = []
+        for rhs in production:
+            first_set = compute_first_set(rhs)
+            first_dict[nonter].append(list(first_set))
+
+    for i in first:
+        if 'r' in first[i]:
+            kong.append(i)
+    follow_dict = compute_follow('A1')
+    for i in follow_dict:
+        follow_dict[i] = list(follow_dict[i])
+    return first_dict, follow_dict, print_dic, kong

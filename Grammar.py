@@ -1,4 +1,4 @@
-from FirstAndFollow import first_dict, follow_dict, print_dic, kong  # 从字典文件中导入first集 follow集 以及字典映射关系
+from FirstAndFollow import start  # 从字典文件中导入first集 follow集 以及字典映射关系
 from Symbol_Table import node1, node2, VariableSymbolTable, FunctionSymbolTable, CreateTableFlag
 from graphviz import Digraph
 from suanfu import Suanfufirst
@@ -8,7 +8,7 @@ import copy
 中间代码:
 编号 运算符 第一个 第二个 变量
 """
-
+first_dict, follow_dict, print_dic, kong = {},{},{},[]
 
 # pyecharts
 class recDesc_analysis:
@@ -682,7 +682,9 @@ class recDesc_analysis:
         self.text2 = self.sym2.lookAll()
 
     def solve(self, wordlist):
+        global first_dict, follow_dict, print_dic, kong
         try:
+            first_dict, follow_dict, print_dic, kong = start()
             # 语法树
             global tree
             filename = './Syntax_Tree/tree'
