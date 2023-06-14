@@ -310,7 +310,6 @@ class Ui_MainWindow(object):
                          QtGui.QIcon.Off)
         self.actionblue_font.setIcon(icon17)
         self.actionblue_font.setObjectName("actionblue_font")
-
         self.actionNFA_DFA = QtWidgets.QAction(MainWindow)
         self.actionNFA_DFA.setObjectName("actionNFA_DFA")
         self.actionLL1 = QtWidgets.QAction(MainWindow)
