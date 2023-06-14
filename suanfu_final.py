@@ -516,11 +516,13 @@ class OPGGrammarSolver(QMainWindow):
             idx = 1
             for i in sequence1:
                 item = QtWidgets.QTableWidgetItem(i)
+                item.setTextAlignment(Qt.AlignCenter)
                 self.tableAnalyze.setItem(0, idx, item)
                 idx += 1
             idx = 1
             for i in sequence1:
                 item = QtWidgets.QTableWidgetItem(i)
+                item.setTextAlignment(Qt.AlignCenter)
                 self.tableAnalyze.setItem(idx, 0, item)
                 idx += 1
             idx = 1
