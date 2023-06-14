@@ -407,7 +407,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 如果没有选中文本，则返回
         if not selected_text:
             return
-
         # 创建一个新的QTextCharFormat对象，并设置其下划线属性为True
         char_format = QTextCharFormat()
         # 设置为斜体
