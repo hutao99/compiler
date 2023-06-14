@@ -322,7 +322,6 @@ class Ui_MainWindow(object):
         self.actionLR1.setObjectName("actionLR1")
         self.actionLR0 = QtWidgets.QAction(MainWindow)
         self.actionLR0.setObjectName("actionLR0")
-
         self.actionDAG_ = QtWidgets.QAction(MainWindow)
         self.actionDAG_.setObjectName("actionDAG_")
 
