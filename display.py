@@ -897,7 +897,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)
-        # print('result', result)
         return result
 
     def searchHelp(self):
