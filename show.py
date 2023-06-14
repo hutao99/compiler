@@ -313,6 +313,7 @@ class Ui_MainWindow(object):
         self.actionblue_font.setObjectName("actionblue_font")
         self.actionNFA_DFA = QtWidgets.QAction(MainWindow)
         self.actionNFA_DFA.setObjectName("actionNFA_DFA")
+
         self.actionLL1 = QtWidgets.QAction(MainWindow)
         self.actionLL1.setObjectName("actionLL1")
         self.actionsuanfu_first = QtWidgets.QAction(MainWindow)
