@@ -1,4 +1,3 @@
-S->a A B e
-A->b
-A->A b c
-B->d
+S->( R ) | a | ∧
+R->T
+T->S , T | S

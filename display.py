@@ -3,7 +3,7 @@ import sys
 import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt
+from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt, QThread, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_DAG import MyDesiger_DAG, MyDialog
@@ -113,7 +113,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         LR(1)分析
         """
         # 初始化LR分析
-        self.LR = LR.CLRParser()
+        self.LR = None
+        self.progress_dialog = None
+        '''self.LR = LR.CLRParser()
         f = open('文法修改.txt', 'r', encoding='utf-8')
         f1 = open('文法修改1.txt', 'r', encoding='utf-8')
         self.LR.input(f.read())
@@ -122,9 +124,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         lr1.Action_and_GoTo_Table()
         self.LR.Action_and_GoTo_Table()
         self.LR.parsing_table1 = lr1.parsing_table
-        self.LR.reduction1 = lr1.reduction
+        self.LR.reduction1 = lr1.reduction'''
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
-        # LR1自定义语法分析
+        # LR1语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
         # LR0语法分析
         self.actionLR0.triggered.connect(self.LR0_analyze)
@@ -317,8 +319,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                               self.saveGeometry())
             settings.setValue("MainWindow/State",
                               self.saveState())
-            settings.setValue("MessageSplitter",
-                              self.textEdit.saveState())
             settings.setValue("MainSplitter",
                               self.splitter1.saveState())
         else:
@@ -652,6 +652,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
                         s += '函数表:\n'
                         for i in self.LR.FunctionTable:
+                            if i == 'read' or i == 'write':
+                                continue
                             s += i + ": "
                             s += str(vars(self.LR.FunctionTable[i])) + '\n'
                         s += '\nerror %d\n' % len(errors)
@@ -858,8 +860,50 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.suanfu_window = OPGGrammarSolver()
         self.suanfu_window.show()
 
+    class CalculationThread(QThread):  # 初始化LR分析表的线程
+        closeProgressDialog = pyqtSignal()
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.main_window = parent
+
+        def run(self):
+            self.main_window.LR = LR.CLRParser()
+            f = open('文法修改.txt', 'r', encoding='utf-8')
+            f1 = open('文法修改1.txt', 'r', encoding='utf-8')
+            self.main_window.LR.input(f.read())
+            lr1 = LR.CLRParser()
+            lr1.input(f1.read())
+            lr1.Action_and_GoTo_Table()
+            self.main_window.LR.Action_and_GoTo_Table()
+            self.main_window.LR.parsing_table1 = lr1.parsing_table
+            self.main_window.LR.reduction1 = lr1.reduction
+            self.closeProgressDialog.emit()  # 发送信号，计算结束
+
+    def startCalculation(self):
+        thread = self.CalculationThread(parent=self)
+        thread.start()
+
+        progress = QMessageBox(self)
+        progress.setWindowTitle("提示")
+        progress.setText("正在初始化LR分析表...")
+        progress.setStandardButtons(QMessageBox.Cancel)
+        cancel_button = progress.button(QMessageBox.Cancel)
+        cancel_button.setText("取消")
+        progress.setModal(True)
+        # progress.setMinimumDuration(0)
+        thread.closeProgressDialog.connect(self.on_close_progress_dialog)  # 连接关闭进度对话框信号
+        progress.show()
+        self.progress_dialog = progress  # 保存进度对话框的引用
+        self.progress_dialog.exec_()
+
+    def on_close_progress_dialog(self):
+        self.progress_dialog.close()
+
     def LexicalAnalysis(self):  # LR词法分析相应函数,自动
         try:
+            if self.LR is None:  # 初始化LR
+                self.startCalculation()
             # 对全局变量进行初始化
             self.split_flag = 0
             self.yh_flag = 0

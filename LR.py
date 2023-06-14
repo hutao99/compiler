@@ -707,9 +707,8 @@ class CLRParser:
                         if len(father.children) == 1:
                             father.value = father.children[0].value
                     elif father.name == '字符型常量':
-                        father.value = ord(father.children[0].symbol_info[1])
-                        # 把字符型转为int类型
-                        father.type = 'int'
+                        father.value = father.children[0].symbol_info[1]
+                        father.type = father.children[0].symbol_info[0]
                     elif father.name == '常量' or father.name == '因子':
                         father.value = father.children[0].value
                         father.type = father.children[0].type
@@ -811,7 +810,7 @@ class CLRParser:
                     elif father.name == '函数定义参数':
                         val = VariableInfo()
                         val.type = father.type
-                        val.scope = scope[-1][0] + ',' + str(scope[-1][1])
+                        val.scope = scope[-1][0] + ',' + str(scope_count+1)
                         if len(father.children) == 2:
                             father.type = father.children[-1].type
                             father.parameters = 1
@@ -918,7 +917,7 @@ class CLRParser:
                     scope.append([scope[-1][0] + ',' + str(scope_count), scope_count])
                 elif name == '}':
                     scope.pop()
-                    scope_count -= 1
+                    # scope_count -= 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
@@ -1017,9 +1016,14 @@ class CLRParser:
                         stack_state.pop()
                         stack_symbol.pop()
                         stack_node.pop().parent = father
-                    if father.name == '数字常量' or father.name == '变量' or father.name == '关系运算符':
+                    if father.name == '数字常量' or father.name == '变量' or father.name == '关系运算符' or father.name == '字符型常量':
                         #print(father.children[0])
-                        if len(father.children) == 1:
+                        if len(father.children) == 1 and father.name == '字符型常量':
+                            if father.children[0].name == 'character':
+                                father.value = "'"+father.children[0].symbol_info[1]+"'"
+                            else:
+                                father.value = '"' + father.children[0].symbol_info[1] + '"'
+                        elif len(father.children) == 1:
                             father.value = father.children[0].symbol_info[1]
                         elif len(father.children) == 4:
                             father.value = father.children[-1].symbol_info[1]+'['+father.children[-3].value+']'
@@ -1244,7 +1248,6 @@ class CLRParser:
                         bool_false.clear()
                     elif father.name == 'if有else' or father.name == '带if的循环语句有else':
                         stack_if_total[-1].append(index_code)
-                        print('mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm')
                         print(stack_if_total)
                         self.code.append(['j', '', '', index_code])
                         index_code += 1
@@ -1436,7 +1439,7 @@ class CLRParser:
                     scope.append([scope[-1][0] + ',' + str(scope_count), scope_count])
                 elif name == '}':
                     scope.pop()
-                    scope_count -= 1
+                    # scope_count -= 1
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))

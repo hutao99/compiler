@@ -1,6 +1,0 @@
-B->T C
-C->identifier T C|$
-T->F D
-D->identifier F D|$
-F->identifier F_|( B )
-F_->F|$

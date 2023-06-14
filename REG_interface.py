@@ -63,6 +63,7 @@ class Ui_MainWindow(object):
         self.plainTextEdit.setFont(font)
         self.plainTextEdit_2.setFont(font)
         self.plainTextEdit_3.setFont(font)
+        self.textEdit.setFont(font)
 
         self.splitter1 = QSplitter()
         self.splitter1.addWidget(self.plainTextEdit)
@@ -122,6 +123,8 @@ class Ui_MainWindow(object):
         self.action_6.setObjectName("action_6")
         self.action_7 = QtWidgets.QAction(MainWindow)
         self.action_7.setObjectName("action_7")
+        self.action_13 = QtWidgets.QAction(MainWindow)
+        self.action_13.setObjectName("action_13")
         self.actionNFA_DFA_2 = QtWidgets.QAction(MainWindow)
         self.actionNFA_DFA_2.setObjectName("actionNFA_DFA_2")
         self.actionDFA_MFA_2 = QtWidgets.QAction(MainWindow)
@@ -154,6 +157,8 @@ class Ui_MainWindow(object):
         self.action_12.setObjectName("action_12")
         self.menu_F.addAction(self.action_7)
         self.menu_F.addAction(self.action_10)
+        self.menu_F.addAction(self.action_13)
+
         self.menu_E.addAction(self.action_6)
         self.menu_E.addAction(self.actionNFA_DFA_2)
         self.menu_E.addAction(self.actionDFA_MFA_2)
@@ -180,10 +185,11 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "REG正则表达式转换"))
-        # self.plainTextEdit.setPlainText(_translate("MainWindow", "输入正规式:(输入前请删除此行)"))
-        self.plainTextEdit.setPlaceholderText("输入正规式或导入正规式文件")
+
+        self.plainTextEdit.setPlaceholderText("输入正规式或NFA或DFA或导入文件")
         self.plainTextEdit_2.setPlaceholderText("输入待识别的符号串或导入文件")
-        # self.plainTextEdit_2.setPlainText(_translate("MainWindow", "输入待识别的符号串:"))
+        self.plainTextEdit_3.setPlaceholderText("状态转换图文字结果或词法分析结果")
+        self.textEdit.setPlaceholderText("状态转换图结果")
 
         self.pushButton.setText(_translate("MainWindow", "NFA"))
         self.pushButton_2.setText(_translate("MainWindow", "DFA"))
@@ -204,12 +210,13 @@ class Ui_MainWindow(object):
         self.actionNFA_DFA.setText(_translate("MainWindow", "NFA转DFA"))
         self.actionDFA_MFA.setText(_translate("MainWindow", "DFA转MFA"))
         self.action_6.setText(_translate("MainWindow", "正规式转NFA"))
-        self.action_7.setText(_translate("MainWindow", "导入其他文件"))
+        self.action_7.setText(_translate("MainWindow", "导入正规式"))
         self.actionNFA_DFA_2.setText(_translate("MainWindow", "NFA转DFA"))
         self.actionDFA_MFA_2.setText(_translate("MainWindow", "DFA转MFA"))
         self.action_8.setText(_translate("MainWindow", "一键三连"))
         self.action_9.setText(_translate("MainWindow", "词法分析"))
         self.action_10.setText(_translate("MainWindow", "导入待识别符号串文件"))
+        self.action_13.setText(_translate("MainWindow", "导入NFA或DFA"))
         self.action_DFA_MFA.setText(_translate("MainWindow", "输入DFA转MFA"))
         self.action_NFA_DFA.setText(_translate("MainWindow", "输入NFA转DFA"))
         self.action_DFA_MFA_2.setText(_translate("MainWindow", "输入DFA转MFA"))

@@ -1,0 +1,59 @@
+	break	if	<=	=	&&	!=	{	/	;	void	!	*	}	,	character	>=	const	#	for	)	main	int	else	string	--	char	<	identifier	continue	integer	-	%	>	]	while	float	double	return	++	+	(	[	==	
+type										void												int				char										float	double							
+initializer_list							{								character									string				identifier		integer						float								
+additive_expression'																									--						-								++	+				
+semicolon_or_not									;																																			
+fen_not									;																																			
+pe'																	const																											
+relational_expression'			<=	=	&&	!=										>=											<						>										==	
+declarator																												identifier																
+declarator'																				)		int				char										float	double							
+compound_statement							{																																					
+init_declarator																												identifier																
+declaration_list'																						int				char										float	double							
+function_definition										void												int				char										float	double							
+postfix_expression															character									string				identifier		integer						float								
+multiplicative_expression'								/				*																				%												
+compound_statement'	break	if					{		;		!		}		character				for			int		string		char		identifier	continue	integer					while	float	double	return						
+selection_statement		if																																										
+declaration'														,																														
+jump_statement	break																												continue									return						
+additive_expression															character									string				identifier		integer						float								
+dec																																										[		
+statement_list'	break	if					{		;		!				character				for			int		string		char		identifier	continue	integer					while	float	double	return						
+args_list											!				character									string				identifier		integer						float								
+parameter_list																						int				char										float	double							
+fuc_not																																									(			
+init_declarator'				=																																								
+parameter_list'														,																														
+declaration_specifiers																						int				char										float	double							
+selection_statement'																							else																					
+dec'																																									(			
+expression											!				character									string				identifier		integer						float								
+primary_expression															character									string				identifier		integer						float								
+declaration_list																						int				char										float	double							
+func_table										void												int				char										float	double							
+multiplicative_expression															character									string				identifier		integer						float								
+parameter_declaration																						int				char										float	double							
+const_table																												identifier																
+args_list_1														,																														
+id_func														,																														
+declarator_func																					main							identifier																
+statement	break	if					{		;		!				character				for			int		string		char		identifier	continue	integer					while	float	double	return						
+postfix_expression'																																										[		
+initializer							{								character									string				identifier		integer						float								
+args'											!				character					)				string				identifier		integer						float								
+jump_statement'									;		!				character									string				identifier		integer						float								
+type_																						int				char										float	double							
+relational_expression															character									string				identifier		integer						float								
+expression'														,																														
+statement_list	break	if					{		;		!				character				for			int		string		char		identifier	continue	integer					while	float	double	return						
+program										void												int				char										float	double							
+expression_statement									;		!				character									string				identifier		integer						float								
+declaration																						int				char										float	double							
+initializer_list'														,																														
+term															character									string				identifier		integer						float								
+const_list																	const																											
+const_list'									;					,																														
+iteration_statement																			for																while									
+constants															character									string						integer						float								

@@ -1,8 +1,0 @@
-E→T G
-G→+ E| $
-T→F H
-H→T|$
-F→P M
-M→* M|$
-P→( E )|identifier|∧
-
