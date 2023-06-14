@@ -609,6 +609,7 @@ class LR1GrammarSolver(QMainWindow):
                     self.tableAnalyze.setVerticalHeaderItem(i, item1)
                     for j in self.LR.parsing_table[i]:
                         item = QtWidgets.QTableWidgetItem(self.LR.parsing_table[i][j])
+                        item.setTextAlignment(Qt.AlignCenter)
                         self.tableAnalyze.setItem(i, idx[j], item)
                 s = ''
                 for i in range(0, len(self.LR.reduction)):
@@ -645,6 +646,8 @@ class LR1GrammarSolver(QMainWindow):
                         if j == 3 and str(t[j][i]).isdigit():
                             p = 'goto ' + p
                         item = QtWidgets.QTableWidgetItem(p)
+                        if j == 2:
+                            item.setTextAlignment(Qt.AlignRight)
                         self.tableStack.setItem(i, j, item)
             except Exception as e:
                 QMessageBox.warning(self, '警告', '系统出错')
