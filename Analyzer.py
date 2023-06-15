@@ -363,6 +363,7 @@ class AnalyzerLex:
         self.lexer = lex.lex(module=self)
         self.ty = typefile("种别码.txt")
         self.error = []
+        # self.is_negative_number = False
 
     states = (
         ('multicomment', 'exclusive'),  # 多行注释
@@ -432,29 +433,6 @@ class AnalyzerLex:
         return t
 
     # r'(0(x|X)[0-9a-fA-F][0-9a-fA-F]*)|([1-9]\d*)|(0[0-7]*)'
-    def t_integer_hex(self, t):  # 十六进制
-        r'0x[0-9a-fA-F][0-9a-fA-F]*'
-        t.type = 'integer'
-        return t
-
-    def t_exponent(self, t):  # 指数
-        r'\d+\.\d+[Ee]([+-]\d|\d)\d*'
-        t.type = 'float'
-        return t
-
-    def t_float(self, t):  # 小数
-        r'\d+\.\d+'
-        t.type = 'float'
-        return t
-
-    def t_integer(self, t):  # 十进制
-        r'[1-9][0-9]*|0'
-        return t
-
-    def t_integer_oct(self, t):  # 八进制
-        r'0[0-7][1-7]*'
-        t.type = 'integer'
-        return t
 
     def t_operator_1(self, t):
         r'<=|>=|==|!=|&&|\|\|'
@@ -462,9 +440,38 @@ class AnalyzerLex:
         return t
 
     def t_operator_2(self, t):
-        r'[=+-/%!.()*><&|]|\[|\]'
+        r'[=+/%!.()*><&|]|\[|\]|(?<![=(])\s*-'
         t.type = 'operator'
         return t
+
+    def t_integer_hex(self, t):  # 十六进制
+        r'-?0x[0-9a-fA-F][0-9a-fA-F]*'
+        t.type = 'integer'
+        return t
+
+    def t_exponent(self, t):  # 指数
+        r'-?\d+\.\d+[Ee]([+-]\d|\d)\d*'
+        t.type = 'float'
+        return t
+
+    def t_float(self, t):  # 小数
+        r'-?\d+\.\d+'
+        t.type = 'float'
+        return t
+
+    def t_integer(self, t):  # 十进制
+        r'-?[1-9][0-9]*|0'
+        return t
+
+    def t_integer_oct(self, t):  # 八进制
+        r'-?0[0-7][1-7]*'
+        t.type = 'integer'
+        return t
+
+    '''def t_operator_2(self, t):
+        r'[=+-/%!.()*><&|]|\[|\]'
+        t.type = 'operator'
+        return t'''
 
     def find_column(self, input, token):  # 列
         last_cr = input.rfind('\n', 0, token.lexpos)
