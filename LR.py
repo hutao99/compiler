@@ -5,6 +5,8 @@ from graphviz import Digraph
 
 
 def is_number(s):
+    if s is None:
+        return False
     try:
         float(s)
         return True
@@ -148,6 +150,26 @@ class CLRParser:
                 if scope.startswith(i.scope):
                     return True
         return False
+
+    def getvalue(self, name, scope):
+        '''if name in self.VariableTable:
+            for i in self.VariableTable[name]:
+                if scope.startswith(i.scope):
+                    return i.value'''
+        if name in self.ConstantTable:
+            for i in self.ConstantTable[name]:
+                if scope.startswith(i.scope):
+                    return i.value
+        return None
+
+    def assignment(self, name, scope, value):
+        if value is None:
+            return
+        if name in self.VariableTable:
+            for i in range(len(self.VariableTable[name])):
+                if scope.startswith(self.VariableTable[name][i].scope):
+                    self.VariableTable[name][i].value = value
+                    return
 
     def Action_and_GoTo_Table(self):
         self.Formula[self.begin+"'"] = self.begin
@@ -547,7 +569,6 @@ class CLRParser:
                         stack_symbol.pop()
                         self.dot.edge(str(node_index), str(stack_num.pop()))
                         stack_node.pop().parent = father
-                    # 综合属性传递
                     if father.name == '类型':
                         father.type = father.children[0].name
                         father.parameters = 1
@@ -558,6 +579,7 @@ class CLRParser:
                         val = VariableInfo()
                         val.type = father.type
                         val.scope = scope[-1][0]
+                        val.value = '0'
                         arr = ArrayInfo()
                         arr.type = father.type
                         arr.scope = scope[-1][0]
@@ -589,7 +611,13 @@ class CLRParser:
                                                                                                          0].symbol_info]
 
                         elif father.children[0].name == '表达式':
-                            val.value = father.children[0].value
+                            v1 = ''
+                            if is_number(father.children[0].value):
+                                v1 = father.children[0].value
+                            else:
+                                v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                            if v1 is not None:
+                                val.value = v1
                             if father.children[2].symbol_info[1] in self.FunctionTable:
                                 self.errors.append(
                                     [father.children[2].symbol_info[2], father.children[2].symbol_info[3],
@@ -706,42 +734,110 @@ class CLRParser:
                     elif father.name == '加减表达式' or father.name == '算术表达式' or father.name == '表达式':
                         if len(father.children) == 1:
                             father.value = father.children[0].value
+                            father.type = father.children[0].type
+                        elif len(father.children) == 3:
+                            v1 = ''
+                            v2 = ''
+                            if is_number(father.children[0].value):
+                                v1 = father.children[0].value
+                            else:
+                                v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                            if is_number(father.children[2].value):
+                                v2 = father.children[2].value
+                            else:
+                                v2 = self.getvalue(father.children[2].value, scope[-1][0])
+                            if father.children[0].type == 'float' or father.children[2].type == 'float':
+                                father.type = 'float'
+                            else:
+                                father.type = 'int'
+                            if is_number(v1) and is_number(v2):
+                                if father.children[1].symbol_info[1] == '-':
+                                    if father.type == 'float':
+                                        father.value = str(float(v2) - float(v1))
+                                    else:
+                                        father.value = str(int(v2) - int(v1))
+                                else:
+                                    if father.type == 'float':
+                                        father.value = str(float(v2) + float(v1))
+                                    else:
+                                        father.value = str(int(v2) + int(v1))
+                        else:
+                            v1 = ''
+                            print(father.children[0].value)
+                            if is_number(father.children[0].value):
+                                v1 = father.children[0].value
+                            else:
+                                v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                            if father.children[0].type == 'float':
+                                father.type = 'float'
+                                if is_number(v1):
+                                    father.value = 0 - float(v1)
+                            else:
+                                father.type = 'int'
+                                if is_number(v1):
+                                    father.value = 0 - int(v1)
                     elif father.name == '字符型常量':
                         father.value = father.children[0].symbol_info[1]
                         father.type = father.children[0].symbol_info[0]
                     elif father.name == '常量' or father.name == '因子':
-                        father.value = father.children[0].value
-                        father.type = father.children[0].type
+                        if len(father.children) == 1:
+                            father.value = father.children[0].value
+                            father.type = father.children[0].type
+                        else:
+                            father.value = father.children[1].value
+                            father.type = father.children[1].type
                     elif father.name == '项':
                         if len(father.children) == 1:
                             father.type = father.children[0].type
                             father.value = father.children[0].value
-                        elif father.children[1].symbol_info[1] == '%':
-                            # 整除符号要求两边都为int
-                            if father.children[0].type == 'float' or father.children[-1].type == 'float':
-                                self.errors.append(
-                                    [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
-                                     "'%'要求两边类型为integer"])
-                            elif father.children[0].value == '0':
-                                self.errors.append(
-                                    [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
-                                     "除数不为0"])
-                            else:
-                                father.type = father.children[0].type
-                        elif father.children[1].symbol_info[1] == '/':
-                            if father.children[0].value == '0':
-                                self.errors.append(
-                                    [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
-                                     "除数不为0"])
-                            elif father.children[0].type == 'float' or father.children[-1].type == 'float':
-                                father.type = 'float'
-                            else:
-                                father.type = 'int'
                         else:
-                            if father.children[0].type == 'float' or father.children[-1].type == 'float':
-                                father.type = 'float'
+                            v1 = ''
+                            v2 = ''
+                            if is_number(father.children[0].value):
+                                v1 = father.children[0].value
                             else:
-                                father.type = 'int'
+                                v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                            if is_number(father.children[2].value):
+                                v2 = father.children[2].value
+                            else:
+                                v2 = self.getvalue(father.children[2].value, scope[-1][0])
+                            if father.children[1].symbol_info[1] == '%':
+                                # 整除符号要求两边都为int
+                                if father.children[0].type == 'float' or father.children[-1].type == 'float':
+                                    self.errors.append(
+                                        [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
+                                         "'%'要求两边类型为integer"])
+                                else:
+                                    if v1 == '0':
+                                        self.errors.append(
+                                            [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
+                                             "除数不为0"])
+                                    else:
+                                        if is_number(v1) and is_number(v2):
+                                            father.value = str(int(v2) % int(v1))
+                                    father.type = father.children[0].type
+                            elif father.children[1].symbol_info[1] == '/':
+                                if v1 == '0':
+                                    self.errors.append(
+                                        [father.children[1].symbol_info[2], father.children[1].symbol_info[3],
+                                         "除数不为0"])
+                                elif father.children[0].type == 'float' or father.children[-1].type == 'float':
+                                    father.type = 'float'
+                                    if is_number(v1) and is_number(v2):
+                                        father.value = str(float(v2) / float(v1))
+                                else:
+                                    father.type = 'int'
+                                    if is_number(v1) and is_number(v2):
+                                        father.value = str(int(v2) // int(v1))
+                            else:
+                                if father.children[0].type == 'float' or father.children[-1].type == 'float':
+                                    father.type = 'float'
+                                    if is_number(v1) and is_number(v2):
+                                        father.value = str(float(v2) * float(v1))
+                                else:
+                                    father.type = 'int'
+                                    if is_number(v1) and is_number(v2):
+                                        father.value = str(int(v2) * int(v1))
                     elif father.name == '变量':
                         #print('2222')
                         if father.children[0].name == 'identifier':
@@ -889,6 +985,13 @@ class CLRParser:
                                                 break
                                         if hh:
                                             break
+                                v1 = ''
+                                if is_number(father.children[0].value):
+                                    v1 = father.children[0].value
+                                else:
+                                    v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                                father.value = v1
+                                self.assignment(father.children[-1].symbol_info[1], scope[-1][0], v1)
                         else:
                             if not self.IsDeclare(father.children[-1].children[-1].symbol_info[1], scope[-1][0]):
                                 self.errors.append(
@@ -921,8 +1024,8 @@ class CLRParser:
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
-            print(stack_symbol)
-            print(stack_state)
+            # print(stack_symbol)
+            # print(stack_state)
             #input()
         # print(self.var_num)
         print(self.function_array_list)
@@ -988,6 +1091,7 @@ class CLRParser:
         para = []
         # 是否在函数内部
         fun_flag = False
+        # 函数名
         fun_name = None
         # 布尔真出口
         bool_true = []
@@ -1064,18 +1168,58 @@ class CLRParser:
                         elif len(father.children) == 2 and is_number(father.children[0].value):
                             father.value = '-'+father.children[0].value
                         elif len(father.children) == 2:
-                            father.value = 'T' + str(count)  # 修改2
-                            self.code.append(
-                                ['-', father.children[0].value, '',
-                                 father.value])
-                            index_code += 1
-                            count += 1
+                            v1 = self.getvalue(father.children[0].name, scope[-1][0])
+                            if v1 is None:
+                                father.value = 'T' + str(count)  # 修改2
+                                self.code.append(
+                                    ['-', father.children[0].value, '',
+                                     father.value])
+                                index_code += 1
+                                count += 1
+                            else:
+                                if '.' in v1:
+                                    father.value = str(0 - float(v1))
+                                else:
+                                    father.value = str(0 - int(v1))
                         else:
-                            #print(father.children)
-                            father.value = 'T'+str(count)  # 修改2
-                            self.code.append([father.children[1].name, father.children[2].value, father.children[0].value, father.value])
-                            index_code += 1
-                            count += 1
+                            v1 = ''
+                            v2 = ''
+                            if is_number(father.children[0].value):
+                                v1 = father.children[0].value
+                            else:
+                                v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                            if is_number(father.children[2].value):
+                                v2 = father.children[2].value
+                            else:
+                                v2 = self.getvalue(father.children[2].value, scope[-1][0])
+                            if is_number(v1) and is_number(v2):
+                                if father.children[1].name == '-':
+                                    if '.' in v1 or '.' in v2:
+                                        father.value = str(float(v2) - float(v1))
+                                    else:
+                                        father.value = str(int(v2) - int(v1))
+                                elif father.children[1].name == '+':
+                                    if '.' in v1 or '.' in v2:
+                                        father.value = str(float(v2) + float(v1))
+                                    else:
+                                        father.value = str(int(v2) + int(v1))
+                                elif father.children[1].name == '*':
+                                    if '.' in v1 or '.' in v2:
+                                        father.value = str(float(v2) * float(v1))
+                                    else:
+                                        father.value = str(int(v2) * int(v1))
+                                elif father.children[1].name == '/':
+                                    if '.' in v1 or '.' in v2:
+                                        father.value = str(float(v2) / float(v1))
+                                    else:
+                                        father.value = str(int(v2) // int(v1))
+                                else:
+                                    father.value = str(int(v2) % int(v1))
+                            else:
+                                father.value = 'T'+str(count)  # 修改2
+                                self.code.append([father.children[1].name, father.children[2].value, father.children[0].value, father.value])
+                                index_code += 1
+                                count += 1
                         #print(father.value)
                     elif father.name == '算术表达式' or father.name == '表达式':
                         father.value = father.children[0].value
@@ -1095,11 +1239,18 @@ class CLRParser:
                             self.code.append([father.children[1].name, '0', '', father.children[-1].value])
                             index_code += 3
                         else:
+                            v1 = ''
+                            if is_number(father.children[0].value):
+                                v1 = father.children[0].value
+                            elif father.children[0].value[0] == 'T':
+                                v1 = father.children[0].value
+                            else:
+                                v1 = self.getvalue(father.children[0].value, scope[-1][0])
                             self.code.append(
-                                [father.children[1].name, father.children[0].value, '',
+                                [father.children[1].name, v1, '',
                                  father.children[-1].value])
                             index_code += 1
-                        father.value = father.children[0].value
+                            father.value = v1
                     elif father.name == '布尔因子':
                         if len(father.children) == 1:
                             father.value = father.children[0].value
@@ -1154,8 +1305,6 @@ class CLRParser:
                             index_code += 2
 
                     elif father.name == '关系表达式':
-                        print('tttttttttttttttttttttttt')
-                        print(sign_list[index])
                         if sign_list[index] != 'or':
                             self.code.append(
                                 ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
@@ -1164,7 +1313,6 @@ class CLRParser:
                             bool_false.append(index_code + 1)
                             index_code += 2
                         else:
-                            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaa')
                             self.code.append(
                                 ['j' + father.children[1].value, father.children[2].value, father.children[0].value,
                                  0])  # 跳转真出口
@@ -1443,7 +1591,7 @@ class CLRParser:
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
-            print(stack_symbol)
+            # print(stack_symbol)
         print(self.function_array_list)
         print(self.global_array_list)
         print(self.function_jubu_list)
