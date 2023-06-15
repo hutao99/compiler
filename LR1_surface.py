@@ -500,7 +500,7 @@ class LR1GrammarSolver(QMainWindow):
             self.main_window.LR.input(grammar)
             self.main_window.LR.Action_and_GoTo_Table()
             self.main_window.LR.draw_graphic()
-            pixmap = QPixmap('LR_Digraph\LR_Digraph.gv.png')
+            pixmap = QPixmap('./LR_Digraph/LR_Digraph.gv.png')
             self.main_window.label.setPixmap(pixmap)
             self.closeProgressDialog.emit()  # 发送信号，计算结束
 
@@ -552,7 +552,7 @@ class LR1GrammarSolver(QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/13LR分析测试用例',
+            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/05LR分析测试用例',
                                                 '文本文件 (*.txt)')
             if fname[0]:
                 print(fname[0])
