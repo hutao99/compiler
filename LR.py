@@ -1246,6 +1246,8 @@ class CLRParser:
                                 v1 = father.children[0].value
                             else:
                                 v1 = self.getvalue(father.children[0].value, scope[-1][0])
+                            if v1 is None:
+                                v1 = father.children[0].value
                             self.code.append(
                                 [father.children[1].name, v1, '',
                                  father.children[-1].value])
