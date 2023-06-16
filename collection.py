@@ -53,6 +53,7 @@ class FirstAndFollow:
                         # 没有空字符就不用处理后面的非终结符
                         if 'ε' not in self.first[n]:
                             break
+
     def Last_(self):
         flag = True
         # 在lastvt集合变化时执行
