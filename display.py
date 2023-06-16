@@ -170,7 +170,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             # 连接itemDoubleClicked信号到槽函数
             def on_item_clicked(item, column):
-
+                list_ = self.app_data.value('list')
+                if list_ == '':
+                    QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
                 # 获取双击的项目
                 folder_path = item.data(0, Qt.UserRole)
                 if not os.path.isdir(folder_path):

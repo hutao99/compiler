@@ -594,11 +594,11 @@ def check_charset(file_path):
 
 
 # filename = r'全部测试程序\01编译器测试用例\test00.txt'
-filename = 'D:\pythonProject\pythonProject\负数测试.txt'
-with open(filename, encoding=check_charset(filename)) as f:
-    text = f.read()
-    a = LexicalAnalysis(text)  # 读入文章
-    c, d, e = a.print_out()
-    print(c)
-    print(d)
-    print(e)
+# filename = 'D:\pythonProject\pythonProject\负数测试.txt'
+# with open(filename, encoding=check_charset(filename)) as f:
+#     text = f.read()
+#     a = LexicalAnalysis(text)  # 读入文章
+#     c, d, e = a.print_out()
+#     print(c)
+#     print(d)
+#     print(e)
