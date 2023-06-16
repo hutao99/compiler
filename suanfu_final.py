@@ -429,7 +429,7 @@ class OPGGrammarSolver(QMainWindow):
     def open_text(self):
         # 定义打开文件夹目录的函数
         try:
-            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/12OPG算符优先分析测试用例',
+            fname = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/06OPG算符优先分析测试用例',
                                                 '文本文件 (*.txt)')
             if fname[0]:
                 print(fname[0])
