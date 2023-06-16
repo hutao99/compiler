@@ -412,6 +412,8 @@ class LexicalAnalysis():
                 if ch == '=':
                     state = 2
                     self.idx += 1
+                elif pre == '-' and ch.isdigit():
+                    state = 8  # 对负数进行处理
                 elif ch == pre:
                     if ch in ['+', '-']:
                         pre = ch
@@ -452,6 +454,13 @@ class LexicalAnalysis():
             elif state == 7:
                 self.save_word(start, pre + pre + '=')
                 return
+            elif state == 8:
+                if ch.isdigit():
+                    state = 8
+                    self.idx += 1
+                else:
+                    self.save_word(start, "负数")
+                    return
 
     def check_parentheses(self, text):
         stack = []
@@ -492,21 +501,21 @@ class LexicalAnalysis():
         if ch == '(' and self.check_parentheses_time == 0:
             ts = self.check_parentheses(self.text[self.idx:])
             self.check_parentheses_time += 1
-            #print(ts)
+            # print(ts)
             if not ts:
                 st = "Error: 小括号不匹配\n"
                 self.errorlist += st
         elif ch == '[' and self.check_Middle_brackets == 0:
             ts = self.check_Middle_brackets__(self.text[self.idx:])
             self.check_Middle_brackets += 1
-            #print(ts)
+            # print(ts)
             if not ts:
                 st = "Error: 中括号不匹配\n"
                 self.errorlist += st
         elif ch == '{' and self.check_Curly_brackets == 0:
             ts = self.check_Curly_brackets__(self.text[self.idx:])
             self.check_Curly_brackets += 1
-            #print(ts)
+            # print(ts)
             if not ts:
                 st = "Error: 大括号不匹配\n"
                 self.errorlist += st
@@ -545,7 +554,7 @@ class LexicalAnalysis():
             lbword.append([i.pos, i.word, i.id])
             str = "{}\t{}\t{}\t\n".format(i.pos, i.word, i.id)
             self.wordstr += str
-        #print('词法分析:', lbword)
+        # print('词法分析:', lbword)
         return self.wordstr, self.errorlist, lbword
 
 
@@ -566,4 +575,3 @@ def check_charset(file_path):
 #     print(c)
 #     print(d)
 #     print(e)
-
