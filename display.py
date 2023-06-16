@@ -190,6 +190,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             def on_item_double_clicked(item, column):
                 try:
+                    list_ = self.app_data.value('list')
+                    if list_ == '':
+                        QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
                     # 获取双击的项目
                     folder_path = item.parent().data(0, Qt.UserRole)
                     file_name = item.text(0)

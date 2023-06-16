@@ -592,7 +592,6 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
-
 # filename = r'全部测试程序\01编译器测试用例\test00.txt'
 # filename = 'D:\pythonProject\pythonProject\负数测试.txt'
 # with open(filename, encoding=check_charset(filename)) as f:
