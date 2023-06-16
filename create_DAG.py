@@ -97,7 +97,57 @@ def is_in_label(DAG, elem):
         if elem == e['label'] :
             return True
     return False
-def create_DAG(codes: list): #start
+def create_DAG(codes: list): # start
+    # 将四元式转变为列表形式 方便后面对列表进行改动
+    l = []
+    for i in codes:
+        l.append(list(i))
+    codes = l
+    for j in range(len(codes)):
+        temp = 0
+        i = codes[j]
+        if (i[1][0].isdigit() or i[1][0] == '-') and (i[2][0].isdigit() or i[2][0] == '-'):
+            if i[0] == '+':
+                temp = float(i[1]) + float(i[2])
+            elif i[0] == '-':
+                temp = float(i[1]) - float(i[2])
+            elif i[0] == '*':
+                temp = float(i[1]) * float(i[2])
+            elif i[0] == '/':
+                temp = float(i[1]) / float(i[2])
+            elif i[0] == '%':
+                temp = float(i[1]) % float(i[2])
+            elif i[0] == '&&':
+                temp = float(i[1]) and float(i[2])
+            elif i[0] == '||':
+                temp = float(i[1]) or float(i[2])
+            elif i[0] == '>':
+                if float(i[1])-float(i[2]) > 1e-10:
+                    temp = 1
+                else:
+                    temp = 0
+            elif i[0] == '<':
+                if float(i[1])-float(i[2]) < 1e-10:
+                    temp = 1
+                else:
+                    temp = 0
+            elif i[0] == '>=':
+                if float(i[1])-float(i[2]) >= 1e-10:
+                    temp = 1
+                else:
+                    temp = 0
+            elif i[0] == '<=':
+                if float(i[1])-float(i[2]) <= 1e-10:
+                    temp = 1
+                else:
+                    temp = 0
+            codes[j] = ['=', str(temp), '', i[3]]
+        elif (i[2] == '_' or i[2] == '') and (i[1][0].isdigit() or i[1][0] == '-'):
+            if i[0] == '!':
+                temp = not float(i[0])
+            elif i[0] == '@' or i[0] == '-':
+                temp = - float(i[0])
+            codes[j] = ['=', str(temp), '', i[3]]
     DAG = []
     global Active_variable
     Active_variable = []
@@ -315,7 +365,7 @@ def all_basic_optimize(basic_blocks):
                     optimize_quaternion.append(dag_block[0])
                     dag_block = []
                 elif len(dag_block) > 1: # 对四元式进行优化
-                    DAG = create_DAG(dag_block)
+                    DAG = create_DAG(dag_block) # 划分基本块
                     codes = optimize(DAG)
                     count+=len(codes)
                     for i in codes:
