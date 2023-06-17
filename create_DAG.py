@@ -157,7 +157,8 @@ def create_DAG(codes: list): # start
             if i[0] == '!':
                 temp = not float(i[0])
             elif i[0] == '@' or i[0] == '-':
-                temp = - float(i[0])
+                i[0] = i[0].replace("@", "-")
+                temp = - float(i[1])
             codes[j] = ['=', str(temp), '', i[3]]
     DAG = []
     global Active_variable
@@ -273,7 +274,7 @@ def optimize(DAG_node):
         if 'son' in e:
             son = DAG_node[e['son'][0]]
             la = (e['label'], son['label'], '_', e['node_label'][0] ) if not son['node_label'] \
-                                                                       or isleaf(son) else (e['label'], son['node_label'], '_', e['node_label'][0] )
+                                                                       or isleaf(son) else (e['label'], son['node_label'][0], '_', e['node_label'][0] )
             code.append(la)
         elif 'left' in e and 'right' in e:
             left = DAG_node[e['left']]
@@ -428,7 +429,7 @@ def test1():#基本块内优化
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes = [('=', '1', '', 'a'), ('=', '2', '', 'b')]
+    codes= [('+', 'a', 'b', 'T0'), ('-', 'T0', '', 'T1'), ('+', 'c', 'd', 'T2'), ('*', 'T1', 'T2', 'T3'), ('+', 'a', 'b', 'T4'), ('+', 'T4', 'c', 'T5'), ('-', 'T3', 'T5', 'T6'), ('=', 'T6', '', 'n')]
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])

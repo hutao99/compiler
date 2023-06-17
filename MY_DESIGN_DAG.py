@@ -67,7 +67,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         #     code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
         code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
         try:
-            print('测试code:',code)
+            # print('测试code:',code)
             DAG = create_DAG(code)
             codes = optimize(DAG)
             info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])
