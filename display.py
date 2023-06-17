@@ -480,7 +480,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.wordlist, self.errorlist, self.lbword = a.print_out()
             self.textEdit_3.setText(self.wordlist)
             self.textEdit_2.setText(self.errorlist)
-
+            #print(self.lbword)
             # 初始化
             self.split_flag = 0
             self.yh_flag = 0
@@ -912,3 +912,4 @@ if __name__ == "__main__":
     ex = DetailUI()
     ex.show()
     sys.exit(app.exec_())
+

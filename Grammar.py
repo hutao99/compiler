@@ -8,7 +8,8 @@ import copy
 中间代码:
 编号 运算符 第一个 第二个 变量
 """
-first_dict, follow_dict, print_dic, kong = {},{},{},[]
+first_dict, follow_dict, print_dic, kong = {}, {}, {}, []
+
 
 # pyecharts
 class recDesc_analysis:
@@ -65,10 +66,10 @@ class recDesc_analysis:
         self.function_jubu_list = {}
         self.function_parameter_defines = ['', '', [], [], '']  # 函数定义 函数名 函数类型 函数形参类型 函数形参名字 函数定义行号
         self.repetition_type = 0
-        self.return_exp = False # 表达式返回值
-        self.main_return_id = [] #main中return回填
-        self.is_main = False # 当前是否在main函数中
-        self.cur_func_type = [None,None] #当前的函数及其返回类型
+        self.return_exp = False  # 表达式返回值
+        self.main_return_id = []  # main中return回填
+        self.is_main = False  # 当前是否在main函数中
+        self.cur_func_type = [None, None]  # 当前的函数及其返回类型
         for line in file.readlines():
             div_list = line.strip('\n').split('->')
             # print('===============')
@@ -91,7 +92,9 @@ class recDesc_analysis:
             return 1
         if self.shengmingflag:
             if (ch == 'm2' or ch == 'm3') and not self.func_call_flag and self.sym_flag.name != None:  # m2常量 m3变量
-                self.add_sym()
+                if ch == 'm2':
+                    self.add_sym()
+                self.sym_flag.set_zero1()
         if ch == 'A2':
             self.shengmingflag = 2  # 标记进行声明语句
             if (self.p + 2) < self.len and self.goal_list[self.p + 2][1] == '(':
@@ -120,7 +123,7 @@ class recDesc_analysis:
             self.func_define_flag = 1
         if ch == 'I5' and self.goal_list[self.p][1] == 'return':  # return 语句
             self.return_flag = 1
-            if self.p+1 < self.len and self.goal_list[self.p+1][1]!=';':
+            if self.p + 1 < self.len and self.goal_list[self.p + 1][1] != ';':
                 self.return_exp = True
         # print(self.goal_list[self.p][1], '----', ch,'-----',self.grammer[ch])
         for i in range(len(self.grammer[ch])):
@@ -178,6 +181,9 @@ class recDesc_analysis:
                             self.expression_list.push(x2)
                             self.expression_list.push(x1)
                             self.quaternions.append([self.count, '=', x2[1], '_', temp])
+                            # 如果不是T变量 则更新符号表
+                            if x2[1][0] == '-' or x2[1][0].isdigit():
+                                self.change_var_value(temp, x2[1], self.scope)
                             self.count += 1
                             self.for_TEST.push(self.count)
                             flag = 2
@@ -201,6 +207,9 @@ class recDesc_analysis:
                             self.expression_list.push(x2)
                             self.expression_list.push(x1)
                             self.quaternions.append([self.count, '=', x2[1], '_', temp])
+                            # 如果不是T变量 则更新符号表
+                            if x2[1][0] == '-' or x2[1][0].isdigit():
+                                self.change_var_value(temp, x2[1], self.scope)
                             self.count += 1
                             # 为表达式添加跳转语句
                             self.quaternions.append([self.count, 'j', '_', '_', self.for_TEST.gettop()])  # 跳回测试条件
@@ -249,25 +258,33 @@ class recDesc_analysis:
                     函数调用 嵌套调用 表达式赋值 形参类型
                     表达式类型相加 返回类型 表达式添加的时候需要添加类型 额外扩充一个
                     '''
-                    if ch == 'p4': # p4 -> = D4 ; | ( H1 ) ;
+                    if ch == 'p4':  # p4 -> = D4 ; | ( H1 ) ;
                         if item == '=':  # 对赋值进行处理
                             self.p4_assignment = 1
                             assignment_type = self.goal_list[self.p - 2][1]
-                            assignment_type = self.sym1.get_type(self.goal_list[self.p - 1][1],self.scope)
+                            assignment_type = self.sym1.get_type(self.goal_list[self.p - 1][1], self.scope)
                             self.assignment_list.push(
-                                [assignment_type, self.goal_list[self.p - 1][1], self.goal_list[self.p - 1][0],self.scope])
+                                [assignment_type, self.goal_list[self.p - 1][1], self.goal_list[self.p - 1][0],
+                                 self.scope])
                         elif self.p4_assignment and item == ';':
                             self.p4_assignment = 0
                             if not self.expression_list.empty() and not self.assignment_list.empty():
-                                if self.sym1.if_constant(self.assignment_list.gettop()[1],self.assignment_list.gettop()[3]):
+                                if self.sym1.if_constant(self.assignment_list.gettop()[1],
+                                                         self.assignment_list.gettop()[3]):
                                     self.warnings_str += "Warning: 第%s行 不能对常量%s赋值\n" % (
                                         self.assignment_list.gettop()[2], self.assignment_list.gettop()[1])
                                 if not self.if_match_format(self.expression_list.gettop()[0],
                                                             self.assignment_list.gettop()[0]):
                                     self.warnings_str += "Warning: 第%s行 %s等号两边格式不匹配\n" % (
-                                    self.assignment_list.gettop()[2], self.assignment_list.gettop()[1])
+                                        self.assignment_list.gettop()[2], self.assignment_list.gettop()[1])
                                 self.quaternions.append([self.count, '=', self.expression_list.gettop()[1], '_',
                                                          self.assignment_list.gettop()[1]])
+
+                                # 如果不是T变量 则更新符号表
+                                if self.expression_list.gettop()[1][0] == '-' or self.expression_list.gettop()[1][
+                                    0].isdigit():
+                                    self.change_var_value(self.assignment_list.gettop()[1],
+                                                          self.expression_list.gettop()[1], self.scope)
                                 self.expression_list.pop()
                                 self.count += 1
                                 self.assignment_list.pop()
@@ -300,15 +317,16 @@ class recDesc_analysis:
                         else:
                             assignment_type = self.goal_list[self.p - 2][1]
                         self.assignment_list.push(
-                            [assignment_type, self.goal_list[self.p - 1][1], self.goal_list[self.p - 1][0],self.scope])
+                            [assignment_type, self.goal_list[self.p - 1][1], self.goal_list[self.p - 1][0], self.scope])
                     if ch == 'C8' and item == '=':  # 常量声明表等于
-                            self.expression_list.push([self.goal_list[self.p+1][2],self.goal_list[self.p+1][1]]) #type 值
-                            if self.repetition_type:
-                                assignment_type = self.sym_flag.type
-                            else:
-                                assignment_type = self.goal_list[self.p - 2][1]
-                            self.assignment_list.push(
-                                [assignment_type, self.goal_list[self.p - 1][1], self.goal_list[self.p - 1][0]])  # 类型 名字 行号
+                        self.expression_list.push(
+                            [self.goal_list[self.p + 1][2], self.goal_list[self.p + 1][1]])  # type 值
+                        if self.repetition_type:
+                            assignment_type = self.sym_flag.type
+                        else:
+                            assignment_type = self.goal_list[self.p - 2][1]
+                        self.assignment_list.push(
+                            [assignment_type, self.goal_list[self.p - 1][1], self.goal_list[self.p - 1][0]])  # 类型 名字 行号
                     if ch == 'p1':  # 函数调用 实参列表
                         if item == '(':
                             self.func_call_flag = 1
@@ -337,7 +355,7 @@ class recDesc_analysis:
                         if ch == 'A1' and item == 'A4':
                             self.is_main = False
                             for i in self.main_return_id:
-                                self.quaternions[i][4] = self.count # 回填return
+                                self.quaternions[i][4] = self.count  # 回填return
                             self.main_return_id = []
                             self.quaternions.append([self.count, 'sys', '_', '_', '_'])
                             self.count += 1
@@ -364,7 +382,7 @@ class recDesc_analysis:
                         if self.expression_shengming:
                             self.str1.gettop().push('a')
                             if self.goal_list[self.p][2] == '700':
-                                str_type = self.sym1.get_type(self.goal_list[self.p][1],self.scope)
+                                str_type = self.sym1.get_type(self.goal_list[self.p][1], self.scope)
                             else:
                                 str_type = self.goal_list[self.p][2]
                             self.str2.gettop().push([str_type, self.goal_list[self.p][1]])
@@ -374,15 +392,10 @@ class recDesc_analysis:
                                 if not self.sym_flag.Equal_Flag:
                                     self.sym_flag.name = self.goal_list[self.p][1]
                                     self.sym_flag.line = self.goal_list[self.p][0]
-                            else:  # 其他常量
-                                # 如果是数值型常量 且前面有符号 则进行负数处理
-                                if self.goal_list[self.p][2] in ['400','800','850'] and self.goal_list[self.p-1][1] == '-':
-                                    if self.goal_list[self.p][2] == '400': #　将字符型字符串进行整数转化
-                                        self.sym_flag.value = str(-int(self.goal_list[self.p][1]))
-                                    else: # 将数值型字符串进行小数 指数转换
-                                        self.sym_flag.value = str(-float(self.goal_list[self.p][1]))
-                                else:
-                                    self.sym_flag.value = self.goal_list[self.p][1]
+                                    if self.shengmingflag == 2:  # 变量声明
+                                        self.add_sym()
+                            elif self.shengmingflag == 1:  # 其他常量且为常量
+                                self.sym_flag.value = self.goal_list[self.p][1]
                         else:
                             if item == '700' and self.goal_list[self.p + 1][1] != '(':
                                 if not self.sym1.get(self.goal_list[self.p][1], self.scope):  # 等号左边变量是否声明
@@ -392,7 +405,7 @@ class recDesc_analysis:
                                 # else:
                                 #     print(self.warnings_str)
                         self.node_number += 1
-                        tree.node(str(self.node_number), self.goal_list[self.p][1],fontname="SimHei")
+                        tree.node(str(self.node_number), self.goal_list[self.p][1], fontname="SimHei")
                         tree.edge(str(fabian), str(self.node_number))
                         self.p += 1
                     elif self.p < len(self.goal_list) and (item == self.goal_list[self.p][1]):  # 终结符 则进行匹配 字符串指针++
@@ -409,7 +422,7 @@ class recDesc_analysis:
                                     self.sym_flag.type = item
                                 else:
                                     self.sym_flag.Func_type_list.append(self.goal_list[self.p][1])
-                            elif self.shengmingflag == 3 and item == '(': # 超前搜索 函数声明标记
+                            elif self.shengmingflag == 3 and item == '(':  # 超前搜索 函数声明标记
                                 self.shengmingflag = 4  # 列表添加函数
                             elif self.shengmingflag == 4 and item == ')':
                                 self.add_sym()  # 函数声明
@@ -448,7 +461,7 @@ class recDesc_analysis:
                                     self.count += 1
                             else:  # 语义错误
                                 self.warnings_str += ("Warning: 第%s行 %s不能出现在循环语句之外\n" % (
-                                    self.goal_list[self.p ][0], self.goal_list[self.p ][1]))
+                                    self.goal_list[self.p][0], self.goal_list[self.p][1]))
                         elif item == 'continue':
                             if self.xunhuan.getlen() >= 1:
                                 if self.xunhuan.gettop() == 'dowhile':
@@ -462,10 +475,11 @@ class recDesc_analysis:
                                     self.count += 1
                             else:
                                 self.warnings_str += ("Warning: 第%s行 %s不能出现在循环语句之外\n" % (
-                                    self.goal_list[self.p ][0], self.goal_list[self.p ][1]))
+                                    self.goal_list[self.p][0], self.goal_list[self.p][1]))
                         if ch != 'p1' and self.expression_shengming and item in ['+', '-', '*', '/', '%', '(', ')', '>',
                                                                                  '<',
-                                                                                 '>=', '<=', '==','!=', '&&', 'or', '!']:
+                                                                                 '>=', '<=', '==', '!=', '&&', 'or',
+                                                                                 '!']:
                             self.str1.gettop().push(item)
                         # 对作用域进行标记
                         self.node_number += 1
@@ -479,26 +493,41 @@ class recDesc_analysis:
                         str1 = copy.deepcopy(self.str1.gettop().getlist())
                         str2 = copy.deepcopy(self.str2.gettop().getlist())
                         # print(str1,str2)
-                        if len(str1) == 2 and str1[0] == '-' and str2[0][0] in ['400','800','850']: # 对 “x=-1"形式进行处理
-                            expression_type = self.format_type(str2[0][0])
-                            if str2[0][0] == '400':
-                                self.expression_list.push([expression_type, str(-int(str2[0][1]))])
-                            else:
-                                self.expression_list.push([expression_type, str(-double(str2[0][1]))])
+                        flag = 0  # 表达式中是否全为数字 全为数字则计算出值 否则 返回四元式序列
+                        for i in str2:
+                            if i[1][0] != '-' and not i[1][0].isdigit():
+                                flag = 1
+                                break
+                        # if len(str1) == 2 and str1[0] == '-' and str2[0][0] in ['400','800','850']: # 对 “x=-1"形式进行处理
+                        #     expression_type = self.format_type(str2[0][0])
+                        #     if str2[0][0] == '400':
+                        #         self.expression_list.push([expression_type, str(-int(str2[0][1]))])
+                        #     else:
+                        #         self.expression_list.push([expression_type, str(-double(str2[0][1]))])
+                        ss = []
+                        for l in str2:
+                            ss.append(l[1])
+                        expression_type = self.format_type(str2[0][0])
+                        if not flag:
+                            temp = self.suan_process.solve(self.count, self.Tid, str1, ss)
+                            if temp != False:
+                                if temp[0] != []:
+                                    quadruples = []
+                                    for i in temp[0]:
+                                        quadruples.append(i[1:])
+                                    self.expression_list.push([expression_type, self.get_quad_value(quadruples)])
+                                else:
+                                    self.expression_list.push([expression_type, str2[0][1]])
                         else:
-                            expression_type = self.format_type(str2[0][0])
-                            ss = []
                             flag1, flag2 = 0, 0  # 表达式中是否出现[char double int bool]类型的 以及string类型
                             for l in str2:
                                 if self.format_type(l[0]) in ['char', 'double', 'int', 'bool']:
                                     flag1 = 1
                                 elif self.format_type(l[0]) == 'string':
                                     flag2 = 1
-                                ss.append(l[1])
                             if flag1 == 1 and flag2 == 1:
                                 expression_type = 'mismatch'
-
-                            temp = self.suan_process.solve(self.count, self.Tid, str1, ss)  # 第几条四元式 T的编号，
+                            temp = self.suan_process.solve(self.count, self.Tid, str1, ss)
                             if temp != False:  # 将表达式产生的四元式添加到我们原来的四元式
                                 for i in temp[0]:
                                     self.quaternions.append(i)
@@ -514,7 +543,7 @@ class recDesc_analysis:
                     if self.str1.empty():
                         self.expression_shengming = 0
 
-                if ch == 'A2': #回溯到声明语句
+                if ch == 'A2':  # 回溯到声明语句
                     self.sym_flag.set_zero()
                     self.shengmingflag = 0  # 消除声明
 
@@ -547,26 +576,26 @@ class recDesc_analysis:
 
                 if ch == 'A5':  # 函数定义
                     self.func_define_flag = 0
-                    if self.return_flag != 1:# 函数中无return语句 返回调用函数 生成ret语句
-                        if self.cur_func_type[0]!='void':
+                    if self.return_flag != 1:  # 函数中无return语句 返回调用函数 生成ret语句
+                        if self.cur_func_type[0] != 'void':
                             self.warnings_str += ("Warning: 第%s行 %s函数应该有返回值!\n" % (
                                 self.goal_list[self.p][0], self.cur_func_type[1]))
                         self.quaternions.append([self.count, 'ret', '_', '_', '_'])
                         self.count += 1
                     self.return_flag = 0
                 if ch == 'I5':  # return 语句
-                    #语义错误处理
+                    # 语义错误处理
                     if self.cur_func_type[0] == 'void':
                         self.warnings_str += ("Warning: 第%s行 %s函数无返回值，不能有return语句!\n" % (
-                            self.goal_list[self.p-2][0], self.cur_func_type[1]))
-                    if self.is_main == True: # main函数中的return语句
+                            self.goal_list[self.p - 2][0], self.cur_func_type[1]))
+                    if self.is_main == True:  # main函数中的return语句
                         self.quaternions.append([self.count, 'j', '_', '_', '0'])
                         self.main_return_id.append(self.count)
                     elif self.return_exp == True:
                         self.quaternions.append([self.count, 'ret', self.expression_list.gettop()[1], '_', '_'])
                         self.expression_list.pop()
                     else:
-                        self.quaternions.append([self.count, 'ret', '_', '_', '_']) # 无返回值的return 语句
+                        self.quaternions.append([self.count, 'ret', '_', '_', '_'])  # 无返回值的return 语句
                     self.return_exp = False
                     self.count += 1
                     self.return_flag = 1
@@ -579,13 +608,18 @@ class recDesc_analysis:
                 if ch == 'n4':
                     if not self.if_match_format(self.expression_list.gettop()[0], self.assignment_list.gettop()[0]):
                         self.warnings_str += "Warning: 第%s行 %s等号两边格式不匹配\n " % (
-                        self.assignment_list.gettop()[2], self.assignment_list.gettop()[1])
+                            self.assignment_list.gettop()[2], self.assignment_list.gettop()[1])
                     self.quaternions.append(
                         [self.count, '=', self.expression_list.gettop()[1], '_', self.assignment_list.gettop()[1]])
+                    # 如果不是T变量 则更新符号表
+                    if self.expression_list.gettop()[1][0] == '-' or self.expression_list.gettop()[1][0].isdigit():
+                        self.change_var_value(self.assignment_list.gettop()[1], self.expression_list.gettop()[1],
+                                              self.scope)
                     self.expression_list.pop()
                     self.count += 1
                     self.assignment_list.pop()
 
+                # 常量声明赋值
                 if ch == 'C8':
                     if not self.if_match_format(self.expression_list.gettop()[0], self.assignment_list.gettop()[0]):
                         self.warnings_str += "Warning: 第%s行 %s等号两边格式不匹配\n " % (
@@ -602,7 +636,7 @@ class recDesc_analysis:
             if ch == 'A2':
                 self.shengmingflag = 0
             self.node_number += 1
-            tree.node(str(self.node_number),'ε', fontname="SimHei")
+            tree.node(str(self.node_number), 'ε', fontname="SimHei")
             tree.edge(str(fabian), str(self.node_number))
             return 1
         else:
@@ -613,9 +647,78 @@ class recDesc_analysis:
             while self.p < self.len and (
                     self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]):
                 self.p += 1
-                #print(self.p)
-            #print("出错啦！！！")
+                # print(self.p)
+            # print("出错啦！！！")
             return 1
+
+    # 更改变量表的值 传入变量 值 作用域
+    def change_var_value(self, var, value, scope):
+        self.sym1.change_var_value(var, value, scope)
+
+    # 根据四元式序列得到最终值
+    def get_quad_value(self, quadruples):  # 输入四元式序列
+        variables = {}  # 用于存储变量的值
+        for quad in quadruples:
+            operator = quad[0]
+            operand1 = quad[1]
+            operand2 = quad[2]
+            result = quad[3]
+            if isinstance(operand1, str) and operand1.startswith('T'):
+                operand1 = variables[operand1]  # 获取操作数1的值
+            if isinstance(operand2, str) and operand2.startswith('T'):
+                operand2 = variables[operand2]  # 获取操作数2的值
+            if operator == '+':
+                value = float(operand1) + float(operand2)
+            elif operator == '-':
+                value = float(operand1) - float(operand2)
+            elif operator == '*':
+                value = float(operand1) * float(operand2)
+            elif operator == '/':
+                value = float(operand1) / float(operand2)
+            elif operator == '%':
+                value = float(operand1) % float(operand2)
+            elif operator == '@':
+                value = - float(operand1)
+            elif operator == '&&':
+                value = float(operand1) and float(operand2)
+                value = self.bool_change(value)
+            elif operator == '||':
+                value = float(operand1) or float(operand2)
+                value = self.bool_change(value)
+            elif operator == '>':
+                value = float(operand1) > float(operand2)
+                value = self.bool_change(value)
+            elif operator == '>=':
+                value = float(operand1) >= float(operand2)
+                value = self.bool_change(value)
+            elif operator == '<':
+                value = float(operand1) < float(operand2)
+                value = self.bool_change(value)
+            elif operator == '<=':
+                value = float(operand1) <= float(operand2)
+                value = self.bool_change(value)
+            elif operator == '!=':
+                value = float(operand1) != float(operand2)
+                value = self.bool_change(value)
+            elif operator == '==':
+                value = float(operand1) == float(operand2)
+                value = self.bool_change(value)
+            # 可以根据实际情况添加其他运算符的处理逻辑
+
+            variables[result] = value  # 将结果存储到变量字典中
+        # 返回最终结果
+        cc = variables[result]
+        if abs(int(cc) - cc) <= 1e-10:
+            return str(int(cc))
+        else:
+            return str(cc)
+
+    def bool_change(self, value):
+        if value == True:
+            value = 1
+        else:
+            value = 0
+        return value
 
     # 等号两边格式是否匹配
     def if_match_format(self, format1, format2):
@@ -632,7 +735,7 @@ class recDesc_analysis:
         return False
 
     def format_type(self, name):
-        if name in ['int', '102', '400']:
+        if name in ['int', '102', '400', '450']:  # 负数
             return 'int'
         elif name in ['char', '101', '500']:
             return 'char'
@@ -644,12 +747,11 @@ class recDesc_analysis:
             return 'bool'
 
     def add_sym(self):
-        #print('add-----', self.sym_flag.name, self.sym_flag.type, self.shengmingflag)
+        # print('add-----', self.sym_flag.name, self.sym_flag.type, self.shengmingflag)
         if self.func_define_flag != 2 and (self.shengmingflag == 1 or self.shengmingflag == 2):
             # 常量表添加
             node = node1(self.sym_flag.type, self.sym_flag.name, self.sym_flag.value, self.scope, self.sym_flag.line)
             self.warnings_str += self.sym1.put(node, self.shengmingflag)
-            self.sym_flag.set_zero1()
         elif self.shengmingflag == 4:
             # 函数表添加
             node = node2(self.sym_flag.type, self.sym_flag.name, self.sym_flag.Func_type_list, self.sym_flag.line)
@@ -691,23 +793,23 @@ class recDesc_analysis:
             tree = Digraph(filename, 'Syntax Tree', None, None, 'png', None, "UTF-8")
             """ 文法字典预处理 """
             self.goal_list = wordlist
-            #print(wordlist)
+            # print(wordlist)
             for i in self.grammer:
                 list1 = str(self.grammer[i][0]).split('|')
                 list2 = []
                 for j in list1:
                     list2.append(j.split())
                 self.grammer[i] = list2
-            #print('==========', self.grammer, '+++++++', self.vn)
+            # print('==========', self.grammer, '+++++++', self.vn)
 
             """ 递归下降分析 """
             tree.node(str(self.node_number), print_dic[self.vn[0]], fontname="SimHei")
             self.p = 0  # 字符串指针
             self.len = len(self.goal_list)
             flag = (self.match(self.vn[0], self.node_number) & (self.p == len(self.goal_list)))  # 必须要遍历完测试字符串
-            #print(self.p)
+            # print(self.p)
             if flag:
-                #print(self.quaternions)
+                # print(self.quaternions)
                 print(' 分析成功')
             else:
                 print(' 分析失败')
@@ -728,20 +830,19 @@ class recDesc_analysis:
             return self.fun_list, self.function_param_list, self.function_jubu_list, self.quaternions, self.syntax_error, self.warnings_str, self.text1, self.text2
         except:
             return self.fun_list, self.function_param_list, self.function_jubu_list, self.quaternions, self.syntax_error, self.warnings_str, self.text1, self.text2
+
+
 # 定义栈
 class Stack(object):
 
-
     def __init__(self):
         self.stack = []
-
 
     def push(self, data):
         """
         进栈函数
         """
         self.stack.append(data)
-
 
     def pop(self):
         """
@@ -752,7 +853,6 @@ class Stack(object):
         else:
             return None
 
-
     def gettop(self):
         """
         取栈顶
@@ -761,7 +861,6 @@ class Stack(object):
             return self.stack[-1]
         else:
             return None
-
 
     def empty(self):
         """
@@ -772,21 +871,36 @@ class Stack(object):
         else:
             return 0
 
-
     def getlist(self):
         '''
         :return: stack()列表
         '''
         return self.stack
 
-
     def getlen(self):
         return len(self.stack)
 
+
 # file_object = open('文法.txt')
 # a = recDesc_analysis(file_object)
-# # a.solve([[2, 'main', '142'], [2, '(', '201'], [2, ')', '202'], [2, '{', '301'], [3, 'int', '102'], [3, 'n', '700'], [3, ',', '304'], [3, 'i', '700'], [3, ',', '304'], [3, 'sum', '700'], [3, ';', '303'], [5, 'for', '113'], [5, '(', '201'], [5, 'int', '102'], [5, 'n', '700'], [5, '=', '230'], [5, '1', '400'], [5, ';', '303'], [5, 'n', '700'], [5, '<=', '220'], [5, '1000', '400'], [5, ';', '303'], [5, 'n', '700'], [5, '=', '230'], [5, 'n', '700'], [5, '+', '207'], [5, '1', '400'], [5, ')', '202'], [5, '{', '301'], [6, 'sum', '700'], [6, '=', '230'], [6, '0', '400'], [6, ';', '303'], [7, 'for', '113'], [7, '(', '201'], [7, 'i', '700'], [7, '=', '230'], [7, '1', '400'], [7, ';', '303'], [7, 'i', '700'], [7, '<', '219'], [7, 'n', '700'], [7, ';', '303'], [7, 'i', '700'], [7, '=', '230'], [7, 'i', '700'], [7, '+', '207'], [7, '1', '400'], [7, ')', '202'], [7, '{', '301'], [8, 'if', '111'], [8, '(', '201'], [8, 'n', '700'], [8, '%', '216'], [8, 'i', '700'], [8, '==', '223'], [8, '0', '400'], [8, ')', '202'], [8, 'sum', '700'], [8, '=', '230'], [8, 'sum', '700'], [8, '+', '207'], [8, 'i', '700'], [8, ';', '303'], [9, '}', '302'], [10, 'if', '111'], [10, '(', '201'], [10, 'sum', '700'], [10, '==', '223'], [10, 'n', '700'], [10, ')', '202'], [10, '{', '301'], [11, 'write', '700'], [11, '(', '201'], [11, 'n', '700'], [11, ')', '202'], [11, ';', '303'], [12, '}', '302'], [13, '}', '302'], [14, 'return', '106'], [14, '0', '400'], [14, ';', '303'], [15, '}', '302']]
-# #         )
+# a.solve([[2, 'main', '142'], [2, '(', '201'], [2, ')', '202'], [3, '{', '301'], [4, 'int', '102'], [4, 'n', '700'],
+#          [4, '=', '230'], [4, '0', '400'], [4, ',', '304'], [4, 'j', '700'], [4, '=', '230'], [4, '0', '400'],
+#          [4, ',', '304'], [4, 'i', '700'], [4, '=', '230'], [4, '0', '400'], [4, ';', '303'], [5, 'int', '102'],
+#          [5, 'x', '700'], [5, '=', '230'], [5, '0', '400'], [5, ',', '304'], [5, 'y', '700'], [5, '=', '230'],
+#          [5, '8', '400'], [5, ';', '303'], [6, 'n', '700'], [6, '=', '230'], [6, 'read', '700'], [6, '(', '201'],
+#          [6, ')', '202'], [6, ';', '303'], [7, 'for', '113'], [7, '(', '201'], [7, 'i', '700'], [7, '=', '230'],
+#          [7, '0', '400'], [7, ';', '303'], [7, 'i', '700'], [7, '<', '219'], [7, 'n', '700'], [7, ';', '303'],
+#          [7, 'i', '700'], [7, '=', '230'], [7, 'i', '700'], [7, '+', '207'], [7, '1', '400'], [7, ')', '202'],
+#          [8, '{', '301'], [9, 'for', '113'], [9, '(', '201'], [9, 'j', '700'], [9, '=', '230'], [9, '0', '400'],
+#          [9, ';', '303'], [9, 'j', '700'], [9, '<', '219'], [9, 'n', '700'], [9, '-', '208'], [9, 'i', '700'],
+#          [9, '-1', '450'], [9, ';', '303'], [9, 'j', '700'], [9, '=', '230'], [9, 'j', '700'], [9, '+', '207'],
+#          [9, '1', '400'], [9, ')', '202'], [10, '{', '301'], [11, 'write', '700'], [11, '(', '201'], [11, 'x', '700'],
+#          [11, ')', '202'], [11, ';', '303'], [12, '}', '302'], [13, 'for', '113'], [13, '(', '201'], [13, 'j', '700'],
+#          [13, '=', '230'], [13, '0', '400'], [13, ';', '303'], [13, 'j', '700'], [13, '<', '219'], [13, 'i', '700'],
+#          [13, '+', '207'], [13, '1', '400'], [13, ';', '303'], [13, 'j', '700'], [13, '=', '230'], [13, 'j', '700'],
+#          [13, '+', '207'], [13, '1', '400'], [13, ')', '202'], [14, '{', '301'], [15, 'write', '700'], [15, '(', '201'],
+#          [15, 'y', '700'], [15, ')', '202'], [15, ';', '303'], [16, '}', '302'], [17, '}', '302'], [18, '}', '302']]
+#         )
 # fun_list,function_param_list,function_jubu_list,siyuanshia,dd,worrings_str,text1,text2 = a.solve([[2, 'int', '102'], [2, 'a', '700'], [2, '=', '230'], [2, '1', '400'], [2, ';', '303'], [3, 'int', '102'], [3, 'seq', '700'], [3, '(', '201'], [3, 'int', '102'], [3, ',', '304'], [3, 'int', '102'], [3, ')', '202'], [3, ';', '303'], [4, 'const', '105'], [4, 'int', '102'], [4, 'c', '700'], [4, '=', '230'], [4, '2', '400'], [4, ',', '304'], [4, 'd', '700'], [4, '=', '230'], [4, '3', '400'], [4, ';', '303'], [5, 'int', '102'], [5, 'p', '700'], [5, ',', '304'], [5, 'q', '700'], [5, '=', '230'], [5, '9', '400'], [5, ';', '303'], [6, 'main', '142'], [6, '(', '201'], [6, ')', '202'], [6, '{', '301'], [8, 'int', '102'], [8, 'result', '700'], [8, ';', '303'], [9, 'int', '102'], [9, 'N', '700'], [9, '=', '230'], [9, 'read', '700'], [9, '(', '201'], [9, 'a', '700'], [9, '+', '207'], [9, '1', '400'], [9, ',', '304'], [9, 'c', '700'], [9, ')', '202'], [9, ';', '303'], [10, 'int', '102'], [10, 'M', '700'], [10, '=', '230'], [10, 'read', '700'], [10, '(', '201'], [10, ')', '202'], [10, ';', '303'], [11, 'int', '102'], [11, 'b', '700'], [11, '=', '230'], [11, '2', '400'], [11, '+', '207'], [11, '3', '400'], [11, '-', '208'], [11, '2', '400'], [11, '+', '207'], [11, '(', '201'], [11, '5', '400'], [11, '+', '207'], [11, '6', '400'], [11, ')', '202'], [11, '+', '207'], [11, '3', '400'], [11, '*', '213'], [11, '5', '400'], [11, '/', '215'], [11, 'a', '700'], [11, ';', '303'], [12, 'if', '111'], [12, '(', '201'], [12, 'A', '700'], [12, '&&', '227'], [12, 'B', '700'], [12, '&&', '227'], [12, 'c', '700'], [12, '>', '221'], [12, 'D', '700'], [12, ')', '202'], [13, 'if', '111'], [13, '(', '201'], [13, 'M', '700'], [13, '>=', '222'], [13, 'N', '700'], [13, ')', '202'], [13, 'result', '700'], [13, '=', '230'], [13, 'M', '700'], [13, ';', '303'], [14, 'else', '112'], [14, 'result', '700'], [14, '=', '230'], [14, 'N', '700'], [14, ';', '303'], [16, 'if', '111'], [16, '(', '201'], [16, 'w', '700'], [16, '<', '219'], [16, '1', '400'], [16, ')', '202'], [17, 'a', '700'], [17, '=', '230'], [17, 'b', '700'], [17, '*', '213'], [17, 'c', '700'], [17, '+', '207'], [17, 'd', '700'], [17, ';', '303'], [18, 'else', '112'], [19, '{', '301'], [20, 'do', '109'], [21, '{', '301'], [22, 'a', '700'], [22, '=', '230'], [22, 'a', '700'], [22, '-', '208'], [22, '1', '400'], [22, ';', '303'], [23, '}', '302'], [23, 'while', '110'], [23, '(', '201'], [23, 'a', '700'], [23, '<', '219'], [23, '0', '400'], [23, ')', '202'], [23, ';', '303'], [25, '}', '302'], [26, 'for', '113'], [26, '(', '201'], [26, 'i', '700'], [26, '=', '230'], [26, 'a', '700'], [26, '+', '207'], [26, 'b', '700'], [26, '*', '213'], [26, '2', '400'], [26, ';', '303'], [26, 'i', '700'], [26, '<', '219'], [26, 'c', '700'], [26, '+', '207'], [26, 'd', '700'], [26, '+', '207'], [26, '10', '400'], [26, ';', '303'], [26, 'i', '700'], [26, '=', '230'], [26, 'i', '700'], [26, '+', '207'], [26, '1', '400'], [26, ')', '202'], [27, 'if', '111'], [27, '(', '201'], [27, 'h', '700'], [27, '>', '221'], [27, 'g', '700'], [27, ')', '202'], [28, 'p', '700'], [28, '=', '230'], [28, 'p', '700'], [28, '+', '207'], [28, '1', '400'], [28, ';', '303'], [29, 'a', '700'], [29, '=', '230'], [29, 'result', '700'], [29, '+', '207'], [29, '100', '400'], [29, ';', '303'], [30, 'write', '700'], [30, '(', '201'], [30, 'a', '700'], [30, ')', '202'], [30, ';', '303'], [32, '}', '302']])
 # print(siyuanshia )
 # print(function_param_list,function_jubu_list)

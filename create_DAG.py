@@ -106,43 +106,54 @@ def create_DAG(codes: list): # start
     for j in range(len(codes)):
         temp = 0
         i = codes[j]
-        if (i[1][0].isdigit() or i[1][0] == '-') and (i[2][0].isdigit() or i[2][0] == '-'):
-            if i[0] == '+':
-                temp = float(i[1]) + float(i[2])
-            elif i[0] == '-':
-                temp = float(i[1]) - float(i[2])
-            elif i[0] == '*':
-                temp = float(i[1]) * float(i[2])
-            elif i[0] == '/':
-                temp = float(i[1]) / float(i[2])
-            elif i[0] == '%':
-                temp = float(i[1]) % float(i[2])
-            elif i[0] == '&&':
-                temp = float(i[1]) and float(i[2])
-            elif i[0] == '||':
-                temp = float(i[1]) or float(i[2])
-            elif i[0] == '>':
-                if float(i[1])-float(i[2]) > 1e-10:
-                    temp = 1
-                else:
-                    temp = 0
-            elif i[0] == '<':
-                if float(i[1])-float(i[2]) < 1e-10:
-                    temp = 1
-                else:
-                    temp = 0
-            elif i[0] == '>=':
-                if float(i[1])-float(i[2]) >= 1e-10:
-                    temp = 1
-                else:
-                    temp = 0
-            elif i[0] == '<=':
-                if float(i[1])-float(i[2]) <= 1e-10:
-                    temp = 1
-                else:
-                    temp = 0
-            codes[j] = ['=', str(temp), '', i[3]]
-        elif (i[2] == '_' or i[2] == '') and (i[1][0].isdigit() or i[1][0] == '-'):
+        if i[1] not in ['','_'] and i[2] not in ['','_']:
+            if (i[1][0].isdigit() or i[1][0] == '-') and (i[2][0].isdigit() or i[2][0] == '-'):
+                if i[0] == '+':
+                    temp = float(i[1]) + float(i[2])
+                elif i[0] == '-':
+                    temp = float(i[1]) - float(i[2])
+                elif i[0] == '*':
+                    temp = float(i[1]) * float(i[2])
+                elif i[0] == '/':
+                    temp = float(i[1]) / float(i[2])
+                elif i[0] == '%':
+                    temp = float(i[1]) % float(i[2])
+                elif i[0] == '&&':
+                    temp = float(i[1]) and float(i[2])
+                elif i[0] == '||':
+                    temp = float(i[1]) or float(i[2])
+                elif i[0] == '>':
+                    if float(i[1]) > float(i[2]):
+                        temp = 1
+                    else:
+                        temp = 0
+                elif i[0] == '<':
+                    if float(i[1]) < float(i[2]):
+                        temp = 1
+                    else:
+                        temp = 0
+                elif i[0] == '>=':
+                    if float(i[1]) >= float(i[2]):
+                        temp = 1
+                    else:
+                        temp = 0
+                elif i[0] == '<=':
+                    if float(i[1]) <= float(i[2]):
+                        temp = 1
+                    else:
+                        temp = 0
+                elif i[0] == '==':
+                    if float(i[1]) == float(i[2]):
+                        temp = 1
+                    else:
+                        temp = 0
+                elif i[0] == '!=':
+                    if float(i[1]) != float(i[2]):
+                        temp = 1
+                    else:
+                        temp = 0
+                codes[j] = ['=', str(temp), '', i[3]]
+        elif i[0]!= '=' and i[1] not in ['','_'] and i[2] in ['','_']and (i[1][0].isdigit() or i[1][0] == '-'):
             if i[0] == '!':
                 temp = not float(i[0])
             elif i[0] == '@' or i[0] == '-':
@@ -417,8 +428,7 @@ def test1():#基本块内优化
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes =  [['main', '_', '_', '_'], ['call', 'read', '_', 'T0'], ['=', 'T0', '_', 'a'], ['call', 'read', '_', 'T1'], ['=', 'T1', '_', 'b'], ['call', 'read', '_', 'T2'], ['=', 'T2', '_', 'c'], ['>', 'a', 'b', 'T3'], ['jnz', 'T3', '_', 10], ['jz', 'T3', '_', 14], ['=', 'a', '_', 't'], ['=', 'b', '_', 'a'], ['=', 't', '_', 'b'], ['j', '_', '_', 14], ['>', 'a', 'c', 'T4'], ['jnz', 'T4', '_', 17], ['jz', 'T4', '_', 21], ['=', 'a', '_', 't'], ['=', 'c', '_', 'a'], ['=', 't', '_', 'c'], ['j', '_', '_', 21], ['>', 'b', 'c', 'T5'], ['jnz', 'T5', '_', 24], ['jz', 'T5', '_', 28], ['=', 'b', '_', 't'], ['=', 'c', '_', 'b'], ['=', 't', '_', 'c'], ['j', '_', '_', 28], ['para', 'a', '_', '_'], ['call', 'write', '_', 'T6'], ['para', 'b', '_', '_'], ['call', 'write', '_', 'T7'], ['para', 'c', '_', '_'], ['call', 'write', '_', 'T8'], ['ret', '0', '_', '_'], ['sys', '_', '_', '_']]
-
+    codes = [('=', '1', '', 'a'), ('=', '2', '', 'b')]
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])
