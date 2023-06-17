@@ -419,7 +419,6 @@ class LexicalAnalysis():
                     pre = ch
                     self.idx += 1
                 elif ch == '-' and self.previous in self.fu_flag:
-                    print('000000000111111')
                     state = 8
                     pre = ch
                     self.idx += 1
@@ -478,14 +477,12 @@ class LexicalAnalysis():
                 return
             elif state == 8:
                 if ch.isdigit():
-                    print('-------')
                     state = 8
                     self.idx += 1
                 else:
                     self.save_word(start, "负数")
                     return
             self.previous = ch
-            print(self.previous)
 
     def check_parentheses(self, text):
         stack = []
