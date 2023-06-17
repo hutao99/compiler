@@ -196,6 +196,20 @@ class VariableSymbolTable():# 记录常量以及变量表
             item = item.n
         return False
 
+    def change_var_value(self,name,value,scope):
+        while scope != '':
+            item = self.head
+            flag = 0
+            while item is not None:  # 变量名相同 作用域在其之上或者与其相同(长度小于或等于当前变量)
+                if item.name == name and item.scope == scope:
+                    item.value = value
+                    flag=1
+                    break
+                item = item.n
+            if flag:
+                break
+            scope = scope[:-2]
+
     def get_type(self,name,scope):
         item = self.head
         while item is not None:  # 变量名相同 作用域在其之上或者与其相同(长度小于或等于当前变量)

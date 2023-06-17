@@ -401,6 +401,7 @@ def get_target_code(mid_result):
 
 def solve(function_param_list1, function_jubu_list1, siyuanshi1, function_array_list1, global_array_list1):
     global global_main_symbol, function, function_param_list, function_jubu_list, function_array_list, global_array_list
+    global_str_symbol.clear()
     # 初始化
     global_main_symbol = []
     # 除main函数外其他函数里参数 以及对应的ss:[bp+n]， 局部变量  以及对应的ss:[bp-n]     sub sp n    n的值为局部变量个数*2
