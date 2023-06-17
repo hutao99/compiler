@@ -163,7 +163,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             # 将最近打开的文件夹添加到QTreeWidget中
             recent_folders = list_
-
             if recent_folders:
                 for folder in recent_folders:
                     item = QTreeWidgetItem(root)
