@@ -163,10 +163,11 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             # 将最近打开的文件夹添加到QTreeWidget中
             recent_folders = list_
-            for folder in recent_folders:
-                item = QTreeWidgetItem(root)
-                item.setText(0, os.path.basename(folder))
-                item.setData(0, Qt.UserRole, folder)
+            if recent_folders:
+                for folder in recent_folders:
+                    item = QTreeWidgetItem(root)
+                    item.setText(0, os.path.basename(folder))
+                    item.setData(0, Qt.UserRole, folder)
 
             # 连接itemDoubleClicked信号到槽函数
             def on_item_clicked(item, column):
