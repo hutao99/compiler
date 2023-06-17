@@ -25,6 +25,8 @@ class LexicalAnalysis():
         self.check_Curly_brackets = 0
         self.readFile("keyword.txt", "c语言种别码.txt")
         self.Type = {"int", "float", "char", "double", "void", "long", "unsigned", "string"}
+        self.previous = ""
+        self.fu_flag = [' ', '\n', '\b', '\t', '=', '(']
         self.other_token = ['{', '}', ';', ',', '(', ')', '[',
                             ']', '!', '*', '/', '%', '+', '-',
                             '<', '<=', '>', '>=', '==', '!=', '&&',
@@ -73,8 +75,10 @@ class LexicalAnalysis():
                 self.yunandjie_Check()
             elif ch == '\n':
                 self.wordline += 1
+                self.previous = ch
                 self.idx += 1
             elif ch == ' ' or ch == '\b' or ch == '\t' or ch == '\r':
+                self.previous = ch
                 self.idx += 1
             else:
                 self.error(self.idx)
@@ -97,11 +101,12 @@ class LexicalAnalysis():
                     self.idx += 1
                 else:
                     state = 2
+            self.previous = ch
         node = wordnode()  # 保存关键字
         node.word = self.text[start:self.idx]  # 截取单词
         node.pos = self.wordline
         # 关键字 or 标识符
-        if self.keyword_dist.get(node.word) == None:
+        if self.keyword_dist.get(node.word) is None:
             node.id = self.id_list.get("标识符")
         else:
             node.id = self.keyword_dist.get(node.word)
@@ -192,7 +197,7 @@ class LexicalAnalysis():
                 self.save_word(start, "整数")
                 return
             elif state == 10:
-                if '1' <= ch and ch <= '7':
+                if '1' <= ch <= '7':
                     state = 11
                     self.idx += 1
                 elif ch == 'x' or ch == 'X':
@@ -210,7 +215,7 @@ class LexicalAnalysis():
                     self.save_word(start, "整数")
                     return
             elif state == 11:
-                if '0' <= ch and ch <= '7':
+                if '0' <= ch <= '7':
                     self.idx += 1
                 elif ch in [' ', '\n', '\b', '\t']:
                     state = 12
@@ -223,14 +228,14 @@ class LexicalAnalysis():
                 self.idx -= 1
                 return
             elif state == 13:
-                if (ch >= '0' and ch <= '9') or (ch >= 'a' and ch <= 'f') or (ch >= 'A' and ch <= 'F'):
+                if ('0' <= ch <= '9') or ('a' <= ch <= 'f') or ('A' <= ch <= 'F'):
                     state = 14
                     self.idx += 1
                 else:
                     self.error(start)
                     return
             elif state == 14:
-                if (ch >= '0' and ch <= '9') or (ch >= 'a' and ch <= 'f') or (ch >= 'A' and ch <= 'F'):
+                if ('0' <= ch <= '9') or ('a' <= ch <= 'f') or ('A' <= ch <= 'F'):
                     self.idx += 1
                 elif ch in self.jielist:
                     state = 15
@@ -253,6 +258,7 @@ class LexicalAnalysis():
                     self.error(start)
                     self.idx += 1
                     return
+            self.previous = ch
 
     # 识别注释
     def zhushi_Check(self):
@@ -304,6 +310,7 @@ class LexicalAnalysis():
             else:
                 # 如果出现/*没有收尾情况 报错
                 self.error(start)
+            self.previous = ch
 
     # 识别单引号
     def dan_Check(self):
@@ -347,6 +354,7 @@ class LexicalAnalysis():
                 else:
                     self.error(start)
                     break
+            self.previous = ch
 
     def shuang_Check(self):
         state, start = self.init_start()
@@ -370,6 +378,7 @@ class LexicalAnalysis():
             elif state == 2:
                 self.save_word(start, "字符串")
                 return
+            self.previous = ch
 
     def yufei_Check(self):
         state, start = self.init_start()
@@ -398,22 +407,35 @@ class LexicalAnalysis():
                 else:
                     self.save_word(start, '||')
                 return
+            self.previous = ch
 
     def pan_Check(self):
         state, start = self.init_start()
         while self.idx < self.text_len:
             ch = self.text[self.idx]
             if state == 0:
-                if ch in ['+', '-', '%', '<', '>', '=', '^', '*', '!']:
-                    pre = ch
+                if ch in ['+', '%', '<', '>', '=', '^', '*', '!']:
                     state = 1
+                    pre = ch
+                    self.idx += 1
+                elif ch == '-' and self.previous in self.fu_flag:
+                    print('000000000111111')
+                    state = 8
+                    pre = ch
+                    self.idx += 1
+                elif ch == '-' and self.previous not in self.fu_flag:
+                    state = 1
+                    pre = ch
                     self.idx += 1
             elif state == 1:
-                if ch == '=':
+                if pre == '=' and ch == '-':
+                    self.save_word(start, pre)
+                    start=self.idx
+                    state = 8
+                    self.idx += 1
+                elif ch == '=':
                     state = 2
                     self.idx += 1
-                elif pre == '-' and ch.isdigit():
-                    state = 8  # 对负数进行处理
                 elif ch == pre:
                     if ch in ['+', '-']:
                         pre = ch
@@ -456,11 +478,14 @@ class LexicalAnalysis():
                 return
             elif state == 8:
                 if ch.isdigit():
+                    print('-------')
                     state = 8
                     self.idx += 1
                 else:
                     self.save_word(start, "负数")
                     return
+            self.previous = ch
+            print(self.previous)
 
     def check_parentheses(self, text):
         stack = []
@@ -498,6 +523,7 @@ class LexicalAnalysis():
     def yunandjie_Check(self):
         start = self.idx
         ch = self.text[self.idx]
+        self.previous = ch
         if ch == '(' and self.check_parentheses_time == 0:
             ts = self.check_parentheses(self.text[self.idx:])
             self.check_parentheses_time += 1
@@ -566,8 +592,8 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
-
-# filename = r'全部测试程序\00编译阶段部分错误测试用例\词法分析用例.txt'
+# filename = r'全部测试程序\01编译器测试用例\test00.txt'
+# filename = 'D:\pythonProject\pythonProject\负数测试.txt'
 # with open(filename, encoding=check_charset(filename)) as f:
 #     text = f.read()
 #     a = LexicalAnalysis(text)  # 读入文章

@@ -161,8 +161,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             list_ = self.app_data.value('list')
 
-            print(list_)
-
             # 将最近打开的文件夹添加到QTreeWidget中
             recent_folders = list_
             for folder in recent_folders:
@@ -172,6 +170,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             # 连接itemDoubleClicked信号到槽函数
             def on_item_clicked(item, column):
+                list_ = self.app_data.value('list')
+                if list_ == '':
+                    QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
                 # 获取双击的项目
                 folder_path = item.data(0, Qt.UserRole)
                 if not os.path.isdir(folder_path):
@@ -189,6 +190,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
             def on_item_double_clicked(item, column):
                 try:
+                    list_ = self.app_data.value('list')
+                    if list_ == '':
+                        QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
                     # 获取双击的项目
                     folder_path = item.parent().data(0, Qt.UserRole)
                     file_name = item.text(0)
