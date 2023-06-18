@@ -248,10 +248,6 @@ class OPGGrammarSolver(QMainWindow):
         self.tableAnalyze.setObjectName("tableAnalyze")
         self.tableAnalyze.setStyleSheet('QWidget{background-color:%s}' % QColor("#FFFFFF").name())
 
-        # 隐藏分析表的横纵表头
-        self.tableAnalyze.verticalHeader().setVisible(False)  # 隐藏垂直表头
-        self.tableAnalyze.horizontalHeader().setVisible(False)  # 隐藏水平表头
-
         self.pushButton_3__ = QtWidgets.QPushButton()
         self.pushButton_3__.setEnabled(True)
         font = QtGui.QFont()
@@ -464,15 +460,39 @@ class OPGGrammarSolver(QMainWindow):
             op = FirstVTAndLastVT()
             op.input(grammar)
             terminal = set()
+            max1 = 0
+            max2 = 0
             for i in op.first:
                 terminal.update(op.first[i])
+                if len(op.first[i]) > max1:
+                    max1 = len(op.first[i])
             for i in op.last:
                 terminal.update(op.last[i])
+                if len(op.last[i]) > max2:
+                    max2 = len(op.last[i])
             del op.first[op.begin+"'"]
             del op.last[op.begin + "'"]
-            self.table_FIRST.setColumnCount(len(terminal))  # 设置列数
+            # 设置表格标题的样式
+            background_color = QColor("#CCCCCC").name()
+            self.table_FIRST.horizontalHeader().setStyleSheet(
+                "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s;}" % background_color)
+            self.table_FIRST.verticalHeader().setStyleSheet(
+                "QHeaderView::section { border-right: 1px solid gray; background-color: %s;}" % background_color)
+
+            # 设置表格内容的样式
+            self.table_FIRST.setStyleSheet("QTableView::item { border-bottom: 1px solid gray; color: black; }"
+                                " QTableView { background-color: white; }")
+            self.table_FOLLOW.horizontalHeader().setStyleSheet(
+                "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+            self.table_FOLLOW.verticalHeader().setStyleSheet(
+                "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s; }" % background_color)
+
+            # 设置表格内容的样式
+            self.table_FOLLOW.setStyleSheet("QTableView::item { border-bottom: 1px solid gray; color: black; }"
+                                " QTableView { background-color: white; }")
+            self.table_FIRST.setColumnCount(max1)  # 设置列数
             self.table_FIRST.setRowCount(len(op.first))  # 设置行数
-            self.table_FOLLOW.setColumnCount(len(terminal))  # 设置列数
+            self.table_FOLLOW.setColumnCount(max2)  # 设置列数
             self.table_FOLLOW.setRowCount(len(op.first))  # 设置行数
             idx = 0
             print(op.first)
@@ -500,6 +520,15 @@ class OPGGrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def analyze_table(self):
+        background_color = QColor("#CCCCCC").name()
+        self.tableAnalyze.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s;}" % background_color)
+        self.tableAnalyze.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-right: 1px solid gray; background-color: %s;}" % background_color)
+
+        # 设置表格内容的样式
+        self.tableAnalyze.setStyleSheet("QTableView::item { border-bottom: 1px solid gray; color: black; }"
+                                       " QTableView { background-color: white; }")
         self.tableAnalyze.clear()
         try:
             grammar = self.textEdit.toPlainText()
@@ -511,33 +540,33 @@ class OPGGrammarSolver(QMainWindow):
             sequence1, precedence_table1, is_opg = op.Table()
             if not is_opg:
                 QMessageBox.warning(self, '警告', '该文法非算符优先文法，请谨慎使用')
-            self.tableAnalyze.setColumnCount(len(sequence1)+1)  # 设置列数
-            self.tableAnalyze.setRowCount(len(sequence1)+1)  # 设置行
-            idx = 1
-            for i in sequence1:
-                item = QtWidgets.QTableWidgetItem(i)
-                item.setTextAlignment(Qt.AlignCenter)
-                self.tableAnalyze.setItem(0, idx, item)
-                idx += 1
-            idx = 1
-            for i in sequence1:
-                item = QtWidgets.QTableWidgetItem(i)
-                item.setTextAlignment(Qt.AlignCenter)
-                self.tableAnalyze.setItem(idx, 0, item)
-                idx += 1
-            idx = 1
+            self.tableAnalyze.setColumnCount(len(sequence1))  # 设置列数
+            self.tableAnalyze.setRowCount(len(sequence1))  # 设置行
+            self.tableAnalyze.setHorizontalHeaderLabels(sequence1.keys())
+            self.tableAnalyze.setVerticalHeaderLabels(sequence1.keys())
+            idx = 0
             for i in sequence1:
                 for j in range(len(sequence1)):
                     item = QtWidgets.QTableWidgetItem(precedence_table1[sequence1[i]][j])
                     item.setTextAlignment(Qt.AlignCenter)
-                    self.tableAnalyze.setItem(idx, j+1, item)
+                    self.tableAnalyze.setItem(idx, j, item)
                 idx += 1
             print(precedence_table1)
         except Exception as e:
             print("Error: ", e)
 
     def analyze_sentence(self):
+        background_color = QColor("#CCCCCC").name()
+        self.tableStack.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s;}" % background_color)
+        self.tableStack.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-right: 1px solid gray; background-color: %s;}" % background_color)
+
+        # 设置表格内容的样式
+        self.tableStack.setStyleSheet("QTableView::item { border-bottom: 1px solid gray; color: black; }"
+                                       " QTableView { background-color: white; }")
         self.tableStack.clear()
+        self.tableStack.setHorizontalHeaderLabels(["符号栈", "缓冲区符号", "优先级", "动作"])
         grammar = self.textEdit.toPlainText()
         grammar = grammar.replace('->', ':')
         text = self.textEdit_1.toPlainText()
@@ -562,14 +591,14 @@ class OPGGrammarSolver(QMainWindow):
             for i in range(len(t[0])):
                 for j in range(4):
                     if len(t[j]) == i:
-                        item = QtWidgets.QTableWidgetItem(info)
-                        self.tableStack.setItem(len(t[0]), 0, item)
                         break
                     p = str(t[j][i])
                     item = QtWidgets.QTableWidgetItem(p)
                     if j == 1:
                         item.setTextAlignment(Qt.AlignRight)
                     self.tableStack.setItem(i, j, item)
+            item = QtWidgets.QTableWidgetItem(info)
+            self.tableStack.setItem(len(t[0]), 0, item)
         except Exception as e:
             QMessageBox.warning(self, '错误', '句子中可能存在文法中没有的终结符或系统错误')
             print("Error: ", e)
@@ -606,7 +635,16 @@ class OPGGrammarSolver(QMainWindow):
         filename1, _ = QFileDialog.getSaveFileName(self, '保存算符优先分析表', '', 'Text Files (*.txt)')
         if filename1:
             with open(filename1, 'w') as f:
+                f.write('\t')
+                for col in range(self.tableAnalyze.columnCount()):
+                    header_item = self.tableAnalyze.horizontalHeaderItem(col)
+                    if header_item is not None:
+                        f.write(header_item.text() + '\t')
+                    else:
+                        f.write('\t')
+                f.write('\n')
                 for row in range(self.tableAnalyze.rowCount()):
+                    f.write(self.tableAnalyze.verticalHeaderItem(row).text() + '\t')
                     for col in range(self.tableAnalyze.columnCount()):
                         item = self.tableAnalyze.item(row, col)
                         if item is not None:
@@ -638,8 +676,8 @@ class OPGGrammarSolver(QMainWindow):
                     f.write('\n')
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = OPGGrammarSolver()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())'''
