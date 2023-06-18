@@ -591,6 +591,15 @@ class LR0GrammarSolver(QMainWindow):
             print("Error: ", e)
 
     def LR_Table(self):
+        background_color = QColor("#CCCCCC").name()
+        self.tableAnalyze.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s;}" % background_color)
+        self.tableAnalyze.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-right: 1px solid gray; background-color: %s;}" % background_color)
+
+        # 设置表格内容的样式
+        self.tableAnalyze.setStyleSheet("QTableView::item { border-bottom: 1px solid gray; color: black; }"
+                                      " QTableView { background-color: white; }")
         self.tableAnalyze.clear()
         grammar = self.textEdit.toPlainText()
         if len(grammar) != 0:
@@ -635,6 +644,15 @@ class LR0GrammarSolver(QMainWindow):
                 print("Error: ", e)
 
     def LR_Analyse(self):
+        background_color = QColor("#CCCCCC").name()
+        self.tableStack.horizontalHeader().setStyleSheet(
+            "QHeaderView::section { border-bottom: 1px solid gray; background-color: %s;}" % background_color)
+        self.tableStack.verticalHeader().setStyleSheet(
+            "QHeaderView::section { border-right: 1px solid gray; background-color: %s;}" % background_color)
+
+        # 设置表格内容的样式
+        self.tableStack.setStyleSheet("QTableView::item { border-bottom: 1px solid gray; color: black; }"
+                                      " QTableView { background-color: white; }")
         self.tableStack.clear()
         self.tableStack.setHorizontalHeaderLabels(['状态栈', '符号栈', '剩余符号', '动作'])
         grammar = self.textEdit.toPlainText()
