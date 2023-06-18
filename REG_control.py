@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 
 import numpy as np
@@ -46,8 +47,6 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.action_MFA_2.triggered.connect(self.save_mfa_graph)
         self.action_12.triggered.connect(self.save_all)
 
-
-
         self.my_object = None
         self.nfa = []
         self.dfa = []
@@ -55,15 +54,30 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         self.final_states = []
         self.input_symbols = []
         self.text = ""
-
+        # 情况上次程序运行生成的临时文件
+        if os.path.exists("./Reg_Graph"):
+            shutil.rmtree("./Reg_Graph")
+        if os.path.exists("./Reg_TXT"):
+            shutil.rmtree("./Reg_TXT")
     def open_file(self):
         path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例/正则表达式及其对应测试用例/', '文本文件 (*.txt)')
         if path != '':  # 选择了文件就读,否则不读，解决未选择文件卡死的问题
             with open(path, 'r', encoding="utf-8") as f:
                 text = f.read()
             f.close()
+            # 清空页面上的无关信息
             self.plainTextEdit.clear()
+            self.plainTextEdit_2.clear()
+            self.plainTextEdit_3.clear()
+            self.textEdit.clear()
             self.plainTextEdit.setPlainText(text)
+            # 清空上次输入正规式留下的残余文件
+            self.mfa = []
+            if os.path.exists("./Reg_Graph"):
+                shutil.rmtree("./Reg_Graph")
+            if os.path.exists("./Reg_TXT"):
+                shutil.rmtree("./Reg_TXT")
+
 
     def open_file1(self):
         path, _ = QFileDialog.getOpenFileName(self, '打开文件', './全部测试程序/03REG正则表达式转换测试用例/正则表达式及其对应测试用例/',
@@ -84,9 +98,15 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                 text = f.read()
             f.close()
             self.plainTextEdit.clear()
+            self.plainTextEdit_2.clear()
+            self.plainTextEdit_3.clear()
+            self.textEdit.clear()
             self.plainTextEdit.setPlainText(text)
-
-
+            self.mfa = []
+            if os.path.exists("./Reg_Graph"):
+                shutil.rmtree("./Reg_Graph")
+            if os.path.exists("./Reg_TXT"):
+                shutil.rmtree("./Reg_TXT")
     def reg_to_nfa(self):
         reg = self.plainTextEdit.toPlainText()  # 获取用户输入的正规式
         if reg == '':
@@ -97,6 +117,10 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
             QMessageBox.warning(self, '警告', '请输入合法的正规式')
         else:
             try:
+                if os.path.exists("./Reg_Graph"):
+                    shutil.rmtree("./Reg_Graph")
+                if os.path.exists("./Reg_TXT"):
+                    shutil.rmtree("./Reg_TXT")
                 my_dir = {}
                 if '%' in reg:
                     setting = reg[reg.find('%') + 2: reg.rfind('%') - 1]
@@ -138,7 +162,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                 self.my_object = REG.NfaDfaMfa(reg, my_dir)
                 self.nfa = self.my_object.reg_to_nfa()
                 self.plainTextEdit_3.clear()
-                f = open("NFA.txt")
+                f = open("./Reg_TXT/NFA.txt")
                 text = f.read()
                 f.close()
                 text1 = "NFA:\n" + text
@@ -166,7 +190,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
             else:
                 try:
                     self.dfa, self.final_states, self.input_symbols = self.my_object.nfa_to_dfa(self.nfa)
-                    f = open("DFA.txt")
+                    f = open("./Reg_TXT/DFA.txt")
                     text = f.read()
                     f.close()
                     text1 = "DFA:\n" + text
@@ -192,7 +216,7 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         else:
             try:
                 self.mfa, self.final_states = self.my_object.dfa_to_mfa(self.dfa, self.final_states, self.input_symbols)
-                f = open("MFA.txt")
+                f = open("./Reg_TXT/MFA.txt")
                 text = f.read()
                 f.close()
                 text1 = "MFA:\n" + text
@@ -302,9 +326,9 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                                         arc.append(value1)
                             if len(arc) > 0:
                                 final_nfa.append(arc)
-                    my_object = REG.NfaDfaMfa("",{})
+                    my_object = REG.NfaDfaMfa("", {})
                     dfa, final_states, input_symbols = my_object.nfa_to_dfa(final_nfa)
-                    f = open("DFA.txt")
+                    f = open("./Reg_TXT/DFA.txt")
                     text = f.read()
                     f.close()
                     text1 = "DFA:" + text
@@ -326,6 +350,8 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
         dfa = self.plainTextEdit.toPlainText()
         if dfa == '':
             QMessageBox.warning(self, '警告', '请在输入框输入代码或打开文件')
+        elif 'ε' in dfa:
+            QMessageBox.warning(self, '警告', '请输入DFA')
         else:
             if "状态" not in dfa or "节点" not in dfa:
                 QMessageBox.warning(self, '警告', '请输入正确的DFA形式')
@@ -355,9 +381,10 @@ class REG_MainWindow(Ui_MainWindow, QMainWindow):
                                             input_symbols.append(value1)
                             if len(arc) > 0:
                                 final_dfa.append(arc)
+
                     my_object = REG.NfaDfaMfa("",{})
                     mfa, final_states = my_object.dfa_to_mfa(final_dfa, final_states, input_symbols)
-                    f = open("MFA.txt")
+                    f = open("./Reg_TXT/MFA.txt")
                     text = f.read()
                     f.close()
                     text1 = "MFA:" + text
