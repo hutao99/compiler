@@ -668,40 +668,40 @@ class recDesc_analysis:
             if isinstance(operand2, str) and operand2.startswith('T'):
                 operand2 = variables[operand2]  # 获取操作数2的值
             if operator == '+':
-                value = float(operand1) + float(operand2)
+                value = self.determine_number_type(operand1) + self.determine_number_type(operand2)
             elif operator == '-':
-                value = float(operand1) - float(operand2)
+                value = self.determine_number_type(operand1) - self.determine_number_type(operand2)
             elif operator == '*':
-                value = float(operand1) * float(operand2)
+                value = self.determine_number_type(operand1) * self.determine_number_type(operand2)
             elif operator == '/':
-                value = float(operand1) / float(operand2)
+                value = self.determine_number_type(operand1) / self.determine_number_type(operand2)
             elif operator == '%':
-                value = float(operand1) % float(operand2)
+                value = self.determine_number_type(operand1) % self.determine_number_type(operand2)
             elif operator == '@':
-                value = - float(operand1)
+                value = - self.determine_number_type(operand1)
             elif operator == '&&':
-                value = float(operand1) and float(operand2)
+                value = self.determine_number_type(operand1) and self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '||':
-                value = float(operand1) or float(operand2)
+                value = self.determine_number_type(operand1) or self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '>':
-                value = float(operand1) > float(operand2)
+                value = self.determine_number_type(operand1) > self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '>=':
-                value = float(operand1) >= float(operand2)
+                value = self.determine_number_type(operand1) >= self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '<':
-                value = float(operand1) < float(operand2)
+                value = self.determine_number_type(operand1) < self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '<=':
-                value = float(operand1) <= float(operand2)
+                value = self.determine_number_type(operand1) <= self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '!=':
-                value = float(operand1) != float(operand2)
+                value = self.determine_number_type(operand1) != self.determine_number_type(operand2)
                 value = self.bool_change(value)
             elif operator == '==':
-                value = float(operand1) == float(operand2)
+                value = self.determine_number_type(operand1) == self.determine_number_type(operand2)
                 value = self.bool_change(value)
             # 可以根据实际情况添加其他运算符的处理逻辑
 
@@ -712,6 +712,12 @@ class recDesc_analysis:
             return str(int(cc))
         else:
             return str(cc)
+
+    def determine_number_type(self,ss):
+        if ss.isdigit():
+            return int(ss)
+        elif '.' in ss or 'e' in ss.lower():
+            return float(ss)
 
     def bool_change(self, value):
         if value == True:

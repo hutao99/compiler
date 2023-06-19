@@ -8,6 +8,7 @@ from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
+import re
 class MyDialog(QDialog):
     def __init__(self, file_path, parent=None):
         super(MyDialog, self).__init__(parent)
@@ -53,12 +54,18 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
 
     def DAG_optimal(self):
         s = self.textEdit.toPlainText()
+        print('111',s)
         if s == '':
             QMessageBox.warning(self, '警告', '请输入需要生成DAG的四元式！')
             return
         s = s.replace("'", "").replace('"', '')
-        s = s.replace("[", "").replace(']', '')
-        s = s.replace("(", "").replace(')', '')
+        print(222)
+        s = re.sub(r'\[', '', s, count=1)
+        print(333)
+        s = re.sub(r'\]', '', s[::-1], count=1)[::-1]
+        s = re.sub(r'\(', '', s, count=1)
+        s = re.sub(r'\)', '', s[::-1], count=1)[::-1]
+        print('s',s)
         # code 四元式列表
         # if s[0] == '(':
         #     lst = [tuple(x.strip() for x in line.strip("()").split(",")) for line in s.splitlines()]
@@ -67,7 +74,7 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         #     code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
         code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
         try:
-            # print('测试code:',code)
+            print('测试code:',code)
             DAG = create_DAG(code)
             codes = optimize(DAG)
             info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])

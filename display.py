@@ -485,7 +485,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.wordlist, self.errorlist, self.lbword = a.print_out()
             self.textEdit_3.setText(self.wordlist)
             self.textEdit_2.setText(self.errorlist)
-            #print(self.lbword)
+            # print(self.lbword)
             # 初始化
             self.split_flag = 0
             self.yh_flag = 0
@@ -667,6 +667,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         if len(self.LR.errors) == 0 and len(lex.error) == 0:
                             self.LR.IntermediateCodeGenerator(tokens)
                             getcode = self.LR.code
+                            print(self.LR.code)
                             for i in range(len(getcode)):
                                 s += str(i) + ':' + str(getcode[i]) + '\n'
                             self.textEdit_3.setText(s)
@@ -688,7 +689,9 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             QMessageBox.warning(self, '警告', '请先生成四元式！')
         else:
             try:
+                print('s',s)
                 codes = self.format_conversion(s)
+                print(999,codes)
                 self.basic_blocks = Partition_Basic_Block(codes)
                 # print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
