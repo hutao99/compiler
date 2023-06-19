@@ -92,11 +92,20 @@ def index_of_DAG(DAG, x):
             if x in e['node_label'] or x == e['label']:
                 return i
     return None
+
 def is_in_label(DAG, elem):
     for e in DAG:
         if elem == e['label'] :
             return True
     return False
+
+#将字符串转换为对应类型的数字
+def determine_number_type(string):
+    if string.isdigit():
+        return int(string)
+    elif '.' in string or 'e' in string.lower():
+        return float(string)
+
 def create_DAG(codes: list): # start
     # 将四元式转变为列表形式 方便后面对列表进行改动
     l = []
@@ -109,56 +118,56 @@ def create_DAG(codes: list): # start
         if i[1] not in ['','_'] and i[2] not in ['','_']:
             if (i[1][0].isdigit() or i[1][0] == '-') and (i[2][0].isdigit() or i[2][0] == '-'):
                 if i[0] == '+':
-                    temp = float(i[1]) + float(i[2])
+                    temp = determine_number_type(i[1]) + determine_number_type(i[2])
                 elif i[0] == '-':
-                    temp = float(i[1]) - float(i[2])
+                    temp = determine_number_type(i[1]) - determine_number_type(i[2])
                 elif i[0] == '*':
-                    temp = float(i[1]) * float(i[2])
+                    temp = determine_number_type(i[1]) * determine_number_type(i[2])
                 elif i[0] == '/':
-                    temp = float(i[1]) / float(i[2])
+                    temp = determine_number_type(i[1]) / determine_number_type(i[2])
                 elif i[0] == '%':
-                    temp = float(i[1]) % float(i[2])
+                    temp = determine_number_type(i[1]) % determine_number_type(i[2])
                 elif i[0] == '&&':
-                    temp = float(i[1]) and float(i[2])
+                    temp = determine_number_type(i[1]) and determine_number_type(i[2])
                 elif i[0] == '||':
-                    temp = float(i[1]) or float(i[2])
+                    temp = determine_number_type(i[1]) or determine_number_type(i[2])
                 elif i[0] == '>':
-                    if float(i[1]) > float(i[2]):
+                    if determine_number_type(i[1]) > determine_number_type(i[2]):
                         temp = 1
                     else:
                         temp = 0
                 elif i[0] == '<':
-                    if float(i[1]) < float(i[2]):
+                    if determine_number_type(i[1]) < determine_number_type(i[2]):
                         temp = 1
                     else:
                         temp = 0
                 elif i[0] == '>=':
-                    if float(i[1]) >= float(i[2]):
+                    if determine_number_type(i[1]) >= determine_number_type(i[2]):
                         temp = 1
                     else:
                         temp = 0
                 elif i[0] == '<=':
-                    if float(i[1]) <= float(i[2]):
+                    if determine_number_type(i[1]) <= determine_number_type(i[2]):
                         temp = 1
                     else:
                         temp = 0
                 elif i[0] == '==':
-                    if float(i[1]) == float(i[2]):
+                    if determine_number_type(i[1]) == determine_number_type(i[2]):
                         temp = 1
                     else:
                         temp = 0
                 elif i[0] == '!=':
-                    if float(i[1]) != float(i[2]):
+                    if determine_number_type(i[1]) != determine_number_type(i[2]):
                         temp = 1
                     else:
                         temp = 0
                 codes[j] = ['=', str(temp), '', i[3]]
         elif i[0]!= '=' and i[1] not in ['','_'] and i[2] in ['','_']and (i[1][0].isdigit() or i[1][0] == '-'):
             if i[0] == '!':
-                temp = not float(i[0])
+                temp = not determine_number_type(i[0])
             elif i[0] == '@' or i[0] == '-':
                 i[0] = i[0].replace("@", "-")
-                temp = - float(i[1])
+                temp = - determine_number_type(i[1])
             codes[j] = ['=', str(temp), '', i[3]]
     DAG = []
     global Active_variable
@@ -429,7 +438,7 @@ def test1():#基本块内优化
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes= [('+', 'a', 'b', 'T0'), ('-', 'T0', '', 'T1'), ('+', 'c', 'd', 'T2'), ('*', 'T1', 'T2', 'T3'), ('+', 'a', 'b', 'T4'), ('+', 'T4', 'c', 'T5'), ('-', 'T3', 'T5', 'T6'), ('=', 'T6', '', 'n')]
+    codes = [['main', '', '', ''], ['=', '2', '', 'n'], ['=', '3', '', 'm'], ['*', '2', '3', 'T0'], ['+', 'T0', '3', 'T1'], ['*', '3', '2', 'T2'], ['+', 'T2', '2', 'T3'], ['*', '0', '3', 'T4'], ['+', 'T4', '0', 'T5'], ['=', '11', '', 'a[T5]'], ['*', '0', '3', 'T6'], ['+', 'T6', '1', 'T7'], ['=', '12', '', 'a[T7]'], ['*', '0', '3', 'T8'], ['+', 'T8', '2', 'T9'], ['=', '13', '', 'a[T9]'], ['*', '1', '3', 'T10'], ['+', 'T10', '0', 'T11'], ['=', '21', '', 'a[T11]'], ['*', '1', '3', 'T12'], ['+', 'T12', '1', 'T13'], ['=', '22', '', 'a[T13]'], ['*', '1', '3', 'T14'], ['+', 'T14', '2', 'T15'], ['=', '23', '', 'a[T15]'], ['=', '0', '', 'i'], ['j<', 'i', 'n', 28], ['j', '', '', 42], ['=', '0', '', 'j'], ['j<', 'j', 'm', 31], ['j', '', '', 39], ['*', 'j', '2', 'T18'], ['+', 'T18', 'i', 'T19'], ['*', 'i', '3', 'T20'], ['+', 'T20', 'j', 'T21'], ['=', 'a[T21]', '', 'b[T19]'], ['+', 'j', '1', 'T17'], ['=', 'T17', '', 'j'], ['j', '', '', 29], ['+', 'i', '1', 'T16'], ['=', 'T16', '', 'i'], ['j', '', '', 26], ['para', '"the 0riginal matrix:"', '', ''], ['call', 'write', '', ''], ['=', '0', '', 'i'], ['j<', 'i', 'n', 47], ['j', '', '', 60], ['=', '0', '', 'j'], ['j<', 'j', 'm', 50], ['j', '', '', 57], ['*', 'i', '3', 'T24'], ['+', 'T24', 'j', 'T25'], ['para', 'a[T25]', '', ''], ['call', 'write', '', ''], ['+', 'j', '1', 'T23'], ['=', 'T23', '', 'j'], ['j', '', '', 48], ['+', 'i', '1', 'T22'], ['=', 'T22', '', 'i'], ['j', '', '', 45], ['para', '"the transposed matrix:"', '', ''], ['call', 'write', '', ''], ['=', '0', '', 'i'], ['j<', 'i', 'm', 65], ['j', '', '', 78], ['=', '0', '', 'j'], ['j<', 'j', 'n', 68], ['j', '', '', 75], ['*', 'i', '2', 'T28'], ['+', 'T28', 'j', 'T29'], ['para', 'b[T29]', '', ''], ['call', 'write', '', ''], ['+', 'j', '1', 'T27'], ['=', 'T27', '', 'j'], ['j', '', '', 66], ['+', 'i', '1', 'T26'], ['=', 'T26', '', 'i'], ['j', '', '', 63], ['sys', '', '', '']]
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])
@@ -448,4 +457,4 @@ def test3():
     print('cc:',cc)
     optimize_quaternion = Partition_Basic_Block(cc)
     print('optimize_quaternion', optimize_quaternion)
-# test2()
+test2()
