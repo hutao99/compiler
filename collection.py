@@ -327,7 +327,7 @@ class FirstVTAndLastVT:
                 # 规约不了，报错
                 if flag:
                     print("没有产生式可以归约")
-                    info = "没有产生式可以归约"
+                    info = "不是文法的句子"
                     break
             else:
                 # 没有优先级关系报错

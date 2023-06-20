@@ -197,7 +197,7 @@ class Ui_MainWindow(object):
         self.menu_F.setTitle(_translate("MainWindow", "导入文件"))
         self.menu_E.setTitle(_translate("MainWindow", "REG正则表达式转换"))
         self.menu.setTitle(_translate("MainWindow", "词法分析"))
-        self.menu_NFA_DFA.setTitle(_translate("MainWindow", "单独转换"))
+
         self.menu_2.setTitle(_translate("MainWindow", "导出文件"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.action_lexicalAnalyzer.setText(_translate("MainWindow", " 词法分析器1"))
@@ -217,9 +217,8 @@ class Ui_MainWindow(object):
         self.action_9.setText(_translate("MainWindow", "词法分析"))
         self.action_10.setText(_translate("MainWindow", "导入待识别符号串文件"))
         self.action_13.setText(_translate("MainWindow", "导入NFA或DFA"))
-        self.action_DFA_MFA.setText(_translate("MainWindow", "DFA转MFA"))
-        self.action_NFA_DFA.setText(_translate("MainWindow", "NFA转DFA"))
-        self.action_DFA_MFA_2.setText(_translate("MainWindow", "DFA转MFA"))
+
+
         self.action_NFA_2.setText(_translate("MainWindow", "导出NFA"))
         self.action_DFA.setText(_translate("MainWindow", "导出DFA"))
         self.action_MFA.setText(_translate("MainWindow", "导出MFA"))
