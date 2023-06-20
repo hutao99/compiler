@@ -337,7 +337,6 @@ class Predictive_Analysis:
                     for fk in self.follow_table[k]:
                         self.predict_table_[k][fk] = k + '->' + next_grammar
 
-
 # coding=utf-8
 def check_charset(file_path):
     import chardet
