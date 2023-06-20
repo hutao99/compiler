@@ -3,7 +3,7 @@ import sys
 import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt, QThread, pyqtSignal
+from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt, QThread, pyqtSignal, QFileSystemWatcher
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_DAG import MyDesiger_DAG, MyDialog
@@ -36,16 +36,21 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.setWindowTitle('编译器')
         self.tree_view = self.treeView
 
-        self.model = QDirModel()  # 显示文件系统
-        # self.model.setRootPath(self.data_path)
+        self.model = QFileSystemModel()  # 显示文件系统
+        self.model.setRootPath("")
         self.tree_view.setModel(self.model)
-        # self.tree_view.setRootIndex(self.model.index(self.data_path))
         self.tree_view.setHeaderHidden(True)  # 不显示表头
         self.tree_view.setColumnHidden(1, True)
         self.tree_view.setColumnHidden(2, True)
         self.tree_view.setColumnHidden(3, True)
-        # self.doubleClicked.connect(self.file_name)  # 双击文件打开
+        # 创建文件系统监视器
+        watcher = QFileSystemWatcher()
+        watcher.addPath("")  # 监视根路径
+
         self.tree_view.clicked.connect(self.on_tree_view_clicked)
+        # 将文件系统变化连接到槽函数
+        watcher.directoryChanged.connect(self.on_file_system_changed)
+
         self.app_data = QSettings('config.ini', QSettings.IniFormat)
         self.app_data.setIniCodec('UTF-8')  # 设置ini文件编码为 UTF-8
         self.file_path = ""
@@ -115,16 +120,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 初始化LR分析
         self.LR = None
         self.progress_dialog = None
-        '''self.LR = LR.CLRParser()
-        f = open('文法修改.txt', 'r', encoding='utf-8')
-        f1 = open('文法修改1.txt', 'r', encoding='utf-8')
-        self.LR.input(f.read())
-        lr1 = LR.CLRParser()
-        lr1.input(f1.read())
-        lr1.Action_and_GoTo_Table()
-        self.LR.Action_and_GoTo_Table()
-        self.LR.parsing_table1 = lr1.parsing_table
-        self.LR.reduction1 = lr1.reduction'''
+
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         # LR1语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
@@ -152,22 +148,51 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionHELP_CHM.triggered.connect(self.searchHelp)
         self.action.triggered.connect(self.show_copyright)
 
+    # 定义文件系统变化的槽函数
+    def on_file_system_changed(self, path: str):
+        self.tree_view.reset()  # 重置树状视图
+        self.tree_view.setRootIndex(self.model.index(path))  # 设置新的根索引
+
+    # 最近打开的文件夹
+    def on_file_recent_changed(self, path: str):
+        print(f"Folder changed: {path}")
+        # 更新树状视图以反映最新的文件夹状态
+        root = self.root
+        for i in range(root.childCount()):
+            item = root.child(i)
+            folder_path = item.data(0, Qt.UserRole)
+            if folder_path == path:
+                item.takeChildren()  # 清空子节点
+                sub_items = os.listdir(path)  # 获取目录下的内容
+                for sub_item in sub_items:
+                    sub_item_path = os.path.join(path, sub_item)
+                    sub_item_name = os.path.basename(sub_item_path)
+                    sub_tree_item = QTreeWidgetItem(item)
+                    sub_tree_item.setText(0, sub_item_name)
+                    sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
+
     def recent_folders(self):
         try:
             # 添加根节点
             self.tree.setHeaderHidden(True)
-            root = QTreeWidgetItem(self.tree)
-            root.setText(0, "Recent Folders")
-
+            self.root = QTreeWidgetItem(self.tree)
+            self.root.setText(0, "Recent Folders")
             list_ = self.app_data.value('list')
-
+            self.watcher = QFileSystemWatcher()
             # 将最近打开的文件夹添加到QTreeWidget中
             recent_folders = list_
             if recent_folders:
                 for folder in recent_folders:
-                    item = QTreeWidgetItem(root)
+                    print(folder)
+                    if folder is None:
+                        continue
+                    item = QTreeWidgetItem(self.root)
                     item.setText(0, os.path.basename(folder))
                     item.setData(0, Qt.UserRole, folder)
+
+                    self.watcher.addPath(folder)  # 监视根路径
+                # 将文件系统变化连接到槽函数
+                self.watcher.directoryChanged.connect(self.on_file_recent_changed)
 
             # 连接itemDoubleClicked信号到槽函数
             def on_item_clicked(item, column):
@@ -252,7 +277,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
 
         self.app_data.setValue('list', list_)
 
-
     def check_charset(self, file_path):
         import chardet
         with open(file_path, "rb") as f:
@@ -288,7 +312,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 # 如果用户选择了文件路径和文件名，则执行保存操作
                 with open(file_name, 'w') as f:
                     f.write(self.textEdit.toPlainText())
-
 
     def onFileSaveAs(self):
         text = self.textEdit.toPlainText()
@@ -485,7 +508,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.wordlist, self.errorlist, self.lbword = a.print_out()
             self.textEdit_3.setText(self.wordlist)
             self.textEdit_2.setText(self.errorlist)
-            #print(self.lbword)
+            # print(self.lbword)
             # 初始化
             self.split_flag = 0
             self.yh_flag = 0
@@ -917,4 +940,3 @@ if __name__ == "__main__":
     ex = DetailUI()
     ex.show()
     sys.exit(app.exec_())
-
