@@ -933,7 +933,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def show_copyright(self):
         msg_box = QMessageBox()
         msg_box.setWindowTitle('版权信息')
-        msg_box.setText('此版权归重庆理工大学2020级(陈瑞(12003990107)、郑伟(12003990615)、张世佳(12003990108)、谭舟行(12003990522))所有')
+        msg_box.setText('此版权归重庆理工大学2020级(陈瑞(12003990107)、郑伟(12003990615)、张世佳(12003990108)、谭舟行(12003990522))所有，'
+                        '指导老师：曹琼、黄贤英')
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec_()
 
