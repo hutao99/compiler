@@ -1103,8 +1103,6 @@ class CLRParser:
         main_return = []
         # 数组初值计数
         a_count = 0
-        # 数组声明
-        array_declare = False
         while index < len(sign_list):
             name = sign_list[index]
             # print(token[index])
