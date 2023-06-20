@@ -89,7 +89,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actiongreen_font.triggered.connect(self.set_green_font)
         self.actionorange_font.triggered.connect(self.set_orange_font)
         self.actionpurple_font.triggered.connect(self.set_purple_font)
-
         '''
         LL1预测分析
         '''
