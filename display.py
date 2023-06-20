@@ -667,7 +667,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         if len(self.LR.errors) == 0 and len(lex.error) == 0:
                             self.LR.IntermediateCodeGenerator(tokens)
                             getcode = self.LR.code
-                            print(self.LR.code)
                             for i in range(len(getcode)):
                                 s += str(i) + ':' + str(getcode[i]) + '\n'
                             self.textEdit_3.setText(s)
@@ -689,9 +688,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             QMessageBox.warning(self, '警告', '请先生成四元式！')
         else:
             try:
-                print('s',s)
                 codes = self.format_conversion(s)
-                print(999,codes)
                 self.basic_blocks = Partition_Basic_Block(codes)
                 # print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
@@ -785,7 +782,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                             for j in range(4):
                                 if MiddleCode[i][j] == '':
                                     MiddleCode[i][j] = '_'
-                        print('MiddleCode', MiddleCode)
                         if len(MiddleCode) != 0:
                             self.textEdit_2.setText(
                                 ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode,
@@ -797,7 +793,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         for i in self.optimize_quaternion:
                             text += str(idx) + ':' + str(i) + '\n'
                             idx += 1
-                        print('self.optimize_quaternion', self.optimize_quaternion)
                         self.textEdit_3.setText(text)
                         self.textEdit_2.setText(
                             ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion,
@@ -898,7 +893,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 对于每个行字符串，手动将第一个元素转化为一个列表，并去掉第一个元素
         for line in lines:
             if line:
-                l = line.split(':')
+                l = line.split(':',1) # 第一个冒号切分
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)

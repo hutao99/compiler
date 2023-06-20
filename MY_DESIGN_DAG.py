@@ -65,11 +65,11 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
             line = re.sub(r'\]', '', line[::-1], count=1)[::-1] # 去除最后一个]
             line = re.sub(r'\(', '', line, count=1)
             line = re.sub(r'\)', '', line[::-1], count=1)[::-1]
-            parts = line.split(",")  # 去除括号并按照逗号分割字符串
-            quadruple = tuple(parts)  # 将四元式的各个部分组合成一个元组
+            parts = line.split(",") # 去除括号并按照逗号分割字符串
+            quadruple = tuple(part.strip() for part in parts)  # 去除各个部分的空格，并将四元式的各个部分组合成一个元组
             code.append(quadruple)  # 将四元式添加到列表中
         try:
-            print('测试code:',code)
+            #print('测试code:',code)
             DAG = create_DAG(code)
             codes = optimize(DAG)
             info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])

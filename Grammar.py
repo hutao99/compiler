@@ -70,6 +70,7 @@ class recDesc_analysis:
         self.main_return_id = []  # main中return回填
         self.is_main = False  # 当前是否在main函数中
         self.cur_func_type = [None, None]  # 当前的函数及其返回类型
+        self.szflag = 1
         for line in file.readlines():
             div_list = line.strip('\n').split('->')
             # print('===============')
@@ -641,8 +642,14 @@ class recDesc_analysis:
             return 1
         else:
             # 进行语法错误处理
-            self.syntax_error += (
-                    "syntax_error: 第%s行 %s未匹配\n" % (self.goal_list[self.p][0], self.goal_list[self.p][1]))
+            if self.goal_list[self.p][1] == '[' or self.goal_list[self.p][1] == ']':
+                if  self.szflag:
+                    self.szflag = 0
+                    self.syntax_error += (
+                            "syntax_error: 第%s行 递归下降编译器无法处理数组！\n" % (self.goal_list[self.p][0]))
+            else:
+                self.syntax_error += (
+                        "syntax_error: 第%s行 %s未匹配\n" % (self.goal_list[self.p][0], self.goal_list[self.p][1]))
             self.p += 1
             while self.p < self.len and (
                     self.goal_list[self.p][1] in follow_dict[ch] or self.goal_list[self.p][2] in follow_dict[ch]):
