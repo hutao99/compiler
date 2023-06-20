@@ -43,6 +43,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.tree_view.setColumnHidden(1, True)
         self.tree_view.setColumnHidden(2, True)
         self.tree_view.setColumnHidden(3, True)
+
         # 创建文件系统监视器
         watcher = QFileSystemWatcher()
         watcher.addPath("")  # 监视根路径
