@@ -48,7 +48,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         watcher.addPath("")  # 监视根路径
 
         self.tree_view.clicked.connect(self.on_tree_view_clicked)
-        # 将文件系统变化连接到槽函数
+        # 将文件系统变化连接到槽函数，进行实时更新
         watcher.directoryChanged.connect(self.on_file_system_changed)
 
         self.app_data = QSettings('config.ini', QSettings.IniFormat)
