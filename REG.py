@@ -1,3 +1,5 @@
+import os
+
 from graphviz import Digraph
 
 # 生成nfa的状态转换图
@@ -155,7 +157,7 @@ class NfaDfaMfa:
                 if index + 1 < len(text) and (text[index + 1] not in self.operator or text[index + 1] == "("):
                     self.final_text += "·"
         self.final_text += "#"
-        # print(self.final_text)
+        print(self.final_text)
 
     # 正规式转换为NFA
     def reg_to_nfa(self):
@@ -337,22 +339,23 @@ class NfaDfaMfa:
                     index += 1
         # print(final_nfa)
         # 结果写入文件
-        f = open("NFA.txt", "w")
+        os.mkdir("./Reg_TXT")
+        f = open("./Reg_TXT/NFA.txt", "w")
         f.write(self.text)
         f.write("\n起始状态\t接收符号\t结束状态\n")
         f.close()
         start = final_nfa[0]  # 开始节点
         end = final_nfa[len(final_nfa) - 1]  # 结束节点
         for value in result:
-            with open('NFA.txt', 'a') as f:
+            with open('./Reg_TXT/NFA.txt', 'a') as f:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
-        with open('NFA.txt', 'a') as f:
+        with open('./Reg_TXT/NFA.txt', 'a') as f:
             f.write("初始节点:\t" + str(start) + "\n终结节点:\t" + str(end))
-        with open('MFA.txt', 'a') as f:
+        with open('./Reg_TXT/NFA.txt', 'a') as f:
             f.write("\n")
         # # 生成nfa的状态转换图
         nfa_graph(start, end, result)
-
+        print(result)
         # 返回nfa
         return result
 
@@ -362,7 +365,7 @@ class NfaDfaMfa:
         # 在NFA上添加新的初始状态和新的终结状态
         nfa.insert(0, [-1, 'ε', nfa[0][0]])
         nfa.append([nfa[len(nfa) - 1][2], 'ε', -2])  # -1 表示新的初始节点，-2 表示新的结束节点
-
+        print(nfa)
         """
             用字典实现状态转换表,{[-1,4,2]: [[第一种输入符后的closure集],[第二种],[第n种]]}
             {[-1,4,2] : 0} 则表示该[-1,4,2]这个closure集未被处理（标记）
@@ -385,7 +388,7 @@ class NfaDfaMfa:
         # 如果初始节点同时也为终结节点  将其加入终结状态集
         if -2 in closure:
             final_states.append(0)  # 整个nfa的初始节点为0
-
+        print(final_states)
         """
             构造状态转换表
             因为字典在迭代过程不能改变大小，所以我定义了表2，在一次迭代中发生的改变体现在表2上，迭代中一次遍历完成后判断表2是否发生了改变，
@@ -441,21 +444,22 @@ class NfaDfaMfa:
                             break
                     dfa.append(new_arc)
 
-
+        if not os.path.exists("./Reg_TXT"):
+            os.mkdir("./Reg_TXT")
         # 结果写入文件
-        f = open("DFA.txt", "w")
+        f = open("./Reg_TXT/DFA.txt", "w")
         f.write(self.text)
         f.write("\n起始状态\t接收符号\t结束状态\n")
         f.close()
         for value in dfa:
-            with open('DFA.txt', 'a') as f:
+            with open('./Reg_TXT/DFA.txt', 'a') as f:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
-        with open('DFA.txt', 'a') as f:
+        with open('./Reg_TXT/DFA.txt', 'a') as f:
             f.write("初始节点:\t0\n终结节点:\t")
         for value in final_states:
-            with open('DFA.txt', 'a') as f:
+            with open('./Reg_TXT/DFA.txt', 'a') as f:
                 f.write(str(value) + "\t")
-        with open('MFA.txt', 'a') as f:
+        with open('./Reg_TXT/DFA.txt', 'a') as f:
             f.write("\n")
 
         final_dfa1 = []
@@ -525,7 +529,8 @@ class NfaDfaMfa:
             # 加边
             dfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
         dfa_graph.render()
-
+        print(dfa)
+        print(final_states)
         # 返回dfa和终态集
         return dfa, final_states, symbol_input
 
@@ -654,7 +659,7 @@ class NfaDfaMfa:
                     break
             if new_arc not in final_mfa:  # 去除重复的
                 final_mfa.append(new_arc)
-
+        print(final_mfa)
 
         # 优化mfa编号 如将[2,'0',2,2,'1',2] 变成 [0,'0',0,0,'1',0] 即编号从小到大
         Max = 0
@@ -677,31 +682,50 @@ class NfaDfaMfa:
                     if value[2] > Min:
                         final_mfa[index][2] -= 1
                     # 同时终结状态集中大于 Min的状态编号也要减一
-                    for index2, value2 in enumerate(final_states):
-                        if value2 > Min:
-                            if final_states[index2] - 1 in final_states:
-                                final_states.pop(index2)
-                            else:
-                                final_states[index2] -= 1
+                for index2, value2 in enumerate(final_states):
+                    if value2 > Min:
+                        if final_states[index2] - 1 in final_states:
+                            final_states.pop(index2)
+                        else:
+                            final_states[index2] -= 1
                 Max -= 1    # 同时最大值减一
             else:
                 Min += 1
 
+        # 修改终结状态集
+        delete_states = []
+        # 修改终结状态集 如[7,8]合并成了[7] 就需要将8删掉
+        for index, final_state in enumerate(final_states):
+            flag = 0  # 0表示该终结状态需要被删掉
+            for arc in final_mfa:
+                if final_state == arc[2]:
+                    flag = 1  # 有出现该终结状态
+                    break
+            if flag == 0:
+                delete_states.append(final_state)
+        final_states1 = []
+        for value in final_states:
+            if value not in delete_states:
+                final_states1.append(value)
+        final_states = final_states1
+
+        if not os.path.exists("./Reg_TXT"):
+            os.mkdir("./Reg_TXT")
 
         # 结果写入文件
-        f = open("MFA.txt", "w")
+        f = open("./Reg_TXT/MFA.txt", "w")
         f.write(self.text)
         f.write("\n起始状态\t接收符号\t结束状态\n")
         f.close()
         for value in final_mfa:
-            with open('MFA.txt', 'a') as f:
+            with open('./Reg_TXT/MFA.txt', 'a') as f:
                 f.write(str(value[0]) + "\t" + value[1] + "\t" + str(value[2]) + "\n")
-        with open('MFA.txt', 'a') as f:
+        with open('./Reg_TXT/MFA.txt', 'a') as f:
             f.write("初始节点:\t0\n终结节点:\t")
         for value in final_states:
-            with open('MFA.txt', 'a') as f:
+            with open('./Reg_TXT/MFA.txt', 'a') as f:
                 f.write(str(value) + "\t")
-        with open('MFA.txt', 'a') as f:
+        with open('./Reg_TXT/MFA.txt', 'a') as f:
             f.write("\n")
         final_mfa1 = []
         for index, value in enumerate(final_mfa):
@@ -748,8 +772,7 @@ class NfaDfaMfa:
             if flag == 1:
                 if value not in final_mfa1:
                     final_mfa1.append(value)
-        # print(final_mfa)
-        # print(final_mfa1)
+
         # # 生成nfa的状态转换图
         filename = './Reg_Graph/MFA'
         mfa_graph = Digraph(filename, 'MFA_graph', None, None, 'png', None, "UTF-8")
@@ -775,16 +798,7 @@ class NfaDfaMfa:
             mfa_graph.edge(str(value[0]), str(value[2]), label=value[1])
         mfa_graph.render()
 
-        # 修改终结状态集 如[7,8]合并成了[7] 就需要将8删掉
-        for index, final_state in enumerate(final_states):
-            flag = 0  # 0表示该终结状态需要被删掉
-            for arc in final_mfa:
-                if final_state == arc[2]:
-                    flag = 1  # 有出现该终结状态
-                    break
-            if flag == 0:
-                final_states.pop(index)
-
+        print(final_mfa)
         # 返回mfa和终结状态集
         return final_mfa, final_states
 

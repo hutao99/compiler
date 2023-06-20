@@ -288,7 +288,7 @@ class FirstVTAndLastVT:
             sign = symbol[-1]
             if sign == '#' and sign == i:
                 print("接受表达式")
-                info += "接受表达式"
+                info = "接受表达式"
                 break
             elif precedence_table[sequence[sign]][sequence[i]] == '<' or precedence_table[sequence[sign]][sequence[i]] == '=':
                 priority.append(precedence_table[sequence[sign]][sequence[i]])
@@ -327,12 +327,12 @@ class FirstVTAndLastVT:
                 # 规约不了，报错
                 if flag:
                     print("没有产生式可以归约")
-                    info += "没有产生式可以归约"
+                    info = "不是文法的句子"
                     break
             else:
                 # 没有优先级关系报错
                 print("栈顶符号与输入符号无优先关系，分析失败")
-                info += "栈顶符号与输入符号无优先关系，分析失败"
+                info = "栈顶符号与输入符号无优先关系，分析失败"
                 break
         return stack_total, info, action, remainder, priority
 

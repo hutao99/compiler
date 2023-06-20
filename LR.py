@@ -1101,6 +1101,8 @@ class CLRParser:
         is_in_main = False
         # main内的return语句返回
         main_return = []
+        # 数组初值计数
+        a_count = 0
         while index < len(sign_list):
             name = sign_list[index]
             # print(token[index])
@@ -1145,15 +1147,18 @@ class CLRParser:
                         if len(father.children) == 4:
                             father.value = father.children[-1].symbol_info[1]+'['+father.children[-3].value+']'
                         else:
-                            col = 0
-                            for i in self.ArrayTable[father.children[-1].symbol_info[1]]:
-                                if scope[-1][0].startswith(i.scope):
-                                    col = i.col
-                            self.code.append(['*', father.children[-3].value, col, 'T' + str(count)])
-                            self.code.append(['+', 'T' + str(count), father.children[-6].value, 'T' + str(count + 1)])
-                            index_code += 2
-                            count += 2
-                            father.value = father.children[-1].symbol_info[1] + '[' + 'T' + str(count - 1) + ']'
+                            print(stack_symbol[-1])
+                            print(stack_symbol[-2])
+                            if stack_symbol[-1] != '类型' and stack_symbol[-2] != '变量声明':
+                                col = 0
+                                for i in self.ArrayTable[father.children[-1].symbol_info[1]]:
+                                    if scope[-1][0].startswith(i.scope):
+                                        col = i.col
+                                self.code.append(['*', father.children[-3].value, col, 'T' + str(count)])
+                                self.code.append(['+', 'T' + str(count), father.children[-6].value, 'T' + str(count + 1)])
+                                index_code += 2
+                                count += 2
+                                father.value = father.children[-1].symbol_info[1] + '[' + 'T' + str(count - 1) + ']'
                             # father.value = father.children[-1].symbol_info[1] + '[' + father.children[-3].value + ']'+'['+father.children[-5].value+']'
                     elif father.name == '常量' or father.name == '算术表达式':
                         father.value = father.children[0].value
@@ -1322,41 +1327,126 @@ class CLRParser:
                             bool_true.append(index_code)
                             index_code += 1
                             print(bool_true)
+                    elif father.name == '初值列表':
+                        if len(father.children) == 1:
+                            father.value = [[father.children[0].value, [a_count]]]
+                        else:
+                            father.value = father.children[-1].value
+                            father.value.append([father.children[0].value, [a_count]])
+                            print(father.value)
+                        a_count += 1
+                    elif father.name == '变量初值':
+                        a_count = 0
+                        if len(father.children) == 2:
+                            father.value = [['', [0]]]
+                        elif father.children[1].name == '初值列表':
+                            father.value = father.children[1].value
+
+                        else:
+                            father.value = father.children[1].value
+                        '''print(father.value)
+                        for i in range(len(father.value)):
+                            print(father.value[i])
+                            father.value[i][1] += 1'''
+                    elif father.name == '变量初值列表':
+                        if len(father.children) == 1:
+                            #  = 0
+                            father.value = father.children[0].value
+                            for i in range(len(father.value)):
+                                print(father.value[i])
+                                father.value[i][1].append(0)
+                            # a_list_count += 1
+                        else:
+                            print('ttt')
+                            print(father.children[-1].value)
+                            print(father.children[0].value)
+                            for i in range(len(father.children[0].value)):
+                                # print(father.value[i])
+                                father.children[0].value[i][1].append(father.children[-1].value[-1][1][-1]+1)
+                            # father.children.value[0][1].append(a_list_count)
+                            # a_list_count += 1
+                            # father.children[-1].value.extends(father.children[0].value)
+                            father.value = father.children[-1].value + father.children[0].value
+                            print('kk')
+                            print(father.value)
                     elif father.name == '变量声明':
-                        if fun_flag:
+                        print(father.children[0].value)
+                        if fun_flag:  # 函数内
                             if len(father.children) >= 3 and father.children[-3].name == 'identifier':
                                 self.function_jubu_list[fun_name].append(father.children[-3].symbol_info[1])
                             elif father.children[-2].name == 'identifier':
                                 self.function_jubu_list[fun_name].append(father.children[-2].symbol_info[1])
-                            elif len(father.children) >= 3 and father.children[-3].name == '数组':
-                                if len(father.children[-3].children) == 4:
-                                    self.function_array_list[fun_name].append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[1].value, ''])
+                            elif len(father.children) >= 3 and father.children[2].name == '数组':
+                                dimension = 1
+                                dimension_list = []
+                                if len(father.children[2].children) == 4:
+                                    self.function_array_list[fun_name].append([father.children[2].children[-1].symbol_info[1], father.children[2].children[1].value, ''])
+                                    dimension_list = [father.children[2].children[1].value]
                                 else:
-                                    self.function_array_list[fun_name].append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[4].value, father.children[-3].children[1].value])
-                            elif father.children[-2].name == '数组':
-                                if len(father.children[-2].children) == 4:
+                                    dimension = 2
+                                    self.function_array_list[fun_name].append([father.children[2].children[-1].symbol_info[1], father.children[2].children[4].value, father.children[2].children[1].value])
+                                    dimension_list = [father.children[2].children[1].value, father.children[2].children[1].value]
+                                dimension_list.reverse()
+                                for i in father.children[0].value:
+                                    if dimension > len(i[1]):
+                                        for w in range(dimension - len(i[1])):
+                                            i[1].insert(0, 0)
+                                    a_address = 0
+                                    ss = 1
+                                    print(i[1])
+                                    for nn in range(len(i[1])):
+                                        a_address += ss * i[1][nn]
+                                        ss *= int(dimension_list[nn])
+                                    if i[0] != '':
+                                        self.code.append(['=', i[0], '', father.children[2].children[-1].symbol_info[1] + '[' + str(a_address) + ']'])
+                                        index_code += 1
+                            elif father.children[0].name == '数组':
+                                if len(father.children[0].children) == 4:  # 一位数组
                                     self.function_array_list[fun_name].append(
-                                        [father.children[-2].children[-1].symbol_info[1],
-                                         father.children[-2].children[1].value, ''])
-                                else:
+                                        [father.children[0].children[-1].symbol_info[1],
+                                         father.children[0].children[1].value, ''])
+                                else:  # 二维数组
                                     self.function_array_list[fun_name].append(
-                                        [father.children[-2].children[-1].symbol_info[1],
-                                         father.children[-2].children[4].value, father.children[-2].children[1].value])
-                        else:
-                            if len(father.children) >= 3 and father.children[-3].name == '数组':
-                                if len(father.children[-3].children) == 4:
-                                    self.global_array_list.append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[1].value, ''])
+                                        [father.children[0].children[-1].symbol_info[1],
+                                         father.children[0].children[4].value, father.children[0].children[1].value])
+                        else:  # 函数外(包括main函数)
+                            # print('ssssssssssssss')
+                            print(len(father.children))
+                            # print(father.children[-3].name)
+                            if len(father.children) >= 3 and father.children[2].name == '数组':
+                                print('ssssssssssssss')
+                                dimension = 1
+                                dimension_list = []
+                                if len(father.children[2].children) == 4:
+                                    self.global_array_list.append([father.children[2].children[-1].symbol_info[1], father.children[2].children[1].value, ''])
+                                    dimension_list = [father.children[2].children[1].value]
                                 else:
-                                    self.global_array_list.append([father.children[-3].children[-1].symbol_info[1], father.children[-3].children[4].value, father.children[-3].children[1].value])
-                            elif father.children[-2].name == '数组':
-                                if len(father.children[-2].children) == 4:
+                                    dimension = 2
+                                    self.global_array_list.append([father.children[2].children[-1].symbol_info[1], father.children[2].children[4].value, father.children[2].children[1].value])
+                                    dimension_list = [father.children[2].children[1].value, father.children[2].children[1].value]
+                                dimension_list.reverse()
+                                for i in father.children[0].value:
+                                    if dimension > len(i[1]):
+                                        for w in range(dimension - len(i[1])):
+                                            i[1].insert(0, 0)
+                                    a_address = 0
+                                    ss = 1
+                                    print(i[1])
+                                    for nn in range(len(i[1])):
+                                        a_address += ss * i[1][nn]
+                                        ss *= int(dimension_list[nn])
+                                    if i[0] != '':
+                                        self.code.append(['=', i[0], '', father.children[2].children[-1].symbol_info[1] + '[' + str(a_address) + ']'])
+                                        index_code += 1
+                            elif father.children[0].name == '数组':
+                                if len(father.children[0].children) == 4:  # 一维数组
                                     self.global_array_list.append(
-                                        [father.children[-2].children[-1].symbol_info[1],
-                                         father.children[-2].children[1].value, ''])
+                                        [father.children[0].children[-1].symbol_info[1],
+                                         father.children[0].children[1].value, ''])
                                 else:
-                                    self.global_array_list.append(
-                                        [father.children[-2].children[-1].symbol_info[1],
-                                         father.children[-2].children[4].value, father.children[-2].children[1].value])
+                                    self.global_array_list.append(  # 二维数组
+                                        [father.children[0].children[-1].symbol_info[1],
+                                         father.children[0].children[4].value, father.children[0].children[1].value])
                         if len(father.children) == 4 or len(father.children) == 5:
                             if len(bool_true) != 0:  # 有布尔表达式
                                 for i in bool_true:
@@ -1593,7 +1683,6 @@ class CLRParser:
                 index += 1
                 stack_symbol.append(name)
                 stack_state.append(int(status))
-            # print(stack_symbol)
         print(self.function_array_list)
         print(self.global_array_list)
         print(self.function_jubu_list)

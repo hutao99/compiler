@@ -8,6 +8,7 @@ from DAG_UI import Ui_MainWindow_DAG
 from PyQt5.QtWidgets import QFileDialog, QMainWindow
 from create_DAG import create_DAG, optimize, DAG_draw  # DAG模型
 from PyQt5 import QtGui, QtCore, QtWidgets
+import re
 class MyDialog(QDialog):
     def __init__(self, file_path, parent=None):
         super(MyDialog, self).__init__(parent)
@@ -56,18 +57,19 @@ class MyDesiger_DAG(Ui_MainWindow_DAG, QMainWindow):
         if s == '':
             QMessageBox.warning(self, '警告', '请输入需要生成DAG的四元式！')
             return
-        s = s.replace("'", "").replace('"', '')
-        s = s.replace("[", "").replace(']', '')
-        s = s.replace("(", "").replace(')', '')
-        # code 四元式列表
-        # if s[0] == '(':
-        #     lst = [tuple(x.strip() for x in line.strip("()").split(",")) for line in s.splitlines()]
-        #     code = [tuple(x.strip() for x in _[1:-1].split(',')) for _ in s.split("\n")]
-        # else:
-        #     code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
-        code = [tuple(x.strip() for x in _.split(',')) for _ in s.split("\n")]
+        s = s.replace("'", "").replace('"', '') # 去掉四元式中的引号
+        code = []
+        lines = s.split("\n")  # 按照换行符分割字符串
+        for line in lines:
+            line = re.sub(r'\[', '', line, count=1) # 去除第一个[
+            line = re.sub(r'\]', '', line[::-1], count=1)[::-1] # 去除最后一个]
+            line = re.sub(r'\(', '', line, count=1)
+            line = re.sub(r'\)', '', line[::-1], count=1)[::-1]
+            parts = line.split(",")  # 去除括号并按照逗号分割字符串
+            quadruple = tuple(parts)  # 将四元式的各个部分组合成一个元组
+            code.append(quadruple)  # 将四元式添加到列表中
         try:
-            # print('测试code:',code)
+            print('测试code:',code)
             DAG = create_DAG(code)
             codes = optimize(DAG)
             info = '\n'.join(["(" + ','.join(c) + ")" for c in codes])
