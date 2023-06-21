@@ -194,50 +194,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 # 将文件系统变化连接到槽函数
                 self.watcher.directoryChanged.connect(self.on_file_recent_changed)
 
-            # 连接itemDoubleClicked信号到槽函数
-            def on_item_clicked(item, column):
-                list_ = self.app_data.value('list')
-                if list_ == '':
-                    QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
-                # 获取双击的项目
-                folder_path = item.data(0, Qt.UserRole)
-                if not os.path.isdir(folder_path):
-                    return
-
-                # 显示目录下的内容
-                sub_items = os.listdir(folder_path)
-                for sub_item in sub_items:
-                    sub_item_path = os.path.join(folder_path, sub_item)
-                    sub_item_name = os.path.basename(sub_item_path)
-                    sub_tree_item = QTreeWidgetItem(item)
-                    sub_tree_item.setText(0, sub_item_name)
-                    sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
-                    # 获取点击的项目
-
-            def on_item_double_clicked(item, column):
-                try:
-                    list_ = self.app_data.value('list')
-                    if list_ == '':
-                        QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
-                    # 获取双击的项目
-                    folder_path = item.parent().data(0, Qt.UserRole)
-                    file_name = item.text(0)
-                    file_path = os.path.join(folder_path, file_name)
-                    if not os.path.isfile(file_path):
-                        return
-
-                    # 获取文件的绝对路径
-                    abs_file_path = os.path.abspath(file_path)
-                    with open(abs_file_path, encoding=self.check_charset(abs_file_path)) as f:
-                        str = f.read()
-                        print(str)
-                        self.textEdit.setText(str)
-                    print(abs_file_path)
-                except Exception as e:
-                    print("Error: ", e)
-
-            self.tree.itemDoubleClicked.connect(on_item_double_clicked)
-            self.tree.itemClicked.connect(on_item_clicked)
+            self.tree.itemDoubleClicked.connect(self.on_item_double_clicked)
+            self.tree.itemClicked.connect(self.on_item_clicked)
 
             # 显示QTreeWidget
             self.tree.setWindowTitle("Recent Folders")
@@ -245,6 +203,60 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.tree.show()
         except Exception as e:
             print("Error:", e)
+
+    def on_item_double_clicked(self,item, column):
+        try:
+            list_ = self.app_data.value('list')
+            if list_ == '':
+                QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
+                # 检查双击的节点是否为根节点
+                # 检查双击的节点是否为根节点
+            if item == self.root and item.childCount() == 0:
+                return
+
+            # 获取双击的项目
+            folder_path = item.data(0, Qt.UserRole)
+            if folder_path is None:  # 根节点不处理双击事件
+                return
+
+            file_name = item.text(0)
+            file_path = os.path.join(folder_path, file_name)
+            if not os.path.isfile(file_path):
+                return
+
+            # 获取文件的绝对路径
+            abs_file_path = os.path.abspath(file_path)
+            with open(abs_file_path, encoding=self.check_charset(abs_file_path)) as f:
+                str = f.read()
+                print(str)
+                self.textEdit.setText(str)
+            print(abs_file_path)
+        except Exception as e:
+            print("Error: ", e)
+
+    # 连接itemDoubleClicked信号到槽函数
+    def on_item_clicked(self,item, column):
+        list_ = self.app_data.value('list')
+        if list_ == '':
+            QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
+        # 检查点击的节点是否为根节点,如此在点击"Recent Folders"时便不会崩溃
+        if item == self.root:
+            return
+
+        # 获取双击的项目
+        folder_path = item.data(0, Qt.UserRole)
+        if not os.path.isdir(folder_path):
+            return
+
+        # 显示目录下的内容
+        sub_items = os.listdir(folder_path)
+        for sub_item in sub_items:
+            sub_item_path = os.path.join(folder_path, sub_item)
+            sub_item_name = os.path.basename(sub_item_path)
+            sub_tree_item = QTreeWidgetItem(item)
+            sub_tree_item.setText(0, sub_item_name)
+            sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
+            # 获取点击的项目
 
     def getDir(self, index):  # 获取鼠标指向索引,还可以预览图
         self.FilePath = self.model.filePath(index)  # 获取鼠标点击指定路径
