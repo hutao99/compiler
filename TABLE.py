@@ -40,6 +40,7 @@ class Predictive_Analysis:
         self.recorder = dict()
         self.nonterminals = []  # 非终结符
         self.kong = []
+        self.has_intersection = False  # 判断First集合和Follow集合是否有交集
 
     def input(self, data):
         # 种别码
@@ -64,6 +65,15 @@ class Predictive_Analysis:
         print('kong', self.kong)
         self.find_follow()
         print(self.follow_table)
+        # 判断First集合和Follow集合是否有交集
+        for i in self.first_dict:
+            self.first_dict[i] = set(self.first_dict[i])
+        for i in self.follow_table:
+            self.follow_table[i] = set(self.follow_table[i])
+        for i in range(len(self.vn)):
+            if self.first_dict[self.vn[i]] & self.follow_table[self.vn[i]]:
+                self.has_intersection = True
+                return
         self.get_predict_table_()
         print("\n预测分析表\n")
         for i in self.predict_table_:
@@ -327,7 +337,6 @@ class Predictive_Analysis:
                     for fk in self.follow_table[k]:
                         self.predict_table_[k][fk] = k + '->' + next_grammar
 
-
 # coding=utf-8
 def check_charset(file_path):
     import chardet
@@ -336,14 +345,12 @@ def check_charset(file_path):
         charset = chardet.detect(data)['encoding']
     return charset
 
-
 # if __name__ == "__main__":
 #     test = Predictive_Analysis()
-#     path = "D:\pythonProject\compiler\全部测试程序\\11LL(1)测试用例\用户分词模式案例\LL1_6_p101.txt"
+#     path = "全部测试程序\\07LL1预测分析测试用例\用户分词模式案例\LL1_1.TXT"
 #     grammar = str(open(path).read())
 #     grammar = grammar.replace('->', ':')
 #     test.input(grammar)
 #     print(test.first_dict)
 #     print('----------------')
 #     print(test.follow_table)
-

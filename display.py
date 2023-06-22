@@ -3,7 +3,7 @@ import sys
 import webbrowser
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt, QThread, pyqtSignal
+from PyQt5.QtCore import QModelIndex, QSettings, QDateTime, Qt, QThread, pyqtSignal, QFileSystemWatcher
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QApplication
 
 from MY_DESIGN_DAG import MyDesiger_DAG, MyDialog
@@ -36,16 +36,22 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.setWindowTitle('编译器')
         self.tree_view = self.treeView
 
-        self.model = QDirModel()  # 显示文件系统
-        # self.model.setRootPath(self.data_path)
+        self.model = QFileSystemModel()  # 显示文件系统
+        self.model.setRootPath("")
         self.tree_view.setModel(self.model)
-        # self.tree_view.setRootIndex(self.model.index(self.data_path))
         self.tree_view.setHeaderHidden(True)  # 不显示表头
         self.tree_view.setColumnHidden(1, True)
         self.tree_view.setColumnHidden(2, True)
         self.tree_view.setColumnHidden(3, True)
-        # self.doubleClicked.connect(self.file_name)  # 双击文件打开
+
+        # 创建文件系统监视器
+        watcher = QFileSystemWatcher()
+        watcher.addPath("")  # 监视根路径
+
         self.tree_view.clicked.connect(self.on_tree_view_clicked)
+        # 将文件系统变化连接到槽函数，进行实时更新
+        watcher.directoryChanged.connect(self.on_file_system_changed)
+
         self.app_data = QSettings('config.ini', QSettings.IniFormat)
         self.app_data.setIniCodec('UTF-8')  # 设置ini文件编码为 UTF-8
         self.file_path = ""
@@ -83,7 +89,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actiongreen_font.triggered.connect(self.set_green_font)
         self.actionorange_font.triggered.connect(self.set_orange_font)
         self.actionpurple_font.triggered.connect(self.set_purple_font)
-
         '''
         LL1预测分析
         '''
@@ -115,16 +120,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 初始化LR分析
         self.LR = None
         self.progress_dialog = None
-        '''self.LR = LR.CLRParser()
-        f = open('文法修改.txt', 'r', encoding='utf-8')
-        f1 = open('文法修改1.txt', 'r', encoding='utf-8')
-        self.LR.input(f.read())
-        lr1 = LR.CLRParser()
-        lr1.input(f1.read())
-        lr1.Action_and_GoTo_Table()
-        self.LR.Action_and_GoTo_Table()
-        self.LR.parsing_table1 = lr1.parsing_table
-        self.LR.reduction1 = lr1.reduction'''
+
         self.actionPLY.triggered.connect(self.LexicalAnalysis)  # 词法分析
         # LR1语法分析
         self.actionLR1.triggered.connect(self.LR1_analyze)
@@ -152,67 +148,54 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         self.actionHELP_CHM.triggered.connect(self.searchHelp)
         self.action.triggered.connect(self.show_copyright)
 
-    def recent_folders(self):
-        try:
-            # 添加根节点
-            self.tree.setHeaderHidden(True)
-            root = QTreeWidgetItem(self.tree)
-            root.setText(0, "Recent Folders")
+    # 定义文件系统变化的槽函数
+    def on_file_system_changed(self, path: str):
+        self.tree_view.reset()  # 重置树状视图
+        self.tree_view.setRootIndex(self.model.index(path))  # 设置新的根索引
 
-            list_ = self.app_data.value('list')
-
-            # 将最近打开的文件夹添加到QTreeWidget中
-            recent_folders = list_
-            if recent_folders:
-                for folder in recent_folders:
-                    item = QTreeWidgetItem(root)
-                    item.setText(0, os.path.basename(folder))
-                    item.setData(0, Qt.UserRole, folder)
-
-            # 连接itemDoubleClicked信号到槽函数
-            def on_item_clicked(item, column):
-                list_ = self.app_data.value('list')
-                if list_ == '':
-                    QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
-                # 获取双击的项目
-                folder_path = item.data(0, Qt.UserRole)
-                if not os.path.isdir(folder_path):
-                    return
-
-                # 显示目录下的内容
-                sub_items = os.listdir(folder_path)
+    # 最近打开的文件夹
+    def on_file_recent_changed(self, path: str):
+        print(f"Folder changed: {path}")
+        # 更新树状视图以反映最新的文件夹状态
+        root = self.root
+        for i in range(root.childCount()):
+            item = root.child(i)
+            folder_path = item.data(0, Qt.UserRole)
+            if folder_path == path:
+                item.takeChildren()  # 清空子节点
+                sub_items = os.listdir(path)  # 获取目录下的内容
                 for sub_item in sub_items:
-                    sub_item_path = os.path.join(folder_path, sub_item)
+                    sub_item_path = os.path.join(path, sub_item)
                     sub_item_name = os.path.basename(sub_item_path)
                     sub_tree_item = QTreeWidgetItem(item)
                     sub_tree_item.setText(0, sub_item_name)
                     sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
-                    # 获取点击的项目
 
-            def on_item_double_clicked(item, column):
-                try:
-                    list_ = self.app_data.value('list')
-                    if list_ == '':
-                        QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
-                    # 获取双击的项目
-                    folder_path = item.parent().data(0, Qt.UserRole)
-                    file_name = item.text(0)
-                    file_path = os.path.join(folder_path, file_name)
-                    if not os.path.isfile(file_path):
-                        return
+    def recent_folders(self):
+        try:
+            # 添加根节点
+            self.tree.setHeaderHidden(True)
+            self.root = QTreeWidgetItem(self.tree)
+            self.root.setText(0, "Recent Folders")
+            list_ = self.app_data.value('list')
+            self.watcher = QFileSystemWatcher()
+            # 将最近打开的文件夹添加到QTreeWidget中
+            recent_folders = list_
+            if recent_folders:
+                for folder in recent_folders:
+                    print(folder)
+                    if folder is None:
+                        continue
+                    item = QTreeWidgetItem(self.root)
+                    item.setText(0, os.path.basename(folder))
+                    item.setData(0, Qt.UserRole, folder)
 
-                    # 获取文件的绝对路径
-                    abs_file_path = os.path.abspath(file_path)
-                    with open(abs_file_path, encoding=self.check_charset(abs_file_path)) as f:
-                        str = f.read()
-                        print(str)
-                        self.textEdit.setText(str)
-                    print(abs_file_path)
-                except Exception as e:
-                    print("Error: ", e)
+                    self.watcher.addPath(folder)  # 监视根路径
+                # 将文件系统变化连接到槽函数
+                self.watcher.directoryChanged.connect(self.on_file_recent_changed)
 
-            self.tree.itemDoubleClicked.connect(on_item_double_clicked)
-            self.tree.itemClicked.connect(on_item_clicked)
+            self.tree.itemDoubleClicked.connect(self.on_item_double_clicked)
+            self.tree.itemClicked.connect(self.on_item_clicked)
 
             # 显示QTreeWidget
             self.tree.setWindowTitle("Recent Folders")
@@ -220,6 +203,60 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.tree.show()
         except Exception as e:
             print("Error:", e)
+
+    def on_item_double_clicked(self,item, column):
+        try:
+            list_ = self.app_data.value('list')
+            if list_ == '':
+                QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
+                # 检查双击的节点是否为根节点
+                # 检查双击的节点是否为根节点
+            if item == self.root and item.childCount() == 0:
+                return
+
+            # 获取双击的项目
+            folder_path = item.data(0, Qt.UserRole)
+            if folder_path is None:  # 根节点不处理双击事件
+                return
+
+            file_name = item.text(0)
+            file_path = os.path.join(folder_path, file_name)
+            if not os.path.isfile(file_path):
+                return
+
+            # 获取文件的绝对路径
+            abs_file_path = os.path.abspath(file_path)
+            with open(abs_file_path, encoding=self.check_charset(abs_file_path)) as f:
+                str = f.read()
+                print(str)
+                self.textEdit.setText(str)
+            print(abs_file_path)
+        except Exception as e:
+            print("Error: ", e)
+
+    # 连接itemDoubleClicked信号到槽函数
+    def on_item_clicked(self,item, column):
+        list_ = self.app_data.value('list')
+        if list_ == '':
+            QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
+        # 检查点击的节点是否为根节点,如此在点击"Recent Folders"时便不会崩溃
+        if item == self.root:
+            return
+
+        # 获取双击的项目
+        folder_path = item.data(0, Qt.UserRole)
+        if not os.path.isdir(folder_path):
+            return
+
+        # 显示目录下的内容
+        sub_items = os.listdir(folder_path)
+        for sub_item in sub_items:
+            sub_item_path = os.path.join(folder_path, sub_item)
+            sub_item_name = os.path.basename(sub_item_path)
+            sub_tree_item = QTreeWidgetItem(item)
+            sub_tree_item.setText(0, sub_item_name)
+            sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
+            # 获取点击的项目
 
     def getDir(self, index):  # 获取鼠标指向索引,还可以预览图
         self.FilePath = self.model.filePath(index)  # 获取鼠标点击指定路径
@@ -251,7 +288,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         list_ = self.folder_path_set  # 数据4：列表类型
 
         self.app_data.setValue('list', list_)
-
 
     def check_charset(self, file_path):
         import chardet
@@ -288,7 +324,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 # 如果用户选择了文件路径和文件名，则执行保存操作
                 with open(file_name, 'w') as f:
                     f.write(self.textEdit.toPlainText())
-
 
     def onFileSaveAs(self):
         text = self.textEdit.toPlainText()
@@ -906,7 +941,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
     def show_copyright(self):
         msg_box = QMessageBox()
         msg_box.setWindowTitle('版权信息')
-        msg_box.setText('此版权归重庆理工大学2020级(陈瑞(12003990107)、郑伟(12003990615)、张世佳(12003990108)、谭舟行(12003990522))所有')
+        msg_box.setText('此版权归重庆理工大学2020级(陈瑞(12003990107)、郑伟(12003990615)、张世佳(12003990108)、谭舟行(12003990522))所有，'
+                        '指导老师：曹琼、黄贤英')
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec_()
 
@@ -916,4 +952,3 @@ if __name__ == "__main__":
     ex = DetailUI()
     ex.show()
     sys.exit(app.exec_())
-
