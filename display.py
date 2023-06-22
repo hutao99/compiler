@@ -27,7 +27,7 @@ from Analyzer import AnalyzerLex
 from create_DAG import create_DAG, optimize, Partition_Basic_Block, all_basic_optimize
 # REG
 from REG_control import REG_MainWindow
-
+import copy
 
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
@@ -704,7 +704,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             except:
                 QMessageBox.warning(self, '警告', '系统错误！')
 
-        # DAG优化
 
     def save_base_block(self):
         s = self.textEdit_3.toPlainText()  # 获取四元式序列
@@ -720,11 +719,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             except Exception as e:
                 print('发生了异常：', e)
 
+    # DAG优化
     def DAG_optimization(self):
         if self.split_flag != 1:
             self.Basic_Block()  # 先生成四元式
         try:
-            self.optimize_quaternion = all_basic_optimize(self.basic_blocks)
+            new_basic_blocks = copy.deepcopy(self.basic_blocks)
+            self.optimize_quaternion = all_basic_optimize(new_basic_blocks)
             text = ''
             idx = 0
             for i in self.optimize_quaternion:

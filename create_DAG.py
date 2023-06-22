@@ -170,6 +170,7 @@ def conversion_constant_expression(codes:list):
             codes[j] = ['=', str(temp), '', i[3]]
     return codes
 
+#建立DAG
 def create_DAG(codes: list): # start
     # 将四元式转变为列表形式 方便后面对列表进行改动
     l = []
@@ -405,9 +406,9 @@ def all_basic_optimize(basic_blocks):
                     optimize_quaternion.append(dag_block[0])
                     dag_block = []
                 elif len(dag_block) > 1: # 对四元式进行优化
-                    DAG = create_DAG(dag_block) # 划分基本块
-                    codes = optimize(DAG)
-                    count+=len(codes)
+                    DAG = create_DAG(dag_block) # 建立DAG
+                    codes = optimize(DAG) # 优化后的DAG
+                    count+=len(codes) # 优化后的四元式条数
                     for i in codes:
                         optimize_quaternion.append(list(i))
                     dag_block = []
@@ -424,17 +425,17 @@ def all_basic_optimize(basic_blocks):
             for i in codes:
                 optimize_quaternion.append(list(i))
             dag_block = []
+
         # 更新跳转语句跳转四元式
         prelen = len(code) # 原先四元式条数
-        count = prelen-count # 优化四元式条数
+        count2 = prelen-count # 优化四元式条数
         for c1 in basic_blocks: # 更新四元式跳转语句
             for c2 in c1:
                 if c2[0][0] == 'j':
                     l = list(c2)
                     if int(c2[3]) > number:
-                        c2[3] = int(c2[3]) - count
-        count2 = len(code) - count
-        number+=count2
+                        c2[3] = int(c2[3]) - count2
+        number+=count
 
 
     #返回优化后的四元式列表
