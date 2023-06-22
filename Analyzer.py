@@ -1,4 +1,5 @@
 import ply.lex as lex
+import regex as re
 
 
 class Analyzer:
@@ -395,9 +396,12 @@ class AnalyzerLex:
 
     # 字符处理
     def t_character(self, t):
-        r'\'.*\''
+        r'\'[^\n\']*\''
         t.value = t.value[1:-1]
-        return t
+        if len(t.value) != 1:
+            self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), '字符的长度必须为1'])
+        else:
+            return t
 
     def t_character_error1(self, t):
         r'\'[^\n\']*\n'
@@ -407,7 +411,7 @@ class AnalyzerLex:
 
     # 字符串处理
     def t_string(self, t):
-        r'\".*\"'
+        r'\"[^\n\"]*\"'
         t.value = t.value[1:-1]
         return t
 
@@ -432,46 +436,64 @@ class AnalyzerLex:
         r'[{};,]'
         return t
 
-    # r'(0(x|X)[0-9a-fA-F][0-9a-fA-F]*)|([1-9]\d*)|(0[0-7]*)'
-
     def t_operator_1(self, t):
         r'<=|>=|==|!=|&&|\|\|'
         t.type = 'operator'
         return t
 
     def t_operator_2(self, t):
-        r'[=+/%!.()*><&|]|\[|\]|(?<![=(])\s*-'
+        r'[=+/%!.()*><&|]|\[|\]|(?<![=(])-'
         t.type = 'operator'
         return t
 
     def t_integer_hex(self, t):  # 十六进制
-        r'-?0x[0-9a-fA-F][0-9a-fA-F]*'
+        r'-?0x[0-9a-fA-F][0-9a-fA-F]*(?=[\-+*/%=<>{};,\[\]()\s])'
         t.type = 'integer'
         return t
 
+    def t_integer_hex1(self, t):  # 错误十六进制
+        r'-?0x[0-9a-fA-F][0-9a-fA-F]*[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
+
     def t_exponent(self, t):  # 指数
-        r'-?\d+\.\d+[Ee]([+-]\d|\d)\d*'
+        r'-?\d+\.\d+[Ee]([+\-]\d|\d)\d*(?=[\-+*/%=<>{};,\[\]()\s])'
         t.type = 'float'
         return t
+
+    def t_exponent1(self, t):  # 错误指数
+        r'-?\d+\.\d+[Ee]([+\-]\d|\d)\d*[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_float(self, t):  # 小数
-        r'-?\d+\.\d+'
+        r'-?\d+\.\d+(?=[\-+*/%=<>{};,\[\]()\s])'
         t.type = 'float'
         return t
 
+    def t_float1(self, t):  # 错误小数
+        r'-?\d+\.\d+[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
+
     def t_integer(self, t):  # 十进制
-        r'-?[1-9][0-9]*|0'
+        r'(-?[1-9][0-9]*|0)(?=[\-+*/%=<>{};,\[\]()\s])'
         return t
 
     def t_integer_oct(self, t):  # 八进制
-        r'-?0[0-7][1-7]*'
+        r'-?0[0-7]*(?=[\-+*/%=<>{};,\[\]()\s])'
         t.type = 'integer'
         return t
 
-    '''def t_operator_2(self, t):
-        r'[=+-/%!.()*><&|]|\[|\]'
+    def t_integer_oct1(self, t):  # 错误八进制
+        r'-?0[0-7]*[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
+
+    def t_integer1(self, t):  # 错误十进制
+        r'(-?[1-9][0-9]*|0)[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
+
+    def t_operator_3(self, t):
+        r'-'
         t.type = 'operator'
-        return t'''
+        return t
 
     def find_column(self, input, token):  # 列
         last_cr = input.rfind('\n', 0, token.lexpos)
