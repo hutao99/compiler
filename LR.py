@@ -590,25 +590,19 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[0].symbol_info[2], father.children[0].symbol_info[3],
                                      "'%s'变量名和函数重复" % father.children[0].symbol_info[1]])
-                            elif father.children[0].symbol_info[1] not in self.VariableTable:
+                            elif self.CheckScope(father.children[0].symbol_info[1], scope[-1][0]):
+                                # 判断是否有作用域相同的标识符
+                                self.errors.append([father.children[0].symbol_info[2], father.children[0].symbol_info[3],"'%s'变量名字已声明" % father.children[0].symbol_info[1]])
+                            elif father.children[0].symbol_info[1] in self.VariableTable:
+                                self.VariableTable[father.children[0].symbol_info[1]].append(val)
+                                self.var_num[father.children[0].symbol_info[1]][scope[-1][0]] = [0, father.children[0].symbol_info]
+                            else:
                                 self.VariableTable[father.children[0].symbol_info[1]] = []
                                 self.VariableTable[father.children[0].symbol_info[1]].append(val)
 
                                 self.var_num[father.children[0].symbol_info[1]] = dict()
                                 self.var_num[father.children[0].symbol_info[1]][scope[-1][0]] = [0, father.children[
                                     0].symbol_info]
-                            else:
-                                # 判断是否有作用域相同的标识符
-                                if self.CheckScope(father.children[0].symbol_info[1], scope[-1][0]):
-                                    self.errors.append(
-                                        [father.children[0].symbol_info[2], father.children[0].symbol_info[3],
-                                         "'%s'变量名字已声明" % father.children[0].symbol_info[1]])
-                                else:
-                                    self.VariableTable[father.children[0].symbol_info[1]].append(val)
-
-                                    self.var_num[father.children[0].symbol_info[1]][scope[-1][0]] = [0,
-                                                                                                     father.children[
-                                                                                                         0].symbol_info]
 
                         elif father.children[0].name == '表达式':
                             v1 = ''
@@ -622,25 +616,23 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[2].symbol_info[2], father.children[2].symbol_info[3],
                                      "'%s'变量名和函数重复" % father.children[2].symbol_info[1]])
-                            elif father.children[2].symbol_info[1] not in self.VariableTable:
+                            elif self.CheckScope(father.children[2].symbol_info[1], scope[-1][0]):
+                                # 判断是否有作用域相同的标识符
+                                self.errors.append(
+                                    [father.children[2].symbol_info[2], father.children[2].symbol_info[3],
+                                     "'%s'变量名字已声明" % father.children[2].symbol_info[1]])
+                            elif father.children[2].symbol_info[1] in self.VariableTable:
+                                self.VariableTable[father.children[2].symbol_info[1]].append(val)
+                                self.var_num[father.children[2].symbol_info[1]][scope[-1][0]] = [0, father.children[
+                                    2].symbol_info]
+                            else:
                                 self.VariableTable[father.children[2].symbol_info[1]] = []
                                 self.VariableTable[father.children[2].symbol_info[1]].append(val)
 
                                 self.var_num[father.children[2].symbol_info[1]] = dict()
                                 self.var_num[father.children[2].symbol_info[1]][scope[-1][0]] = [0, father.children[
                                     2].symbol_info]
-                            else:
-                                # 判断是否有作用域相同的标识符
-                                if self.CheckScope(father.children[2].symbol_info[1], scope[-1][0]):
-                                    self.errors.append(
-                                        [father.children[2].symbol_info[2], father.children[2].symbol_info[3],
-                                         "'%s'变量名字已声明" % father.children[2].symbol_info[1]])
-                                else:
-                                    self.VariableTable[father.children[2].symbol_info[1]].append(val)
 
-                                    self.var_num[father.children[2].symbol_info[1]][scope[-1][0]] = [0,
-                                                                                                     father.children[
-                                                                                                         2].symbol_info]
                         elif father.children[0].name == '数组':
                             if len(father.children[0].children) == 4:
                                 arr.row = father.children[0].children[1].value
@@ -651,18 +643,15 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[0].children[-1].symbol_info[2], father.children[0].children[-1].symbol_info[3],
                                      "'%s'变量名和函数重复" % father.children[0].children[-1].symbol_info[1]])
-                            elif father.children[0].children[-1].symbol_info[1] not in self.ArrayTable:
+                            elif self.CheckScope(father.children[0].children[-1].symbol_info[1], scope[-1][0]):
+                                # 判断是否有作用域相同的标识符
+                                self.errors.append([father.children[0].children[-1].symbol_info[2], father.children[0].children[-1].symbol_info[3],"'%s'变量名字已声明" % father.children[0].children[-1].symbol_info[1]])
+                            elif father.children[0].children[-1].symbol_info[1] in self.ArrayTable:
+                                self.ArrayTable[father.children[0].children[-1].symbol_info[1]].append(arr)
+                            else:
                                 self.ArrayTable[father.children[0].children[-1].symbol_info[1]] = []
                                 self.ArrayTable[father.children[0].children[-1].symbol_info[1]].append(arr)
 
-                            else:
-                                # 判断是否有作用域相同的标识符
-                                if self.CheckScope(father.children[0].children[-1].symbol_info[1], scope[-1][0]):
-                                    self.errors.append(
-                                        [father.children[0].children[-1].symbol_info[2], father.children[0].children[-1].symbol_info[3],
-                                         "'%s'变量名字已声明" % father.children[0].children[-1].symbol_info[1]])
-                                else:
-                                    self.ArrayTable[father.children[0].children[-1].symbol_info[1]].append(arr)
                         elif father.children[0].name == '变量初值':
                             if len(father.children[2].children) == 4:
                                 arr.row = father.children[2].children[1].value
@@ -673,18 +662,15 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[2].children[-1].symbol_info[2], father.children[2].children[-1].symbol_info[3],
                                      "'%s'变量名和函数重复" % father.children[2].children[-1].symbol_info[1]])
-                            elif father.children[2].children[-1].symbol_info[1] not in self.ArrayTable:
+                            elif self.CheckScope(father.children[2].children[-1].symbol_info[1], scope[-1][0]):
+                                # 判断是否有作用域相同的标识符
+                                self.errors.append([father.children[2].children[-1].symbol_info[2], father.children[2].children[-1].symbol_info[3],"'%s'变量名字已声明" % father.children[2].children[-1].symbol_info[1]])
+                            elif father.children[2].children[-1].symbol_info[1] in self.ArrayTable:
+                                self.ArrayTable[father.children[2].children[-1].symbol_info[1]].append(arr)
+                            else:
                                 self.ArrayTable[father.children[2].children[-1].symbol_info[1]] = []
                                 self.ArrayTable[father.children[2].children[-1].symbol_info[1]].append(arr)
 
-                            else:
-                                # 判断是否有作用域相同的标识符
-                                if self.CheckScope(father.children[2].children[-1].symbol_info[1], scope[-1][0]):
-                                    self.errors.append(
-                                        [father.children[2].children[-1].symbol_info[2], father.children[2].children[-1].symbol_info[3],
-                                         "'%s'变量名字已声明" % father.children[2].children[-1].symbol_info[1]])
-                                else:
-                                    self.ArrayTable[father.children[2].children[-1].symbol_info[1]].append(arr)
                     elif father.name == '布尔表达式' or father.name == '布尔项' or father.name == '布尔因子':
                         if len(father.children) == 1:
                             father.value = father.children[0].value
