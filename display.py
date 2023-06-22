@@ -27,7 +27,7 @@ from Analyzer import AnalyzerLex
 from create_DAG import create_DAG, optimize, Partition_Basic_Block, all_basic_optimize
 # REG
 from REG_control import REG_MainWindow
-
+import copy
 
 class DetailUI(Ui_MainWindow, QMainWindow):
     def __init__(self):
@@ -194,50 +194,8 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                 # 将文件系统变化连接到槽函数
                 self.watcher.directoryChanged.connect(self.on_file_recent_changed)
 
-            # 连接itemDoubleClicked信号到槽函数
-            def on_item_clicked(item, column):
-                list_ = self.app_data.value('list')
-                if list_ == '':
-                    QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
-                # 获取双击的项目
-                folder_path = item.data(0, Qt.UserRole)
-                if not os.path.isdir(folder_path):
-                    return
-
-                # 显示目录下的内容
-                sub_items = os.listdir(folder_path)
-                for sub_item in sub_items:
-                    sub_item_path = os.path.join(folder_path, sub_item)
-                    sub_item_name = os.path.basename(sub_item_path)
-                    sub_tree_item = QTreeWidgetItem(item)
-                    sub_tree_item.setText(0, sub_item_name)
-                    sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
-                    # 获取点击的项目
-
-            def on_item_double_clicked(item, column):
-                try:
-                    list_ = self.app_data.value('list')
-                    if list_ == '':
-                        QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
-                    # 获取双击的项目
-                    folder_path = item.parent().data(0, Qt.UserRole)
-                    file_name = item.text(0)
-                    file_path = os.path.join(folder_path, file_name)
-                    if not os.path.isfile(file_path):
-                        return
-
-                    # 获取文件的绝对路径
-                    abs_file_path = os.path.abspath(file_path)
-                    with open(abs_file_path, encoding=self.check_charset(abs_file_path)) as f:
-                        str = f.read()
-                        print(str)
-                        self.textEdit.setText(str)
-                    print(abs_file_path)
-                except Exception as e:
-                    print("Error: ", e)
-
-            self.tree.itemDoubleClicked.connect(on_item_double_clicked)
-            self.tree.itemClicked.connect(on_item_clicked)
+            self.tree.itemDoubleClicked.connect(self.on_item_double_clicked)
+            self.tree.itemClicked.connect(self.on_item_clicked)
 
             # 显示QTreeWidget
             self.tree.setWindowTitle("Recent Folders")
@@ -245,6 +203,60 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             self.tree.show()
         except Exception as e:
             print("Error:", e)
+
+    def on_item_double_clicked(self,item, column):
+        try:
+            list_ = self.app_data.value('list')
+            if list_ == '':
+                QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
+                # 检查双击的节点是否为根节点
+                # 检查双击的节点是否为根节点
+            if item == self.root and item.childCount() == 0:
+                return
+
+            # 获取双击的项目
+            folder_path = item.data(0, Qt.UserRole)
+            if folder_path is None:  # 根节点不处理双击事件
+                return
+
+            file_name = item.text(0)
+            file_path = os.path.join(folder_path, file_name)
+            if not os.path.isfile(file_path):
+                return
+
+            # 获取文件的绝对路径
+            abs_file_path = os.path.abspath(file_path)
+            with open(abs_file_path, encoding=self.check_charset(abs_file_path)) as f:
+                str = f.read()
+                print(str)
+                self.textEdit.setText(str)
+            print(abs_file_path)
+        except Exception as e:
+            print("Error: ", e)
+
+    # 连接itemDoubleClicked信号到槽函数
+    def on_item_clicked(self,item, column):
+        list_ = self.app_data.value('list')
+        if list_ == '':
+            QMessageBox.warning(self, '警告', '没有最近打开的文件夹')
+        # 检查点击的节点是否为根节点,如此在点击"Recent Folders"时便不会崩溃
+        if item == self.root:
+            return
+
+        # 获取双击的项目
+        folder_path = item.data(0, Qt.UserRole)
+        if not os.path.isdir(folder_path):
+            return
+
+        # 显示目录下的内容
+        sub_items = os.listdir(folder_path)
+        for sub_item in sub_items:
+            sub_item_path = os.path.join(folder_path, sub_item)
+            sub_item_name = os.path.basename(sub_item_path)
+            sub_tree_item = QTreeWidgetItem(item)
+            sub_tree_item.setText(0, sub_item_name)
+            sub_tree_item.setData(0, Qt.UserRole, sub_item_path)
+            # 获取点击的项目
 
     def getDir(self, index):  # 获取鼠标指向索引,还可以预览图
         self.FilePath = self.model.filePath(index)  # 获取鼠标点击指定路径
@@ -690,7 +702,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         if len(self.LR.errors) == 0 and len(lex.error) == 0:
                             self.LR.IntermediateCodeGenerator(tokens)
                             getcode = self.LR.code
-                            print(self.LR.code)
                             for i in range(len(getcode)):
                                 s += str(i) + ':' + str(getcode[i]) + '\n'
                             self.textEdit_3.setText(s)
@@ -712,9 +723,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             QMessageBox.warning(self, '警告', '请先生成四元式！')
         else:
             try:
-                print('s',s)
                 codes = self.format_conversion(s)
-                print(999,codes)
                 self.basic_blocks = Partition_Basic_Block(codes)
                 # print('basic_blocks', self.basic_blocks)
                 # 设置图片路径
@@ -730,7 +739,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             except:
                 QMessageBox.warning(self, '警告', '系统错误！')
 
-        # DAG优化
 
     def save_base_block(self):
         s = self.textEdit_3.toPlainText()  # 获取四元式序列
@@ -746,11 +754,13 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             except Exception as e:
                 print('发生了异常：', e)
 
+    # DAG优化
     def DAG_optimization(self):
         if self.split_flag != 1:
             self.Basic_Block()  # 先生成四元式
         try:
-            self.optimize_quaternion = all_basic_optimize(self.basic_blocks)
+            new_basic_blocks = copy.deepcopy(self.basic_blocks)
+            self.optimize_quaternion = all_basic_optimize(new_basic_blocks)
             text = ''
             idx = 0
             for i in self.optimize_quaternion:
@@ -808,7 +818,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                             for j in range(4):
                                 if MiddleCode[i][j] == '':
                                     MiddleCode[i][j] = '_'
-                        print('MiddleCode', MiddleCode)
                         if len(MiddleCode) != 0:
                             self.textEdit_2.setText(
                                 ObjectCode1.solve(function_param_list, function_jubu_list, MiddleCode,
@@ -820,7 +829,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         for i in self.optimize_quaternion:
                             text += str(idx) + ':' + str(i) + '\n'
                             idx += 1
-                        print('self.optimize_quaternion', self.optimize_quaternion)
                         self.textEdit_3.setText(text)
                         self.textEdit_2.setText(
                             ObjectCode1.solve(function_param_list, function_jubu_list, self.optimize_quaternion,
@@ -921,7 +929,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         # 对于每个行字符串，手动将第一个元素转化为一个列表，并去掉第一个元素
         for line in lines:
             if line:
-                l = line.split(':')
+                l = line.split(':',1) # 第一个冒号切分
                 lst = eval(l[1])
                 lst = [elem if elem != '' else '_' for elem in lst]
                 result.append(lst)
