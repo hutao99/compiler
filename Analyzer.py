@@ -364,7 +364,7 @@ class AnalyzerLex:
         self.lexer = lex.lex(module=self)
         self.ty = typefile("种别码.txt")
         self.error = []
-        # self.is_negative_number = False
+        self.is_negative_number = False
 
     states = (
         ('multicomment', 'exclusive'),  # 多行注释
@@ -441,58 +441,98 @@ class AnalyzerLex:
         t.type = 'operator'
         return t
 
+    def t_operator_3(self, t):
+        r'-'
+        if self.find_previous_(self.lexer.lexpos-1):
+            self.is_negative_number = True
+        else:
+            t.type = 'operator'
+            return t
+
     def t_operator_2(self, t):
-        r'[=+/%!.()*><&|]|\[|\]|(?<![=(])-'
+        r'[=+/%!.()*><&|]|\[|\]'
         t.type = 'operator'
         return t
 
     def t_integer_hex(self, t):  # 十六进制
         r'-?0x[0-9a-fA-F][0-9a-fA-F]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         t.type = 'integer'
         return t
 
     def t_integer_hex1(self, t):  # 错误十六进制
         r'-?0x[0-9a-fA-F][0-9a-fA-F]*[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_exponent(self, t):  # 指数
         r'-?\d+\.\d+[Ee]([+\-]\d|\d)\d*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         t.type = 'float'
         return t
 
     def t_exponent1(self, t):  # 错误指数
         r'-?\d+\.\d+[Ee]([+\-]\d|\d)\d*[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_float(self, t):  # 小数
         r'-?\d+\.\d+(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         t.type = 'float'
         return t
 
     def t_float1(self, t):  # 错误小数
         r'-?\d+\.\d+[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_integer(self, t):  # 十进制
         r'(-?[1-9][0-9]*|0)(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         return t
 
     def t_integer_oct(self, t):  # 八进制
         r'-?0[0-7]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         t.type = 'integer'
         return t
 
     def t_integer_oct1(self, t):  # 错误八进制
         r'-?0[0-7]*[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_integer1(self, t):  # 错误十进制
         r'(-?[1-9][0-9]*|0)[^\-+*/%=<>{};,\[\]()\s]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
-    def t_operator_3(self, t):
+    def t_operator_4(self, t):
         r'-'
-        t.type = 'operator'
+        if self.is_negative_number:
+            t.value = '-'+t.value
+            self.is_negative_number = False
         return t
 
     def find_column(self, input, token):  # 列
@@ -519,3 +559,18 @@ class AnalyzerLex:
     # 定义 Token 函数
     def token(self):
         return self.lexer.token()
+
+    def find_previous_(self, start_pos):
+        # 从指定位置 start_pos 开始向前查找，返回第一个不是减号 '-' 的字符的位置
+        if start_pos == 0:
+            return False  # 如果已经在文本开头了，就返回None表示没有找到
+
+        # 使用循环向前查找
+        i = start_pos - 1
+        while i >= 0 and self.lexer.lexdata[i] in ['\n', '\t', '\r', ' ']:
+            i -= 1
+        if i < 0:  #
+            return False
+        elif self.lexer.lexdata[i] == '(' or self.lexer.lexdata[i] == '=':  #
+            return True
+        return False
