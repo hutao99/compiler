@@ -702,6 +702,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         if len(self.LR.errors) == 0 and len(lex.error) == 0:
                             self.LR.IntermediateCodeGenerator(tokens)
                             getcode = self.LR.code
+                            # print(getcode)
                             for i in range(len(getcode)):
                                 s += str(i) + ':' + str(getcode[i]) + '\n'
                             self.textEdit_3.setText(s)

@@ -103,7 +103,7 @@ def is_in_label(DAG, elem):
 
 def is_operator_nodelabel(DAG,elem):
     for e in DAG:
-        if elem in e['node_label'] and not (e['label'][0].isalnum()):#(%|temp) 左边是运算符
+        if elem in e['node_label'] and not (e['label'][0].isdigit()):#(%|temp) 左边是运算符
             return True
     return False
 
@@ -288,9 +288,12 @@ def link(DAG, father, son = None, left = None, right = None):
 
 
 def optimize(DAG_node):
+    global T_flag
+    T_flag = []  # 根据后面a[T0] 先判断是否生成T0的四元式 再生成a[T0]的四元式
     # print('DAG_node:',DAG_node)
     global Active_variable
     # print('Active_variable:',Active_variable)
+    T_quaternion = {} # a[T0]对应的四元式
     id = 1
     for e in DAG_node:
         new_label = [] # 记录活跃变量
@@ -311,17 +314,45 @@ def optimize(DAG_node):
             son = DAG_node[e['son'][0]]
             la = (e['label'], son['label'], '_', e['node_label'][0] ) if not son['node_label'] \
                                                                        or isleaf(son) else (e['label'], son['node_label'][0], '_', e['node_label'][0] )
-            code.append(la)
+            temp = e['node_label'][0]
+            if temp[0] == 'T': #如果是T变量
+                if temp not in T_flag:
+                    T_flag.append(temp)
+                code.append(la)
+                if temp in T_quaternion:
+                    code.append(T_quaternion[temp])
+                    del T_quaternion[temp] #从字典中删除
+            else:
+                code.append(la)
         elif 'left' in e and 'right' in e:
             left = DAG_node[e['left']]
             right = DAG_node[e['right']]
             fun1 = left['label'] if not left['node_label'] or isleaf(left) else left['node_label'][0]
             fun2 = right['label'] if not right['node_label'] or isleaf(right) else right['node_label'][0]
-            code.append((e['label'], fun1, fun2, e['node_label'][0]))
+            temp = e['node_label'][0]
+            if temp[0] == 'T':  # 如果是T变量
+                code.append((e['label'], fun1, fun2, e['node_label'][0]))
+                if temp not in T_flag:
+                    T_flag.append(temp)
+                if temp in T_quaternion:
+                    code.append(T_quaternion[temp])
+                    del T_quaternion[temp]  # 从字典中删除
+            else:
+                code.append((e['label'], fun1, fun2, e['node_label'][0]))
         elif len(e['node_label']) >= 1:
             for i in e['node_label']:
                 if i in Active_variable:
-                    code.append(('=', e['label'], '_', i))
+                    if '[' in i: #对数组变量做处理 a[T0]
+                        t_index = i.find('T')
+                        if t_index != -1:
+                            num_str = i[t_index + 1:-1]
+                        ss = 'T'+str(num_str)
+                        if ss in T_flag:
+                            code.append(('=', e['label'], '_', i))
+                        else:
+                            T_quaternion[ss] = ('=', e['label'], '_', i)
+                    else: #不是数组变量
+                        code.append(('=', e['label'], '_', i))
     # print('code:',code)
     return code
 
@@ -464,7 +495,8 @@ def test1():#基本块内优化
 def test2(): # 将程序划分为基本块，得到DAG优化代码
     global Active_variable
     # codes =[('=', '3', '_', 'T0'), ('*', '2', 'T0', 'T1'), ('+', 'R', 'r', 'T2'), ('*', 'T1', 'T2', 'A'), ('=', 'A', '_', 'B'), ('*', '2', 'T0', 'T3'), ('+', 'R', 'r', 'T4'), ('*', 'T3', 'T4', 'T5'), ('-', 'R', 'r', 'T6'), ('*', 'T5', 'T6', 'B'),('j', '', '', 11),('+', 'A', 'B', 'T1'), ('-', 'A', 'B', 'T2'), ('*', 'T1', 'T2', 'F'), ('-', 'A', 'B', 'T1'), ('-', 'A', 'C', 'T2'), ('-', 'B', 'C', 'T3'), ('*', 'T1', 'T2', 'T1'), ('*', 'T1', 'T3', 'G')]
-    codes = [['main', '_', '_', '_'], ['=', '0', '_', 'sum'], ['*', '0', '3', 'T0'], ['+', 'T0', '0', 'T1'], ['=', '80', '_', 'a[T1]'], ['*', '0', '3', 'T2'], ['+', 'T2', '1', 'T3'], ['=', '75', '_', 'a[T3]'], ['*', '0', '3', 'T4'], ['+', 'T4', '2', 'T5'], ['=', '92', '_', 'a[T5]'], ['*', '1', '3', 'T6'], ['+', 'T6', '0', 'T7'], ['=', '61', '_', 'a[T7]'], ['*', '1', '3', 'T8'], ['+', 'T8', '1', 'T9'], ['=', '65', '_', 'a[T9]'], ['*', '1', '3', 'T10'], ['+', 'T10', '2', 'T11'], ['=', '71', '_', 'a[T11]'], ['*', '2', '3', 'T12'], ['+', 'T12', '0', 'T13'], ['=', '59', '_', 'a[T13]'], ['*', '2', '3', 'T14'], ['+', 'T14', '1', 'T15'], ['=', '63', '_', 'a[T15]'], ['*', '2', '3', 'T16'], ['+', 'T16', '2', 'T17'], ['=', '70', '_', 'a[T17]'], ['*', '3', '3', 'T18'], ['+', 'T18', '0', 'T19'], ['=', '85', '_', 'a[T19]'], ['*', '3', '3', 'T20'], ['+', 'T20', '1', 'T21'], ['=', '87', '_', 'a[T21]'], ['*', '3', '3', 'T22'], ['+', 'T22', '2', 'T23'], ['=', '90', '_', 'a[T23]'], ['*', '4', '3', 'T24'], ['+', 'T24', '0', 'T25'], ['=', '76', '_', 'a[T25]'], ['*', '4', '3', 'T26'], ['+', 'T26', '1', 'T27'], ['=', '77', '_', 'a[T27]'], ['*', '4', '3', 'T28'], ['+', 'T28', '2', 'T29'], ['=', '85', '_', 'a[T29]'], ['=', '0', '_', 'i']]
+    codes = [['main', '', '', ''], ['=', '0', '', 'sum'], ['*', '0', '3', 'T0'], ['+', 'T0', '0', 'T1'], ['=', '80', '', 'a[T1]'], ['*', '0', '3', 'T2'], ['+', 'T2', '1', 'T3'], ['=', '75', '', 'a[T3]'], ['*', '0', '3', 'T4'], ['+', 'T4', '2', 'T5'], ['=', '92', '', 'a[T5]'], ['*', '1', '3', 'T6'], ['+', 'T6', '0', 'T7'], ['=', '61', '', 'a[T7]'], ['*', '1', '3', 'T8'], ['+', 'T8', '1', 'T9'], ['=', '65', '', 'a[T9]'], ['*', '1', '3', 'T10'], ['+', 'T10', '2', 'T11'], ['=', '71', '', 'a[T11]'], ['*', '2', '3', 'T12'], ['+', 'T12', '0', 'T13'], ['=', '59', '', 'a[T13]'], ['*', '2', '3', 'T14'], ['+', 'T14', '1', 'T15'], ['=', '63', '', 'a[T15]'], ['*', '2', '3', 'T16'], ['+', 'T16', '2', 'T17'], ['=', '70', '', 'a[T17]'], ['*', '3', '3', 'T18'], ['+', 'T18', '0', 'T19'], ['=', '85', '', 'a[T19]'], ['*', '3', '3', 'T20'], ['+', 'T20', '1', 'T21'], ['=', '87', '', 'a[T21]'], ['*', '3', '3', 'T22'], ['+', 'T22', '2', 'T23'], ['=', '90', '', 'a[T23]'], ['*', '4', '3', 'T24'], ['+', 'T24', '0', 'T25'], ['=', '76', '', 'a[T25]'], ['*', '4', '3', 'T26'], ['+', 'T26', '1', 'T27'], ['=', '77', '', 'a[T27]'], ['*', '4', '3', 'T28'], ['+', 'T28', '2', 'T29'], ['=', '85', '', 'a[T29]'], ['=', '0', '', 'i'], ['j<', 'i', '3', 50], ['j', '', '', 66], ['=', '0', '', 'j'], ['j<', 'j', '5', 53], ['j', '', '', 60], ['*', 'j', '3', 'T32'], ['+', 'T32', 'i', 'T33'], ['+', 'sum', 'a[T33]', 'T34'], ['=', 'T34', '', 'sum'], ['+', 'j', '1', 'T31'], ['=', 'T31', '', 'j'], ['j', '', '', 51], ['/', 'sum', '5', 'T35'], ['=', 'T35', '', 'v[i]'], ['=', '0', '', 'sum'], ['+', 'i', '1', 'T30'], ['=', 'T30', '', 'i'], ['j', '', '', 48], ['+', 'v[0]', 'v[1]', 'T36'], ['+', 'T36', 'v[2]', 'T37'], ['/', 'T37', '3', 'T38'], ['=', 'T38', '', 'average'], ['para', '"math:    language:      C programming"', '', ''], ['call', 'write', '', ''], ['para', 'v[0]', '', ''], ['call', 'write', '', ''], ['para', 'v[1]', '', ''], ['call', 'write', '', ''], ['para', 'v[2]', '', ''], ['call', 'write', '', ''], ['para', '"total average:"', '', ''], ['call', 'write', '', ''], ['para', 'average', '', ''], ['call', 'write', '', ''], ['sys', '', '', '']]
+
     # cc = []
     # for i in codes:
     #     cc.append(i[1:])
