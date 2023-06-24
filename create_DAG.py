@@ -101,6 +101,12 @@ def is_in_label(DAG, elem):
             return True
     return False
 
+def is_operator_nodelabel(DAG,elem):
+    for e in DAG:
+        if elem in e['node_label'] and not (e['label'][0].isalnum()):#(%|temp) 左边是运算符
+            return True
+    return False
+
 # 将字符串转换为对应类型的数字
 def determine_number_type(string):
     if string.isdigit():
@@ -203,8 +209,9 @@ def create_DAG(codes: list): # start
                 pass
             if not is_in_DAG(DAG, code[1]):# code[1]不在DAG
                 DAG.append({'label': code[1], 'node_label': [code[3]]})
-            elif code[1] in Active_variable and not is_in_label(DAG,code[1]): # 如果code【1】是活跃变量 且在DAG 且不在DAG label中
+            elif code[1] in Active_variable and not is_in_label(DAG,code[1]) and is_operator_nodelabel(DAG,code[1]): # 如果code【1】是活跃变量 且在DAG 且不在DAG label中
                 DAG.append({'label': code[1], 'node_label': [code[3]]})
+            # a = 1;b = 2;c = a;a = b;b = c;
             else:# 如果不为活跃变量 或为活跃变量 且在DAGlabel中
                 append_node_label(DAG, code[1], code[3])
         elif code[0] == '@' or (code[0] == '-' and  (code[2] == '' or code[2] == '_')): # x = @ y
