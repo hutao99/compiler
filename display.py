@@ -183,7 +183,6 @@ class DetailUI(Ui_MainWindow, QMainWindow):
             recent_folders = list_
             if recent_folders:
                 for folder in recent_folders:
-                    print(folder)
                     if folder is None:
                         continue
                     item = QTreeWidgetItem(self.root)
