@@ -418,10 +418,12 @@ class LexicalAnalysis():
                     state = 1
                     pre = ch
                     self.idx += 1
+                # 是负号
                 elif ch == '-' and self.previous in self.fu_flag:
                     state = 8
                     pre = ch
                     self.idx += 1
+                # 是减号
                 elif ch == '-' and self.previous not in self.fu_flag:
                     state = 1
                     pre = ch
@@ -429,7 +431,7 @@ class LexicalAnalysis():
             elif state == 1:
                 if pre == '=' and ch == '-':
                     self.save_word(start, pre)
-                    start=self.idx
+                    start = self.idx
                     state = 8
                     self.idx += 1
                 elif ch == '=':
@@ -479,8 +481,11 @@ class LexicalAnalysis():
                 if ch.isdigit():
                     state = 8
                     self.idx += 1
-                else:
+                elif ch not in self.fu_flag and not ch.isalpha():
                     self.save_word(start, "负数")
+                    return
+                elif ch in self.fu_flag or ch.isalpha():
+                    self.save_word(start, "-")
                     return
             self.previous = ch
 
