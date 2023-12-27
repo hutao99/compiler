@@ -1118,6 +1118,12 @@ class CLRParser:
                         elif len(father.children) == 1:
                             father.value = father.children[0].symbol_info[1]
                         elif len(father.children) == 4:
+                            print('lllllllllll')
+                            print(father.children[-3].value)
+                            if '[' in father.children[-3].value:
+                                self.code.append(['=', father.children[-3].value, '', 'T' + str(count)])
+                                father.children[-3].value = 'T' + str(count)
+                                count += 1
                             father.value = father.children[-1].symbol_info[1]+'['+father.children[-3].value+']'
                         else:
                             col = 0
