@@ -683,40 +683,38 @@ class DetailUI(Ui_MainWindow, QMainWindow):
                         idx += 1
                     self.textEdit_3.setText(text)
             else:  # LR中间代码
-                # try:
-                text = self.textEdit.toPlainText()
-                if len(text) != 0:
-                    lex = AnalyzerLex()
-                    lex.input(text)
-                    tokens = []
-                    while True:
-                        tok = lex.token()
-                        if not tok:
-                            break
-                        # print(tok.type)
-                        # ptint(tok.value)
-                        tokens.append([tok.type, tok.value, tok.lineno,
-                                       lex.find_column(tok.lexer.lexdata, tok)])
-                    tokens.append(['keyword', '#'])
-                    self.LR.ControlProgram(tokens)
-                    s = ''
-                    if len(self.LR.errors) == 0 and len(lex.error) == 0:
-                        self.LR.IntermediateCodeGenerator(tokens)
-                        getcode = self.LR.code
-                        # print(getcode)
-                        for i in range(len(getcode)):
-                            s += str(i) + ':' + str(getcode[i]) + '\n'
-                        self.textEdit_3.setText(s)
-                    else:
-                        errors = []
-                        errors.extend(lex.error)
-                        errors.extend(self.LR.errors)
-                        errors = sorted(errors, key=lambda x: (x[0], x[1]))
-                        for i in errors:
-                            s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
-                        self.textEdit_2.setText(s)
-                #except Exception as e:
-                #    QMessageBox.warning(self, '警告', '系统无法处理！')
+                try:
+                    text = self.textEdit.toPlainText()
+                    if len(text) != 0:
+                        lex = AnalyzerLex()
+                        lex.input(text)
+                        tokens = []
+                        while True:
+                            tok = lex.token()
+                            if not tok:
+                                break
+                            tokens.append([tok.type, tok.value, tok.lineno,
+                                           lex.find_column(tok.lexer.lexdata, tok)])
+                        tokens.append(['keyword', '#'])
+                        self.LR.ControlProgram(tokens)
+                        s = ''
+                        if len(self.LR.errors) == 0 and len(lex.error) == 0:
+                            self.LR.IntermediateCodeGenerator(tokens)
+                            getcode = self.LR.code
+                            # print(getcode)
+                            for i in range(len(getcode)):
+                                s += str(i) + ':' + str(getcode[i]) + '\n'
+                            self.textEdit_3.setText(s)
+                        else:
+                            errors = []
+                            errors.extend(lex.error)
+                            errors.extend(self.LR.errors)
+                            errors = sorted(errors, key=lambda x: (x[0], x[1]))
+                            for i in errors:
+                                s += ("行:{:<5}列:{:<5}error:{:<20}\n".format(i[0], i[1], i[2])) + '\n'
+                            self.textEdit_2.setText(s)
+                except Exception as e:
+                    QMessageBox.warning(self, '警告', '系统无法处理！')
 
     # 基本块划分
     def Basic_Block(self):
