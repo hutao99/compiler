@@ -4,6 +4,7 @@ from Analyzer import AnalyzerLex
 from anytree import Node as AnyTreeNode, RenderTree
 # 此LR0只用于自定义语法分析，不带有语义分析、错误修复以及中间代码生成
 
+
 class Node(AnyTreeNode):
     def __init__(self, value, symbol_info=None, **kwargs):
         super().__init__(value, **kwargs)
@@ -22,7 +23,7 @@ class CLRParser:
         self.Formula = None
         # 文法开始符号
         self.begin = ''
-        # 规约式,也是产生式
+        # 归约式,也是产生式
         self.reduction = []
         # 分析表
         self.parsing_table = dict()
@@ -57,6 +58,20 @@ class CLRParser:
             terminal.update(self.follow[i])
         terminal.discard('ε')
         terminal = list(terminal)
+        # 用于归约式编号的字典
+        reduction = dict()
+        number = 1
+        reduction[self.begin+"'"+ ':' + self.begin] = 0
+        for key, value in self.Formula.items():
+            print(key)
+            print(value)
+            for g in value.split('|'):
+                word = [k for k in g.split(' ') if k != '']
+                if word == ['ε']:
+                    word = []
+                if key + ':' + " ".join(word) not in reduction:
+                    reduction[key + ':' + " ".join(word)] = number
+                    number += 1
         self.Formula[self.begin+"'"] = self.begin
         state = []
         # I0包含的产生式
@@ -74,8 +89,7 @@ class CLRParser:
         prod_state[self.begin+"'"+'→'+"".join(['.', self.begin])] = label
         id0.append(label)
         label += 1
-        # 用于规约式编号的字典
-        reduction = dict()
+
         while len(stack) > 0:  # 将所有终结符处理完毕
             h = stack.pop(0)
             prod = self.Formula[h[0]]
@@ -107,7 +121,7 @@ class CLRParser:
         father = 0
         # 记录状态指向
         direction = []
-        number = 0
+        # number = 0
         # 记录规约表
         reduction_table = []
         while len(state) > 0:
@@ -123,9 +137,10 @@ class CLRParser:
                     if len(status) != 1:
                         is_LR = False
                     self.Final_State.add(father)
-                    if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
-                        reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
-                        number += 1
+                    # if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
+                        # print(i[0] + ':' + ' '.join(i[1][:-1]))
+                    #    reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
+                    #    number += 1
                     if i[0] + ':' + ' '.join(i[1][:-1]) == self.begin + "'" + ":" + self.Formula[self.begin + "'"]:
                         reduction_table.append([father, '#', reduction[i[0] + ':' + ' '.join(i[1][:-1])]])
                     else:
