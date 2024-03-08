@@ -955,6 +955,7 @@ class CLRParser:
                                 self.errors.append(
                                     [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
                                      "'%s'变量未声明" % father.children[-1].symbol_info[1]])
+                                print("adadad")
                             elif self.IsConst(father.children[-1].symbol_info[1], scope[-1][0]):
                                 self.errors.append(
                                     [father.children[-1].symbol_info[2], father.children[-1].symbol_info[3],
@@ -1118,7 +1119,6 @@ class CLRParser:
                         elif len(father.children) == 1:
                             father.value = father.children[0].symbol_info[1]
                         elif len(father.children) == 4:
-                            print('lllllllllll')
                             print(father.children[-3].value)
                             if '[' in father.children[-3].value:
                                 self.code.append(['=', father.children[-3].value, '', 'T' + str(count)])
@@ -1163,7 +1163,10 @@ class CLRParser:
                         if len(father.children) == 1:
                             father.value = father.children[0].value
                         elif len(father.children) == 2 and is_number(father.children[0].value):
-                            father.value = '-'+father.children[0].value
+                            if father.children[0].value[0] =='-':
+                                father.value = father.children[0].value[1:]
+                            else:
+                                father.value = '-'+father.children[0].value
                         elif len(father.children) == 2:
                             v1 = self.getvalue(father.children[0].name, scope[-1][0])
                             if v1 is None:
@@ -1349,7 +1352,7 @@ class CLRParser:
                                 father.value[i][1].append(0)
                             # a_list_count += 1
                         else:
-                            print('ttt')
+                            # print('ttt')
                             print(father.children[-1].value)
                             print(father.children[0].value)
                             for i in range(len(father.children[0].value)):
@@ -1406,7 +1409,7 @@ class CLRParser:
                             print(len(father.children))
                             # print(father.children[-3].name)
                             if len(father.children) >= 3 and father.children[2].name == '数组':
-                                print('ssssssssssssss')
+                                # print('ssssssssssssss')
                                 dimension = 1
                                 dimension_list = []
                                 if len(father.children[2].children) == 4:
