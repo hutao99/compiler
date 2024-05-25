@@ -388,17 +388,29 @@ class Suanfufirst:
 
 
     def solve(self,count,placeid,ana_str,digit_str):#四元式编号 T变量编号 格式化字符串 数字字符串
+            for i in range(len(ana_str) - 1):
+                if ana_str[i] == '(' and ana_str[i + 1] == '-':
+                    ana_str[i + 1] = '@'
             if ana_str[0] == '-':
                 ana_str[0] = '@'
-            # print("分析：",ana_str,digit_str)
+            print(ana_str)
+            print("分析：",ana_str,digit_str)
             return self.master(count,placeid,ana_str, self.num,self.gra,digit_str)
 
+# 正确的案例
 # ss = Suanfufirst()
 # ana_str = " - a + a or a"
 # digit_str = ['a','1','1','4','5','2','b','c','8','9','2','b','c','8','9']
 # ana_str = ana_str.split()
 # print('ana_str',ana_str)
 # print(ss.solve(0,0,ana_str,digit_str))# count t 字符串列表 数字列表
-# print(ana_str)
 
 # [[[0, '@', 'a', '_', 'T0'], [1, '+', 'T0', '1', 'T1'], [2, '||', 'T1', '1', 'T2']], 3, 3]
+# 问题排查 改正
+# ss = Suanfufirst()
+# ana_str = " a + a * ( - a )"
+# digit_str = ['b','c','d']
+# ana_str = ana_str.split()
+# print('ana_str',ana_str)
+# print(ss.solve(0,0,ana_str,digit_str))# count t 字符串列表 数字列表
+
