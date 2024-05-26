@@ -30,7 +30,7 @@ class CLRParser:
         self.node = None
         # 分析表_中间代码
         self.parsing_table1 = None
-        # 规约式_中间代码
+        # 归约式_中间代码
         self.reduction1 = None
         # 终结状态
         self.Final_State = set()
@@ -68,8 +68,20 @@ class CLRParser:
         prod_state[self.begin+"'"+'→'+"".join(['.', self.begin])+' '+'#'] = label
         id0.append(label)
         label += 1
-        # 用于规约式编号的字典
+        # 用于归约式编号的字典
         reduction = dict()
+        number = 1
+        reduction[self.begin + "'" + ':' + self.begin] = 0
+        for key, value in self.Formula.items():
+            print(key)
+            print(value)
+            for g in value.split('|'):
+                word = [k for k in g.split(' ') if k != '']
+                if word == ['ε']:
+                    word = []
+                if key + ':' + " ".join(word) not in reduction:
+                    reduction[key + ':' + " ".join(word)] = number
+                    number += 1
         while len(stack) > 0:  # 将所有终结符处理完毕
             h = stack.pop(0)
             prod = self.Formula[h[0]]
@@ -128,7 +140,7 @@ class CLRParser:
         father = 0
         # 记录状态指向
         direction = []
-        number = 0
+        # number = 0
         # 记录规约表
         reduction_table = []
         while len(state) > 0:
@@ -142,9 +154,10 @@ class CLRParser:
                 idx = i[1].index('.')
                 if idx+1 == len(i[1]):  # 可规约
                     self.Final_State.add(father)
-                    if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
-                        reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
-                        number += 1
+                    # if i[0] + ':' + ' '.join(i[1][:-1]) not in reduction:
+                    #     print(i[0] + ':' + ' '.join(i[1][:-1]))
+                    #     reduction[i[0] + ':' + ' '.join(i[1][:-1])] = number
+                    #     number += 1
                     for q in i[2]:
                         reduction_table.append([father, q, reduction[i[0] + ':' + ' '.join(i[1][:-1])]])
                     continue

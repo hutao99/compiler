@@ -936,7 +936,7 @@ class DetailUI(Ui_MainWindow, QMainWindow):
         return result
 
     def searchHelp(self):
-        webbrowser.open('编译器_final.chm')
+        webbrowser.open('编译器帮助文档.chm')
 
     def show_copyright(self):
         msg_box = QMessageBox()

@@ -1,4 +1,4 @@
-//do whileè¯­å¥æµ‹è¯•ï¼Œæ±‚1åˆ°10çš„æ•°å­—ä¹‹å’Œ
+//do whileÓï¾ä²âÊÔ£¬Çó1µ½10µÄÊı×ÖÖ®ºÍ
 main(){
   int x;
   int sum = 0;
@@ -7,7 +7,7 @@ main(){
  do {
       sum = sum + x;
       x = x + 1;
-     } while (x <= 10)ï¼›
+     } while (x <= 10);
   write(x);
   write(sum);
 }

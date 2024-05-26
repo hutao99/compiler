@@ -443,7 +443,7 @@ class AnalyzerLex:
 
     def t_operator_3(self, t):
         r'-'
-        if self.find_previous_(self.lexer.lexpos-1):
+        if self.find_previous_(self.lexer.lexpos-1) and self.lexer.lexdata[self.lexer.lexpos].isdigit():
             self.is_negative_number = True
         else:
             t.type = 'operator'
@@ -455,7 +455,7 @@ class AnalyzerLex:
         return t
 
     def t_integer_hex(self, t):  # 十六进制
-        r'-?0x[0-9a-fA-F][0-9a-fA-F]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        r'-?0x[0-9a-fA-F][0-9a-fA-F]*(?=[\-+*/%=<>{};,&|!\[\]()\s])'
         if self.is_negative_number:
             t.value = '-'+t.value
             self.is_negative_number = False
@@ -470,7 +470,7 @@ class AnalyzerLex:
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_exponent(self, t):  # 指数
-        r'-?\d+\.\d+[Ee]([+\-]\d|\d)\d*(?=[\-+*/%=<>{};,\[\]()\s])'
+        r'-?\d+\.\d+[Ee]([+\-]\d|\d)\d*(?=[\-+*/%=<>{};,&|!\[\]()\s])'
         if self.is_negative_number:
             t.value = '-'+t.value
             self.is_negative_number = False
@@ -485,7 +485,7 @@ class AnalyzerLex:
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_float(self, t):  # 小数
-        r'-?\d+\.\d+(?=[\-+*/%=<>{};,\[\]()\s])'
+        r'-?\d+\.\d+(?=[\-+*/%=<>{};,&|!\[\]()\s])'
         if self.is_negative_number:
             t.value = '-'+t.value
             self.is_negative_number = False
@@ -500,14 +500,14 @@ class AnalyzerLex:
         self.error.append([t.lexer.lineno, self.find_column(t.lexer.lexdata, t), t.value])
 
     def t_integer(self, t):  # 十进制
-        r'(-?[1-9][0-9]*|0)(?=[\-+*/%=<>{};,\[\]()\s])'
+        r'(-?[1-9][0-9]*|0)(?=[\-+*/%=<>{};,&|!\[\]()\s])'
         if self.is_negative_number:
             t.value = '-'+t.value
             self.is_negative_number = False
         return t
 
     def t_integer_oct(self, t):  # 八进制
-        r'-?0[0-7]*(?=[\-+*/%=<>{};,\[\]()\s])'
+        r'-?0[0-7]*(?=[\-+*/%=<>{};,&|!\[\]()\s])'
         if self.is_negative_number:
             t.value = '-'+t.value
             self.is_negative_number = False
