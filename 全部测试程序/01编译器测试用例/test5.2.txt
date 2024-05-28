@@ -5,8 +5,8 @@ main()
    int m,k,result;
    m = read();
    k = read();
-   result = comp(m,k);
-   write(result);
+   if(m>k) result = comp(m,k);
+   else result=1;
 }
 
 int comp(int n,int i) {

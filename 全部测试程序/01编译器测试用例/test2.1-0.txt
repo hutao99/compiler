@@ -1,0 +1,9 @@
+//这是if嵌套if，布尔和关系运算混合，书上的例题
+main() {
+   int A, B, C, D,F,G;
+   if(A && B && (C>D))
+       if(A<B) F=1;
+   else
+      F=0;
+    else G=G+1;
+}

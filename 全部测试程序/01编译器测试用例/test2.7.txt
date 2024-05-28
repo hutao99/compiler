@@ -15,7 +15,7 @@ main()
   }
   else if(choice == 2){
       i=0;
-      while(i<N){
+      while(i<=N){
       sum = sum + i;
       i = i + 2;
      }

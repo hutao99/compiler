@@ -1,0 +1,8 @@
+//这是书上for语句的例子
+main()
+{
+int a,b,c,d,i,h,g,p;
+for (i =a+b*2; i<c+d+10; i= i+1)
+if (h>g)
+     p=p+1;
+}

@@ -1,0 +1,21 @@
+//求6~1000之间的合数，合数为其所有因子相加等于其本身
+main()
+{
+	int i,k,sum;
+	for(i=6;i<1000;i=i+1)
+	{
+		sum = 0;
+		for(k=1;k<i;k=k+1)
+		{
+			if(i%k==0)
+			{
+				sum=sum+k;
+			}
+		}
+		if(i==sum)
+		{
+			write(i);
+		}
+		
+	}
+}
